@@ -12,6 +12,8 @@ export interface PortInfo {
   pid: number;
   process: string;
   tag?: string;
+  /** 进程的工作目录（从 /proc/<pid>/cwd），可能为空（无权限/进程已退出） */
+  cwd?: string;
 }
 
 export interface SystemdService {
@@ -109,6 +111,7 @@ export class ServiceInspectorService {
             pid: parseInt(match[3], 10),
             process: match[2],
             tag: BOARD_PORT_TAGS[port],
+            cwd: this.readProcCwd(parseInt(match[3], 10)),
           });
         }
       }
@@ -208,6 +211,15 @@ export class ServiceInspectorService {
       files.add(m[1]);
     }
     return Array.from(files);
+  }
+
+  /** 读取 /proc/<pid>/cwd，失败返回 undefined。 */
+  private readProcCwd(pid: number): string | undefined {
+    try {
+      return fs.readlinkSync(`/proc/${pid}/cwd`);
+    } catch {
+      return undefined;
+    }
   }
 
   /** 只读查看 /etc/nginx 下的单个配置文件。路径白名单，防越权。 */

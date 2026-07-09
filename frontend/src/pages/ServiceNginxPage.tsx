@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Server, Wifi, Container, Globe, AlertCircle, Loader } from 'lucide-react';
 import axiosInstance from '../utils/axiosInstance';
+import { useSessions } from '../hooks/useSessions';
 import { cn } from '../utils';
 
 interface ProbeResult<T> {
@@ -18,7 +19,7 @@ interface ServiceSnapshot {
 }
 
 interface PortInfo {
-  port: number; protocol: string; pid: number; process: string; tag?: string;
+  port: number; protocol: string; pid: number; process: string; tag?: string; cwd?: string;
 }
 interface SystemdService {
   name: string; status: string; startedAt: string | null;
@@ -63,6 +64,31 @@ export const ServiceNginxPage: React.FC = () => {
   const [snapshot, setSnapshot] = useState<ServiceSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { sessions } = useSessions();
+
+  // 从已有会话构建「工作目录 → 项目名」映射，用于端口→项目关联
+  const projectMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const s of sessions) {
+      const dir = s.workingDir?.trim();
+      if (dir && !map.has(dir)) {
+        map.set(dir, dir.split('/').filter(Boolean).pop() || dir);
+      }
+    }
+    return map;
+  }, [sessions]);
+
+  /** 根据端口 cwd 匹配已知项目名，找不到返回 null */
+  const matchProject = (cwd?: string): string | null => {
+    if (!cwd) return null;
+    // 精确匹配
+    if (projectMap.has(cwd)) return projectMap.get(cwd)!;
+    // 前缀匹配（子目录也属于该项目）
+    for (const [dir, name] of projectMap) {
+      if (cwd.startsWith(dir + '/')) return name;
+    }
+    return null;
+  };
 
   const fetchSnapshot = async () => {
     setLoading(true);
@@ -127,28 +153,45 @@ export const ServiceNginxPage: React.FC = () => {
                   <th className="text-left">协议</th>
                   <th className="text-left">PID</th>
                   <th className="text-left">进程</th>
+                  <th className="text-left">项目</th>
                   <th className="text-left">说明</th>
                 </tr>
               </thead>
               <tbody>
-                {s.ports.data.map(p => (
-                  <tr key={`${p.port}:${p.protocol}`} className={cn(
-                    'border-b border-gray-50',
-                    p.tag && 'bg-blue-50/50'
-                  )}>
-                    <td className="py-1.5 font-mono font-semibold">{p.port}</td>
-                    <td className="text-gray-500">{p.protocol}</td>
-                    <td className="font-mono text-gray-500">{p.pid}</td>
-                    <td className="text-gray-700">{p.process}</td>
-                    <td>
-                      {p.tag && (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
-                          {BOARD_TAGS[p.tag] || p.tag}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {s.ports.data.map(p => {
+                  const project = matchProject(p.cwd);
+                  return (
+                    <tr key={`${p.port}:${p.protocol}`} className={cn(
+                      'border-b border-gray-50',
+                      p.tag && 'bg-blue-50/50'
+                    )}>
+                      <td className="py-1.5 font-mono font-semibold">{p.port}</td>
+                      <td className="text-gray-500">{p.protocol}</td>
+                      <td className="font-mono text-gray-500">{p.pid}</td>
+                      <td className="text-gray-700">{p.process}</td>
+                      <td>
+                        {project ? (
+                          <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded" title={p.cwd}>
+                            {project}
+                          </span>
+                        ) : p.cwd ? (
+                          <span className="text-xs text-gray-400" title={p.cwd}>
+                            {p.cwd.split('/').filter(Boolean).pop()}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
+                      </td>
+                      <td>
+                        {p.tag && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                            {BOARD_TAGS[p.tag] || p.tag}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (
