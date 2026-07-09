@@ -169,8 +169,11 @@ export const SessionList: React.FC<SessionListProps> = ({ onCreateSession }) => 
     setImporting(true);
     const tid = toast.loading("正在导入历史会话...");
     try {
-      const { imported, skipped, errors } = await importHistory();
-      toast.success(`导入完成：新增 ${imported}，跳过 ${skipped}${errors ? `，错误 ${errors}` : ""}`, { id: tid });
+      const { imported, backfilled, skipped, messagesImported, errors } = await importHistory();
+      toast.success(
+        `导入完成：新增 ${imported} / 补导 ${backfilled} / 跳过 ${skipped}，消息 ${messagesImported} 条${errors ? `，错误 ${errors}` : ""}`,
+        { id: tid }
+      );
     } catch (e) {
       toast.error("导入历史会话失败", { id: tid });
     } finally {

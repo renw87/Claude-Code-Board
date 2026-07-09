@@ -11,7 +11,7 @@ interface SessionsContextValue {
   error: string | null;
   loadSessions: () => Promise<void>;
   createSession: (request: CreateSessionRequest) => Promise<Session>;
-  importHistory: () => Promise<{ imported: number; skipped: number; errors: number }>;
+  importHistory: () => Promise<{ imported: number; backfilled: number; skipped: number; messagesImported: number; errors: number }>;
   completeSession: (sessionId: string) => Promise<Session>;
   interruptSession: (sessionId: string) => Promise<Session>;
   resumeSession: (sessionId: string) => Promise<Session>;
@@ -77,7 +77,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setError(null);
       const summary = await sessionApi.importHistory();
       await loadSessions();
-      return { imported: summary.imported, skipped: summary.skipped, errors: summary.errors.length };
+      return { imported: summary.imported, backfilled: summary.backfilled, skipped: summary.skipped, messagesImported: summary.messagesImported, errors: summary.errors.length };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to import history';
       setError(errorMessage);
