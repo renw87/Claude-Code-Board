@@ -143,3 +143,11 @@ test.html
 *.tsbuildinfo
 
 docker/
+project-meta.json
+.codegraph/
+
+# 本地环境与进程配置（含密钥/本地路径，不提交）
+.env
+.env.dev
+ecosystem.config.cjs
+logs/
