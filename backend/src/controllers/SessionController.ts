@@ -30,6 +30,15 @@ export class SessionController {
       next(error);
     }
   }
+
+  async importHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const summary = await this.sessionService.importHistory();
+      res.json(summary);
+    } catch (error) {
+      next(error);
+    }
+  }
   
   async getSession(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

@@ -7,6 +7,8 @@ const sessionController = new SessionController();
 // Session management routes
 router.post('/', sessionController.createSession.bind(sessionController));
 router.get('/', sessionController.listSessions.bind(sessionController));
+// History import (must be before /:sessionId routes)
+router.post('/import-history', sessionController.importHistory.bind(sessionController));
 router.get('/:sessionId', sessionController.getSession.bind(sessionController));
 router.post('/:sessionId/complete', sessionController.completeSession.bind(sessionController));
 router.delete('/:sessionId', sessionController.deleteSession.bind(sessionController));

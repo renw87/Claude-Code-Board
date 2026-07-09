@@ -7,11 +7,13 @@ import { logger } from "../utils/logger";
 import { getEnvConfig } from "../config/env.config";
 import { agentPromptService } from "./AgentPromptService";
 import { ProcessManager } from "./ProcessManager";
+import { HistoryImportService, HistoryImportSummary } from "./HistoryImportService";
 
 export class SessionService {
   private processManager: ProcessManager;
   private sessionRepository: SessionRepository;
   private messageRepository: MessageRepository;
+  private historyImportService: HistoryImportService;
 
   constructor(processManager?: ProcessManager) {
     // 使用传入的 ProcessManager 实例，或者创建新的（向后兼容）
@@ -27,6 +29,15 @@ export class SessionService {
 
     this.sessionRepository = new SessionRepository();
     this.messageRepository = new MessageRepository();
+    this.historyImportService = new HistoryImportService();
+  }
+
+  /**
+   * 只读导入 ~/.claude/projects/ 下的历史会话元数据到 Board 自己的库。
+   * 不修改任何 jsonl 原文件；按 claude_session_id 去重，已存在则跳过。
+   */
+  async importHistory(): Promise<HistoryImportSummary> {
+    return this.historyImportService.importHistory();
   }
 
   async initialize(): Promise<void> {

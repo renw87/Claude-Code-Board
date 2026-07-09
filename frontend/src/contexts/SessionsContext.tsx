@@ -11,6 +11,7 @@ interface SessionsContextValue {
   error: string | null;
   loadSessions: () => Promise<void>;
   createSession: (request: CreateSessionRequest) => Promise<Session>;
+  importHistory: () => Promise<{ imported: number; skipped: number; errors: number }>;
   completeSession: (sessionId: string) => Promise<Session>;
   interruptSession: (sessionId: string) => Promise<Session>;
   resumeSession: (sessionId: string) => Promise<Session>;
@@ -69,6 +70,20 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       throw new Error(errorMessage);
     }
   }, []);
+
+  // 导入 ~/.claude/projects/ 历史会话（只读、去重），完成后刷新列表
+  const importHistory = useCallback(async () => {
+    try {
+      setError(null);
+      const summary = await sessionApi.importHistory();
+      await loadSessions();
+      return { imported: summary.imported, skipped: summary.skipped, errors: summary.errors.length };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to import history';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }, [loadSessions]);
 
   // 完成 session
   const completeSession = useCallback(async (sessionId: string) => {
@@ -315,6 +330,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     error,
     loadSessions,
     createSession,
+    importHistory,
     completeSession,
     interruptSession,
     resumeSession,

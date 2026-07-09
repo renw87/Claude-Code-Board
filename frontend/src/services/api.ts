@@ -160,6 +160,12 @@ export const sessionApi = {
   async reorderSessions(status: string, sessionIds: string[]): Promise<void> {
     await api.put('/sessions/reorder', { status, sessionIds });
   },
+
+  // 导入 ~/.claude/projects/ 下的历史会话（只读，按 claude_session_id 去重）
+  async importHistory(): Promise<{ imported: number; skipped: number; errors: Array<{ file: string; error: string }>; projectsDir: string }> {
+    const response = await api.post('/sessions/import-history');
+    return response.data;
+  },
 };
 
 // Common Paths API

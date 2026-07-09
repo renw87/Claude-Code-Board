@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, History } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDeviceType } from "../../hooks/useMediaQuery";
@@ -159,9 +159,24 @@ export const SessionList: React.FC<SessionListProps> = ({ onCreateSession }) => 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"processing" | "idle" | "completed">("idle");
   const [sortType, setSortType] = useState<SortType>('updated_desc');
+  const [importing, setImporting] = useState(false);
   const deviceType = useDeviceType();
 
-  const { sessions, sessionsByStatus, loading, error, completeSession, interruptSession, resumeSession, deleteSession, reorderSessionsByStatus } = useSessions();
+  const { sessions, sessionsByStatus, loading, error, completeSession, interruptSession, resumeSession, deleteSession, reorderSessionsByStatus, importHistory } = useSessions();
+
+  const handleImportHistory = async () => {
+    if (importing) return;
+    setImporting(true);
+    const tid = toast.loading("正在导入历史会话...");
+    try {
+      const { imported, skipped, errors } = await importHistory();
+      toast.success(`导入完成：新增 ${imported}，跳过 ${skipped}${errors ? `，错误 ${errors}` : ""}`, { id: tid });
+    } catch (e) {
+      toast.error("导入历史会话失败", { id: tid });
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const handleComplete = async (sessionId: string) => {
     try {
@@ -253,6 +268,17 @@ export const SessionList: React.FC<SessionListProps> = ({ onCreateSession }) => 
             <button onClick={onCreateSession} className="btn-primary flex items-center gap-2 text-sm">
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">创建</span>
+            </button>
+
+            {/* 导入历史会话按钮 */}
+            <button
+              onClick={handleImportHistory}
+              disabled={importing}
+              title="从 ~/.claude/projects/ 导入历史会话"
+              className="btn-secondary flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <History className={`w-4 h-4 ${importing ? "animate-pulse" : ""}`} />
+              <span className="hidden sm:inline">{importing ? "导入中" : "导入历史"}</span>
             </button>
           </div>
         </div>
