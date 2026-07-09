@@ -155,11 +155,11 @@ export class ServiceInspectorService {
     }
   }
 
-  /** 获取 docker 容器列表。 */
+  /** 获取 docker 容器列表（sudo docker ps -a）。 */
   async getDockerContainers(): Promise<ProbeResult<DockerContainer[]>> {
     try {
-      const { stdout } = await execFileAsync('docker', [
-        'ps', '-a', '--format', '{{.Names}}|{{.Image}}|{{.Status}}|{{.Ports}}',
+      const { stdout } = await execFileAsync('sudo', [
+        'docker', 'ps', '-a', '--format', '{{.Names}}|{{.Image}}|{{.Status}}|{{.Ports}}',
       ], { timeout: 15000, maxBuffer: 1024 * 1024 });
       const containers: DockerContainer[] = [];
       for (const line of stdout.split('\n')) {
@@ -263,7 +263,7 @@ export class ServiceInspectorService {
       if (containers.available && containers.data) {
         for (const c of containers.data) {
           try {
-            const { stdout } = await execFileAsync('docker', ['inspect', c.name], {
+            const { stdout } = await execFileAsync('sudo', ['docker', 'inspect', c.name], {
               timeout: 10000, maxBuffer: 1024 * 1024,
             });
             const info = JSON.parse(stdout);
