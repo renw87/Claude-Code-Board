@@ -4,16 +4,16 @@ import { TestContext } from './world';
 import { v4 as uuidv4 } from 'uuid';
 import { SessionStatus } from '../../src/types/session.types';
 
-// Session 互動相關的 Steps
+// Session 交互相关的 Steps
 
-Then('訊息應該被傳送到 Claude Code 進程', async function(this: TestContext) {
-  // 驗證訊息已傳送到進程
+Then('消息应该被发送到 Claude Code 进程', async function(this: TestContext) {
+  // 验证消息已发送到进程
   expect(this.testData.lastMessage).to.exist;
   expect(this.testData.lastMessage.content).to.be.a('string');
 });
 
-Then('WebSocket 應推送訊息狀態更新', async function(this: TestContext) {
-  // 模擬 WebSocket 推送
+Then('WebSocket 应推送消息状态更新', async function(this: TestContext) {
+  // 仿真 WebSocket 推送
   this.testData.websocketMessages = this.testData.websocketMessages || [];
   this.testData.websocketMessages.push({
     type: 'message_status',
@@ -25,9 +25,9 @@ Then('WebSocket 應推送訊息狀態更新', async function(this: TestContext) 
   expect(this.testData.websocketMessages).to.have.length.greaterThan(0);
 });
 
-When('Claude Code 產生回應內容', async function(this: TestContext) {
-  // 模擬 Claude Code 產生回應
-  const responseContent = 'src 目錄結構分析結果：\n- src/components/\n- src/services/\n- src/utils/';
+When('Claude Code 产生回应内容', async function(this: TestContext) {
+  // 仿真 Claude Code 产生回应
+  const responseContent = 'src 目录结构分析结果：\n- src/components/\n- src/services/\n- src/utils/';
   
   this.testData.claudeResponse = {
     sessionId: this.currentSession?.sessionId,
@@ -38,15 +38,15 @@ When('Claude Code 產生回應內容', async function(this: TestContext) {
   };
 });
 
-Then('系統應該捕獲輸出內容', async function(this: TestContext) {
-  // 驗證系統捕獲了 Claude Code 的輸出
+Then('系统应该捕获输出内容', async function(this: TestContext) {
+  // 验证系统捕获了 Claude Code 的输出
   expect(this.testData.claudeResponse).to.exist;
   expect(this.testData.claudeResponse.content).to.be.a('string');
   expect(this.testData.claudeResponse.content.length).to.be.greaterThan(0);
 });
 
-Then('WebSocket 應推送回應內容給客戶端', async function(this: TestContext) {
-  // 模擬 WebSocket 推送回應內容
+Then('WebSocket 应推送回应内容给客户端', async function(this: TestContext) {
+  // 仿真 WebSocket 推送回应内容
   this.testData.websocketMessages = this.testData.websocketMessages || [];
   this.testData.websocketMessages.push({
     type: 'message',
@@ -59,7 +59,7 @@ Then('WebSocket 應推送回應內容給客戶端', async function(this: TestCon
   expect(lastMessage.content).to.equal(this.testData.claudeResponse.content);
 });
 
-Then('回應應包含以下資訊：', async function(this: TestContext, dataTable: any) {
+Then('回应应包含以下信息：', async function(this: TestContext, dataTable: any) {
   const expectedFields = dataTable.raw()[0];
   
   expect(this.testData.claudeResponse).to.exist;
@@ -68,26 +68,26 @@ Then('回應應包含以下資訊：', async function(this: TestContext, dataTab
   });
 });
 
-When('Claude Code 持續輸出內容', async function(this: TestContext) {
-  // 模擬串流輸出
+When('Claude Code 持续输出内容', async function(this: TestContext) {
+  // 仿真串流输出
   this.testData.streamChunks = [
-    'src 目錄分析中...\n',
-    '發現 components 資料夾\n',
-    '發現 services 資料夾\n',
-    '發現 utils 資料夾\n',
+    'src 目录分析中...\n',
+    '发现 components 文件夹\n',
+    '发现 services 文件夹\n',
+    '发现 utils 文件夹\n',
     '分析完成\n'
   ];
 });
 
-Then('系統應該即時捕獲每個輸出片段', async function(this: TestContext) {
-  // 驗證系統捕獲了所有片段
+Then('系统应该即时捕获每个输出片段', async function(this: TestContext) {
+  // 验证系统捕获了所有片段
   expect(this.testData.streamChunks).to.exist;
   expect(this.testData.streamChunks).to.be.an('array');
   expect(this.testData.streamChunks.length).to.be.greaterThan(0);
 });
 
-Then('WebSocket 應推送每個片段給客戶端', async function(this: TestContext) {
-  // 模擬推送每個片段
+Then('WebSocket 应推送每个片段给客户端', async function(this: TestContext) {
+  // 仿真推送每个片段
   this.testData.websocketMessages = this.testData.websocketMessages || [];
   
   this.testData.streamChunks.forEach((chunk: string, index: number) => {
@@ -103,20 +103,20 @@ Then('WebSocket 應推送每個片段給客戶端', async function(this: TestCon
   expect(this.testData.websocketMessages.length).to.equal(this.testData.streamChunks.length);
 });
 
-Then('客戶端應能即時看到回應進度', async function(this: TestContext) {
-  // 驗證客戶端能看到進度
+Then('客户端应能即时看到回应进度', async function(this: TestContext) {
+  // 验证客户端能看到进度
   const streamMessages = this.testData.websocketMessages.filter((msg: any) => msg.type === 'stream_chunk');
   expect(streamMessages.length).to.be.greaterThan(0);
   
-  // 驗證片段順序
+  // 验证片段顺序
   streamMessages.forEach((msg: any, index: number) => {
     expect(msg.index).to.equal(index);
   });
 });
 
-// messageId 和 timestamp 已經在 common.steps.ts 中處理
+// messageId 和 timestamp 已经在 common.steps.ts 中处理
 
-When('使用者查詢對話歷史，參數如下：', async function(this: TestContext, dataTable: any) {
+When('用户查找对话历史，参数如下：', async function(this: TestContext, dataTable: any) {
   const params = dataTable.rowsHash();
   
   try {
@@ -128,7 +128,7 @@ When('使用者查詢對話歷史，參數如下：', async function(this: TestC
     const limit = Number(params['limit']) || 20;
     const conversations = this.testData.conversations || [];
     
-    // 模擬分頁
+    // 仿真分页
     const offset = (page - 1) * limit;
     const paginatedConversations = conversations.slice(offset, offset + limit);
     const totalPages = Math.ceil(conversations.length / limit);
@@ -153,13 +153,13 @@ When('使用者查詢對話歷史，參數如下：', async function(this: TestC
   }
 });
 
-Then('response 應包含 {int} 筆對話記錄', async function(this: TestContext, count: number) {
+Then('response 应包含 {int} 笔对话记录', async function(this: TestContext, count: number) {
   expect(this.responseBody).to.have.property('data');
   expect(this.responseBody.data).to.be.an('array');
   expect(this.responseBody.data).to.have.lengthOf(count);
 });
 
-Then('每筆記錄應包含：', async function(this: TestContext, dataTable: any) {
+Then('每笔记录应包含：', async function(this: TestContext, dataTable: any) {
   const expectedFields = dataTable.raw()[0];
   
   expect(this.responseBody.data).to.be.an('array');
@@ -170,7 +170,7 @@ Then('每筆記錄應包含：', async function(this: TestContext, dataTable: an
   });
 });
 
-Then('對話記錄應按時間順序排列', async function(this: TestContext) {
+Then('对话记录应按时间顺序排列', async function(this: TestContext) {
   const conversations = this.responseBody.data;
   expect(conversations).to.be.an('array');
   
@@ -183,7 +183,7 @@ Then('對話記錄應按時間順序排列', async function(this: TestContext) {
   }
 });
 
-Then('response 應包含分頁資訊：', async function(this: TestContext, dataTable: any) {
+Then('response 应包含分页信息：', async function(this: TestContext, dataTable: any) {
   const expectedPagination = dataTable.rowsHash();
   
   expect(this.responseBody).to.have.property('pagination');
@@ -193,7 +193,7 @@ Then('response 應包含分頁資訊：', async function(this: TestContext, data
   });
 });
 
-When('使用者發送中斷指令', async function(this: TestContext) {
+When('用户发送中断指令', async function(this: TestContext) {
   try {
     if (!this.currentSession) {
       throw { statusCode: 404, code: 'SESSION_NOT_FOUND', message: 'Session not found' };
@@ -203,10 +203,10 @@ When('使用者發送中斷指令', async function(this: TestContext) {
       throw { statusCode: 400, code: 'INVALID_STATUS', message: 'Session is not processing' };
     }
     
-    // 模擬中斷進程
+    // 仿真中断进程
     this.testData.longRunningTask = false;
     this.currentSession.status = SessionStatus.IDLE;
-    this.currentSession.error = null; // 中斷時清除錯誤訊息
+    this.currentSession.error = null; // 中断时清调试误消息
     this.currentSession.updatedAt = new Date();
     
     this.responseStatus = 200;
@@ -223,17 +223,17 @@ When('使用者發送中斷指令', async function(this: TestContext) {
   }
 });
 
-Then('Claude Code 進程應收到中斷信號', async function(this: TestContext) {
-  // 驗證進程收到中斷信號
+Then('Claude Code 进程应收到中断信号', async function(this: TestContext) {
+  // 验证进程收到中断信号
   expect(this.testData.longRunningTask).to.be.false;
 });
 
-Then('Session 狀態應更新為 {string}', async function(this: TestContext, status: string) {
+Then('Session 状态应更新为 {string}', async function(this: TestContext, status: string) {
   expect(this.currentSession?.status).to.equal(status);
 });
 
-Then('WebSocket 應推送狀態更新', async function(this: TestContext) {
-  // 模擬 WebSocket 推送狀態更新
+Then('WebSocket 应推送状态更新', async function(this: TestContext) {
+  // 仿真 WebSocket 推送状态更新
   this.testData.websocketMessages = this.testData.websocketMessages || [];
   this.testData.websocketMessages.push({
     type: 'status_update',
@@ -246,7 +246,7 @@ Then('WebSocket 應推送狀態更新', async function(this: TestContext) {
   expect(statusMessage).to.exist;
 });
 
-When('使用者發送恢復指令', async function(this: TestContext) {
+When('用户发送恢复指令', async function(this: TestContext) {
   try {
     if (!this.currentSession) {
       throw { statusCode: 404, code: 'SESSION_NOT_FOUND', message: 'Session not found' };
@@ -256,7 +256,7 @@ When('使用者發送恢復指令', async function(this: TestContext) {
       throw { statusCode: 400, code: 'SESSION_NOT_INTERRUPTED', message: 'Session is not interrupted' };
     }
     
-    // 恢復 Session（現在已不需要恢復，中斷後即為 idle）
+    // 恢复 Session（现在已不需要恢复，中断后即为 idle）
     this.currentSession.status = SessionStatus.IDLE;
     this.currentSession.updatedAt = new Date();
     
@@ -274,42 +274,42 @@ When('使用者發送恢復指令', async function(this: TestContext) {
   }
 });
 
-Then('使用者可以繼續發送新訊息', async function(this: TestContext) {
-  // 驗證可以繼續發送訊息
+Then('用户可以继续发送新消息', async function(this: TestContext) {
+  // 验证可以继续发送消息
   expect(this.currentSession?.status).to.equal(SessionStatus.IDLE);
 });
 
-Then('舊的錯誤訊息應被清除', async function(this: TestContext) {
-  // 驗證 session 的錯誤訊息已被清除
+Then('旧的错误消息应被清除', async function(this: TestContext) {
+  // 验证 session 的错误消息已被清除
   if (this.currentSession) {
     expect(this.currentSession.error).to.be.null;
   }
 });
 
-Then('錯誤訊息應被清除', async function(this: TestContext) {
-  // 驗證 session 的錯誤訊息已被清除
+Then('错误消息应被清除', async function(this: TestContext) {
+  // 验证 session 的错误消息已被清除
   if (this.currentSession) {
     expect(this.currentSession.error).to.be.null;
   }
 });
 
-Then('Session 狀態應回到 {string}', async function(this: TestContext, expectedStatus: string) {
-  // 驗證 session 狀態
+Then('Session 状态应回到 {string}', async function(this: TestContext, expectedStatus: string) {
+  // 验证 session 状态
   expect(this.currentSession?.status).to.equal(expectedStatus);
 });
 
-Given('Session 之前有錯誤訊息', async function(this: TestContext) {
-  // 設置 session 有錯誤訊息
+Given('Session 之前有错误消息', async function(this: TestContext) {
+  // 设置 session 有错误消息
   if (this.currentSession) {
     this.currentSession.error = 'Previous error message';
   }
 });
 
-When('使用者發送新訊息', async function(this: TestContext) {
-  // 模擬發送新訊息，這會觸發錯誤清除
+When('用户发送新消息', async function(this: TestContext) {
+  // 仿真发送新消息，这会触发错误清除
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.PROCESSING;
-    this.currentSession.error = null; // 清除錯誤訊息
+    this.currentSession.error = null; // 清调试误消息
     this.currentSession.updatedAt = new Date();
   }
   
@@ -320,17 +320,17 @@ When('使用者發送新訊息', async function(this: TestContext) {
   };
 });
 
-When('Claude Code 成功執行完成', async function(this: TestContext) {
-  // 模擬 Claude Code 執行完成
+When('Claude Code 成功运行完成', async function(this: TestContext) {
+  // 仿真 Claude Code 运行完成
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.IDLE;
-    this.currentSession.error = null; // 執行成功時清除錯誤
+    this.currentSession.error = null; // 运行成功时清调试误
     this.currentSession.updatedAt = new Date();
   }
 });
 
-When('使用者嘗試中斷該 Session', async function(this: TestContext) {
-  // 嘗試中斷非處理中的 session
+When('用户尝试中断该 Session', async function(this: TestContext) {
+  // 尝试中断非处理中的 session
   if (!this.currentSession) {
     throw { statusCode: 404, code: 'SESSION_NOT_FOUND', message: 'Session not found' };
   }
@@ -344,26 +344,26 @@ When('使用者嘗試中斷該 Session', async function(this: TestContext) {
     return;
   }
   
-  // 如果是處理中狀態，則正常中斷
+  // 如果是处理中状态，则正常中断
   this.currentSession.status = SessionStatus.IDLE;
   this.responseStatus = 200;
 });
 
-Given('Session 剛被中斷並處於 {string} 狀態', async function(this: TestContext, status: string) {
-  // 設置 session 處於被中斷後的狀態
+Given('Session 刚被中断并处于 {string} 状态', async function(this: TestContext, status: string) {
+  // 设置 session 处于被中断后的状态
   if (this.currentSession) {
     this.currentSession.status = status as SessionStatus;
-    this.currentSession.error = null; // 中斷時清除錯誤
+    this.currentSession.error = null; // 中断时清调试误
     this.currentSession.updatedAt = new Date();
     this.testData.wasInterrupted = true;
   }
 });
 
-When('使用者發送新訊息 {string}', async function(this: TestContext, message: string) {
-  // 模擬發送新訊息
+When('用户发送新消息 {string}', async function(this: TestContext, message: string) {
+  // 仿真发送新消息
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.PROCESSING;
-    this.currentSession.error = null; // 發送新訊息時清除錯誤
+    this.currentSession.error = null; // 发送新消息时清调试误
     this.currentSession.updatedAt = new Date();
   }
   
@@ -380,12 +380,12 @@ When('使用者發送新訊息 {string}', async function(this: TestContext, mess
   };
 });
 
-Then('訊息應該被傳送到新的 Claude Code 進程', async function(this: TestContext) {
-  // 驗證訊息傳送到新的進程
+Then('消息应该被发送到新的 Claude Code 进程', async function(this: TestContext) {
+  // 验证消息发送到新的进程
   expect(this.testData.lastMessage).to.exist;
   expect(this.testData.lastMessage.content).to.be.a('string');
   
-  // 驗證是新的進程（如果之前被中斷）
+  // 验证是新的进程（如果之前被中断）
   if (this.testData.wasInterrupted) {
     this.testData.newProcessStarted = true;
     expect(this.testData.newProcessStarted).to.be.true;

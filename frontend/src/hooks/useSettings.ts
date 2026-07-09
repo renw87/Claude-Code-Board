@@ -8,7 +8,7 @@ export const useSettings = () => {
   const [commonPaths, setCommonPaths] = useState<CommonPath[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 載入設定
+  // 加载设置
   const loadSettings = async () => {
     try {
       setIsLoading(true);
@@ -16,15 +16,15 @@ export const useSettings = () => {
       setCommonPaths(paths);
     } catch (error) {
       console.error('Failed to load common paths:', error);
-      toast.error('無法載入常用路徑');
-      // 使用空陣列作為後備
+      toast.error('无法加载常用路径');
+      // 使用空数组作为后备
       setCommonPaths([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 儲存設定（批量更新）
+  // 保存设置（批量更新）
   const saveSettings = async (newPaths: CommonPath[]): Promise<boolean> => {
     try {
       // 如果是重新排序，使用 reorder API
@@ -36,36 +36,36 @@ export const useSettings = () => {
       await commonPathApi.reorderPaths(reorderData);
       setCommonPaths(newPaths);
       
-      // 觸發自定義事件以通知其他元件
+      // 触发自定义事件以通知其他组件
       window.dispatchEvent(new Event('settings-updated'));
       
       return true;
     } catch (error) {
       console.error('Failed to save settings:', error);
-      toast.error('儲存設定失敗');
+      toast.error('保存设置失败');
       return false;
     }
   };
 
-  // 重置為預設設定
+  // 重置为默认设置
   const resetToDefault = async (): Promise<boolean> => {
     try {
       const paths = await commonPathApi.resetToDefault();
       setCommonPaths(paths);
       
-      // 觸發自定義事件以通知其他元件
+      // 触发自定义事件以通知其他组件
       window.dispatchEvent(new Event('settings-updated'));
       
-      toast.success('已重置為預設設定');
+      toast.success('已重置为默认设置');
       return true;
     } catch (error) {
       console.error('Failed to reset settings:', error);
-      toast.error('重置設定失敗');
+      toast.error('重置设置失败');
       return false;
     }
   };
 
-  // 新增常用路徑
+  // 添加常用路径
   const addCommonPath = async (path: Omit<CommonPath, 'id'>): Promise<boolean> => {
     try {
       const created = await commonPathApi.createPath({
@@ -77,19 +77,19 @@ export const useSettings = () => {
       
       setCommonPaths([...commonPaths, created]);
       
-      // 觸發自定義事件
+      // 触发自定义事件
       window.dispatchEvent(new Event('settings-updated'));
       
-      toast.success('已新增常用路徑');
+      toast.success('已添加常用路径');
       return true;
     } catch (error) {
       console.error('Failed to add common path:', error);
-      toast.error('新增常用路徑失敗');
+      toast.error('添加常用路径失败');
       return false;
     }
   };
 
-  // 更新常用路徑
+  // 更新常用路径
   const updateCommonPath = async (id: string, updates: Partial<CommonPath>): Promise<boolean> => {
     try {
       const updated = await commonPathApi.updatePath(id, updates);
@@ -98,52 +98,52 @@ export const useSettings = () => {
         path.id === id ? updated : path
       ));
       
-      // 觸發自定義事件
+      // 触发自定义事件
       window.dispatchEvent(new Event('settings-updated'));
       
-      toast.success('已更新常用路徑');
+      toast.success('已更新常用路径');
       return true;
     } catch (error) {
       console.error('Failed to update common path:', error);
-      toast.error('更新常用路徑失敗');
+      toast.error('更新常用路径失败');
       return false;
     }
   };
 
-  // 刪除常用路徑
+  // 删除常用路径
   const deleteCommonPath = async (id: string): Promise<boolean> => {
     try {
       await commonPathApi.deletePath(id);
       
       setCommonPaths(commonPaths.filter(path => path.id !== id));
       
-      // 觸發自定義事件
+      // 触发自定义事件
       window.dispatchEvent(new Event('settings-updated'));
       
-      toast.success('已刪除常用路徑');
+      toast.success('已删除常用路径');
       return true;
     } catch (error) {
       console.error('Failed to delete common path:', error);
-      toast.error('刪除常用路徑失敗');
+      toast.error('删除常用路径失败');
       return false;
     }
   };
 
-  // 取得設定資訊
+  // 取得设置信息
   const getSettingsInfo = () => {
     return {
       hasCustomSettings: commonPaths.length > 0,
-      lastUpdated: null, // 可以從 commonPaths 中取得最新的 updated_at
+      lastUpdated: null, // 可以从 commonPaths 中取得最新的 updated_at
       pathCount: commonPaths.length,
     };
   };
 
-  // 初始化載入
+  // 初始化加载
   useEffect(() => {
     loadSettings();
   }, []);
 
-  // 監聽自定義事件，用於同一標籤頁內的同步
+  // 监听自定义事件，用于同一标签页内的同步
   useEffect(() => {
     const handleCustomStorageChange = () => {
       loadSettings();

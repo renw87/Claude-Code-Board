@@ -4,43 +4,43 @@ import jwt from 'jsonwebtoken';
 
 // Security-related steps
 
-Given('安全模組已載入', async function(this: TestContext) {
-  // 確保安全模組已經載入
+Given('安全模块已加载', async function(this: TestContext) {
+  // 确保安全模块已经加载
   this.testData.securityEnabled = true;
 });
 
-Given('客戶端有一個有效的 JWT token', function(this: TestContext) {
+Given('客户端有一个有效的 JWT token', function(this: TestContext) {
   const secret = 'test-secret';
   const payload = {
     id: 'test-user',
     username: 'testuser',
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 3600 // 1 小時後過期
+    exp: Math.floor(Date.now() / 1000) + 3600 // 1 小时后过期
   };
   
   this.testData.jwtToken = jwt.sign(payload, secret);
 });
 
-Given('系統設定了允許存取的目錄清單', function(this: TestContext) {
-  // 設定測試環境變數
+Given('系统设置了允许访问的目录清单', function(this: TestContext) {
+  // 设置测试环境变量
   process.env.ALLOWED_DIRS = '/tmp,/workspace,/test';
   this.testData.allowedDirs = ['/tmp', '/workspace', '/test'];
 });
 
-Given('有多個使用者的 Sessions 在運行', function(this: TestContext) {
-  // 模擬多個用戶的 sessions
+Given('有多个用户的 Sessions 在运行', function(this: TestContext) {
+  // 仿真多个用户的 sessions
   this.testData.multipleUserSessions = {
     'user-a-session': { userId: 'user-a', sessionId: 'user-a-session' },
     'user-b-session': { userId: 'user-b', sessionId: 'user-b-session' }
   };
 });
 
-Given('系統偵測到來自同一 IP 的大量請求', function(this: TestContext) {
+Given('系统侦测到来自同一 IP 的大量请求', function(this: TestContext) {
   this.testData.highTrafficIP = '192.168.1.100';
-  this.testData.requestCount = 1001; // 超過限制的 1000
+  this.testData.requestCount = 1001; // 超过限制的 1000
 });
 
-When('客戶端發送未包含認證 token 的請求', async function(this: TestContext) {
+When('客户端发送未包含认证 token 的请求', async function(this: TestContext) {
   // 移除 Authorization header
   delete this.requestOptions.headers['Authorization'];
   
@@ -55,7 +55,7 @@ When('客戶端發送未包含認證 token 的請求', async function(this: Test
   }
 });
 
-When('客戶端使用該 token 發送請求', async function(this: TestContext) {
+When('客户端使用该 token 发送请求', async function(this: TestContext) {
   this.requestOptions.headers['Authorization'] = `Bearer ${this.testData.jwtToken}`;
   
   try {
@@ -65,11 +65,11 @@ When('客戶端使用該 token 發送請求', async function(this: TestContext) 
   }
 });
 
-When('使用者嘗試在限制目錄外建立 Session', async function(this: TestContext) {
+When('用户尝试在限制目录外创建 Session', async function(this: TestContext) {
   try {
     this.response = await this.makeRequest('POST', '/api/sessions', {
       name: 'Unauthorized Session',
-      workingDir: '/etc/passwd', // 不在允許清單中
+      workingDir: '/etc/passwd', // 不在允许清单中
       task: 'Test task'
     });
   } catch (error: any) {
@@ -77,8 +77,8 @@ When('使用者嘗試在限制目錄外建立 Session', async function(this: Tes
   }
 });
 
-When('使用者在 task 中包含系統命令字元如 {string} 或 {string}', async function(this: TestContext, char1: string, char2: string) {
-  const maliciousTask = `正常任務 ${char1} rm -rf / ${char2} malicious command`;
+When('用户在 task 中包含系统命令字符如 {string} 或 {string}', async function(this: TestContext, char1: string, char2: string) {
+  const maliciousTask = `正常任务 ${char1} rm -rf / ${char2} malicious command`;
   
   try {
     this.response = await this.makeRequest('POST', '/api/sessions', {
@@ -93,10 +93,10 @@ When('使用者在 task 中包含系統命令字元如 {string} 或 {string}', a
   this.testData.originalTask = maliciousTask;
 });
 
-When('使用者發送包含 script 標籤的訊息', async function(this: TestContext) {
-  const maliciousContent = '<script>alert("XSS")</script>正常內容<img src="x" onerror="alert(1)">';
+When('用户发送包含 script 标签的消息', async function(this: TestContext) {
+  const maliciousContent = '<script>alert("XSS")</script>正常内容<img src="x" onerror="alert(1)">';
   
-  // 先建立一個 session
+  // 先创建一个 session
   const sessionResponse = await this.makeRequest('POST', '/api/sessions', {
     name: 'XSS Test Session',
     workingDir: '/test',
@@ -117,11 +117,11 @@ When('使用者發送包含 script 標籤的訊息', async function(this: TestCo
   this.testData.sessionId = sessionId;
 });
 
-When('使用者嘗試上傳檔案', async function(this: TestContext) {
-  // 模擬檔案上傳請求
+When('用户尝试上传文件', async function(this: TestContext) {
+  // 仿真文件上传请求
   const fileData = {
     filename: 'test.exe',
-    size: 15 * 1024 * 1024, // 15MB，超過 10MB 限制
+    size: 15 * 1024 * 1024, // 15MB，超过 10MB 限制
     contentType: 'application/x-executable'
   };
   
@@ -132,11 +132,11 @@ When('使用者嘗試上傳檔案', async function(this: TestContext) {
   }
 });
 
-When('使用者 A 嘗試存取使用者 B 的 Session', async function(this: TestContext) {
-  // 模擬用戶 A 嘗試存取用戶 B 的 session
+When('用户 A 尝试访问用户 B 的 Session', async function(this: TestContext) {
+  // 仿真用户 A 尝试访问用户 B 的 session
   const userBSessionId = 'user-b-session';
   
-  // 設定為用戶 A 的 token
+  // 设置为用户 A 的 token
   this.requestOptions.headers['Authorization'] = 'Bearer user-a-token';
   
   try {
@@ -146,15 +146,15 @@ When('使用者 A 嘗試存取使用者 B 的 Session', async function(this: Tes
   }
 });
 
-When('Claude Code 輸出包含敏感資訊如 API 金鑰', async function(this: TestContext) {
+When('Claude Code 输出包含敏感信息如 API 密钥', async function(this: TestContext) {
   const sensitiveOutput = 'API Key: sk-abc123def456ghi789, password=secret123, token=xyz789';
   
-  // 測試敏感資訊過濾功能
+  // 测试敏感信息过滤功能
   this.testData.sensitiveContent = sensitiveOutput;
   this.testData.redactedContent = this.redactSensitiveInfo(sensitiveOutput);
 });
 
-When('發生安全相關事件', function(this: TestContext) {
+When('发生安全相关事件', function(this: TestContext) {
   this.testData.securityEvent = {
     type: 'UNAUTHORIZED_ACCESS',
     timestamp: new Date().toISOString(),
@@ -164,11 +164,11 @@ When('發生安全相關事件', function(this: TestContext) {
   };
 });
 
-When('請求率超過每分鐘 1000 次', function(this: TestContext) {
+When('请求率超过每分钟 1000 次', function(this: TestContext) {
   this.testData.requestRate = 1001;
 });
 
-When('API 回應任何請求', async function(this: TestContext) {
+When('API 回应任何请求', async function(this: TestContext) {
   try {
     this.response = await this.makeRequest('GET', '/health');
   } catch (error: any) {
@@ -176,12 +176,12 @@ When('API 回應任何請求', async function(this: TestContext) {
   }
 });
 
-Then('系統應該驗證 token 的有效性', function(this: TestContext) {
-  // 驗證邏輯已在中間件中處理
+Then('系统应该验证 token 的有效性', function(this: TestContext) {
+  // 验证逻辑已在中间件中处理
   this.assert.equal(this.testData.jwtToken !== undefined, true, 'JWT token should be present');
 });
 
-Then('檢查 token 是否過期', function(this: TestContext) {
+Then('检查 token 是否过期', function(this: TestContext) {
   if (this.testData.jwtToken) {
     const decoded: any = jwt.decode(this.testData.jwtToken);
     const now = Math.floor(Date.now() / 1000);
@@ -189,7 +189,7 @@ Then('檢查 token 是否過期', function(this: TestContext) {
   }
 });
 
-Then('驗證 token 簽名', function(this: TestContext) {
+Then('验证 token 签名', function(this: TestContext) {
   if (this.testData.jwtToken) {
     try {
       jwt.verify(this.testData.jwtToken, 'test-secret');
@@ -200,12 +200,12 @@ Then('驗證 token 簽名', function(this: TestContext) {
   }
 });
 
-Then('允許通過驗證的請求繼續處理', function(this: TestContext) {
-  // 這個檢查將通過實際的 API 調用結果來驗證
+Then('允许通过验证的请求继续处理', function(this: TestContext) {
+  // 这个检查将通过实际的 API 调用结果来验证
   this.assert.equal(this.response.status < 400, true, 'Authenticated request should be allowed');
 });
 
-Then('系統應該適當地轉義這些字元', function(this: TestContext) {
+Then('系统应该适当地转义这些字符', function(this: TestContext) {
   if (this.response.data && this.response.data.task) {
     const sanitizedTask = this.response.data.task;
     this.assert.equal(sanitizedTask.includes('\\;'), true, 'Semicolon should be escaped');
@@ -213,19 +213,19 @@ Then('系統應該適當地轉義這些字元', function(this: TestContext) {
   }
 });
 
-Then('不應執行任何系統命令', function(this: TestContext) {
-  // 驗證系統命令沒有被執行（通過日誌或其他方式）
+Then('不应运行任何系统命令', function(this: TestContext) {
+  // 验证系统命令没有被运行（通过日志或其他方式）
   this.assert.equal(true, true, 'No system commands should be executed');
 });
 
-Then('正常傳遞給 Claude Code 處理', function(this: TestContext) {
+Then('正常传递给 Claude Code 处理', function(this: TestContext) {
   if (this.response.data) {
     this.assert.equal(this.response.status, 201, 'Request should be processed normally');
   }
 });
 
-Then('系統應該對內容進行消毒處理', function(this: TestContext) {
-  // 檢查 XSS 內容是否被清理
+Then('系统应该对内容进行消毒处理', function(this: TestContext) {
+  // 检查 XSS 内容是否被清理
   if (this.response.data && this.response.data.content) {
     const cleanedContent = this.response.data.content;
     this.assert.equal(cleanedContent.includes('<script>'), false, 'Script tags should be removed');
@@ -233,58 +233,58 @@ Then('系統應該對內容進行消毒處理', function(this: TestContext) {
   }
 });
 
-Then('移除或轉義危險的 HTML 標籤', function(this: TestContext) {
+Then('移除或转义危险的 HTML 标签', function(this: TestContext) {
   if (this.response.data && this.response.data.content) {
     const cleanedContent = this.response.data.content;
     this.assert.equal(cleanedContent.includes('&lt;'), true, 'HTML should be escaped');
   }
 });
 
-Then('安全地儲存和顯示內容', function(this: TestContext) {
-  // 驗證內容被安全儲存
+Then('安全地保存和显示内容', function(this: TestContext) {
+  // 验证内容被安全保存
   this.assert.equal(this.response.status, 200, 'Content should be safely stored');
 });
 
-Then('系統應該檢查檔案類型', function(this: TestContext) {
-  // 檢查檔案類型驗證
+Then('系统应该检查文件类型', function(this: TestContext) {
+  // 检查文件类型验证
   this.assert.equal(this.response.status === 400 || this.response.status === 403, true, 'File type should be validated');
 });
 
-Then('限制檔案大小不超過 10MB', function(this: TestContext) {
+Then('限制文件大小不超过 10MB', function(this: TestContext) {
   if (this.response.data && this.response.data.error_message) {
     this.assert.equal(this.response.data.error_message.includes('size'), true, 'File size should be limited');
   }
 });
 
-Then('掃描檔案內容是否包含惡意程式碼', function(this: TestContext) {
-  // 驗證惡意程式碼掃描
+Then('扫描文件内容是否包含恶意代码', function(this: TestContext) {
+  // 验证恶意代码扫描
   this.assert.equal(this.response.status >= 400, true, 'Malicious files should be rejected');
 });
 
-Then('只允許白名單中的檔案類型', function(this: TestContext) {
+Then('只允许白名单中的文件类型', function(this: TestContext) {
   if (this.response.data && this.response.data.error_code) {
     this.assert.equal(this.response.data.error_code.includes('FILE_TYPE'), true, 'File type should be restricted');
   }
 });
 
-Then('系統應該偵測並遮蔽敏感內容', function(this: TestContext) {
+Then('系统应该侦测并屏蔽敏感内容', function(this: TestContext) {
   const redactedContent = this.testData.redactedContent;
   this.assert.equal(redactedContent.includes('[REDACTED]'), true, 'Sensitive content should be redacted');
   this.assert.equal(redactedContent.includes('sk-abc123'), false, 'API keys should be hidden');
 });
 
-Then('在儲存前將敏感資訊替換為 [REDACTED]', function(this: TestContext) {
+Then('在保存前将敏感信息替换为 [REDACTED]', function(this: TestContext) {
   const redactedContent = this.testData.redactedContent;
   this.assert.equal(redactedContent.includes('password=[REDACTED]'), true, 'Passwords should be redacted');
 });
 
-Then('記錄敏感資訊洩漏嘗試', function(this: TestContext) {
-  // 驗證安全事件被記錄
+Then('记录敏感信息泄漏尝试', function(this: TestContext) {
+  // 验证安全事件被记录
   this.assert.equal(this.testData.sensitiveContent !== undefined, true, 'Sensitive info leak should be logged');
 });
 
-Then('系統應該記錄詳細的稽核日誌：', function(this: TestContext, dataTable) {
-  const expectedFields = ['事件類型', '時間戳記', '使用者', 'IP 位址', '詳細資訊'];
+Then('系统应该记录详细的稽核日志：', function(this: TestContext, dataTable) {
+  const expectedFields = ['事件类型', '时间戳记', '用户', 'IP 地址', '详细信息'];
   const auditLog = this.testData.securityEvent;
   
   this.assert.equal(auditLog.type !== undefined, true, 'Event type should be logged');
@@ -294,32 +294,32 @@ Then('系統應該記錄詳細的稽核日誌：', function(this: TestContext, d
   this.assert.equal(auditLog.details !== undefined, true, 'Details should be logged');
 });
 
-Then('稽核日誌應該防篡改', function(this: TestContext) {
-  // 驗證日誌完整性
+Then('稽核日志应该防篡改', function(this: TestContext) {
+  // 验证日志完整性
   this.assert.equal(true, true, 'Audit logs should be tamper-proof');
 });
 
 Then('保留至少 90 天', function(this: TestContext) {
-  // 驗證日誌保留政策
+  // 验证日志保留政策
   this.assert.equal(true, true, 'Logs should be retained for 90 days');
 });
 
-Then('系統應該暫時封鎖該 IP', function(this: TestContext) {
-  // 驗證 IP 封鎖
+Then('系统应该暂时封锁该 IP', function(this: TestContext) {
+  // 验证 IP 封锁
   this.assert.equal(this.testData.requestRate > 1000, true, 'High request rate detected');
 });
 
-Then('記錄攻擊事件', function(this: TestContext) {
-  // 驗證攻擊事件記錄
+Then('记录攻击事件', function(this: TestContext) {
+  // 验证攻击事件记录
   this.assert.equal(this.testData.highTrafficIP !== undefined, true, 'Attack event should be logged');
 });
 
-Then('通知系統管理員', function(this: TestContext) {
-  // 驗證管理員通知
+Then('通知系统管理员', function(this: TestContext) {
+  // 验证管理员通知
   this.assert.equal(true, true, 'System admin should be notified');
 });
 
-Then('response 應包含安全標頭：', function(this: TestContext, dataTable) {
+Then('response 应包含安全标头：', function(this: TestContext, dataTable) {
   const headers = this.response.headers || {};
   
   dataTable.hashes().forEach((row: any) => {
@@ -328,7 +328,7 @@ Then('response 應包含安全標頭：', function(this: TestContext, dataTable)
                       row['Content-Security-Policy'];
     
     if (headerName) {
-      // 在真實實作中，這些標頭會由 helmet 中間件設定
+      // 在真实实作中，这些标头会由 helmet 中间件设置
       this.assert.equal(true, true, `Security header ${headerName} should be present`);
     }
   });

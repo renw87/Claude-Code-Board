@@ -18,27 +18,27 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
   const [searchParams] = useSearchParams();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [rightPanelWidth, setRightPanelWidth] = useState(50); // 百分比
-  const [dragWidth, setDragWidth] = useState<number | null>(null); // 拖曳時的臨時寬度
+  const [dragWidth, setDragWidth] = useState<number | null>(null); // 拖曳时的临时宽度
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null); // requestAnimationFrame ID
   const isMobile = useIsMobile();
   const { sessions } = useSessionsContext();
 
-  // 當路由變化時，只重置全屏狀態，保持用戶調整的寬度
+  // 当路由变化时，只重置全屏状态，保持用户调整的宽度
   useEffect(() => {
     if (sessionId) {
       setIsFullScreen(false);
-      // 不再重置寬度，保持用戶的偏好設定
+      // 不再重置宽度，保持用户的偏好设置
     }
   }, [sessionId]);
 
-  // 監聽 sessions 變化，檢查當前 session 是否還存在
+  // 监听 sessions 变化，检查当前 session 是否还存在
   useEffect(() => {
     if (sessionId) {
       const sessionExists = sessions.some(session => session.sessionId === sessionId);
       if (!sessionExists) {
-        // 如果當前 session 已被刪除，關閉右側面板
+        // 如果当前 session 已被删除，关闭右侧面板
         navigate('/');
       }
     }
@@ -49,10 +49,10 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
     const workItemId = searchParams.get('workItemId');
     
     if (from === 'work-item' && workItemId) {
-      // 如果是從 Work Item 頁面來的，返回到 Work Item 頁面
+      // 如果是从 Work Item 页面来的，返回到 Work Item 页面
       navigate(`/work-items/${workItemId}`);
     } else {
-      // 否則返回到主頁面
+      // 否则返回到主页面
       navigate('/');
     }
   };
@@ -64,7 +64,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    // 開始拖曳時設置初始 dragWidth
+    // 开始拖曳时设置初始 dragWidth
     setDragWidth(rightPanelWidth);
   }, [rightPanelWidth]);
 
@@ -72,7 +72,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !containerRef.current) return;
 
-      // 使用 requestAnimationFrame 來節流更新
+      // 使用 requestAnimationFrame 来节流更新
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
@@ -83,14 +83,14 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
         const containerRect = containerRef.current.getBoundingClientRect();
         const newRightWidth = ((containerRect.right - e.clientX) / containerRect.width) * 100;
         
-        // 限制寬度在 30% 到 70% 之間（確保兩邊都至少有 30%）
+        // 限制宽度在 30% 到 70% 之间（确保两边都至少有 30%）
         const clampedWidth = Math.min(70, Math.max(30, newRightWidth));
-        setDragWidth(clampedWidth); // 只更新臨時寬度
+        setDragWidth(clampedWidth); // 只更新临时宽度
       });
     };
 
     const handleMouseUp = () => {
-      // 拖曳結束時，將臨時寬度設為最終寬度
+      // 拖曳结束时，将临时宽度设为最终宽度
       if (dragWidth !== null) {
         setRightPanelWidth(dragWidth);
       }
@@ -127,7 +127,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
 
   return (
     <div ref={containerRef} className="flex h-full w-full relative">
-      {/* 左側 SessionList - 固定寬度，可滾動 */}
+      {/* 左侧 SessionList - 固定宽度，可滚动 */}
       <div 
         className={cn(
           "h-full overflow-hidden",
@@ -141,10 +141,10 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
         <SessionList onCreateSession={onCreateSession} />
       </div>
 
-      {/* 右側 SessionDetail - 當有 sessionId 時顯示 */}
+      {/* 右侧 SessionDetail - 当有 sessionId 时显示 */}
       {sessionId && !isFullScreen && (
         <>
-          {/* 可拖曳的分隔線 - 只在非手機版顯示 */}
+          {/* 可拖曳的分隔线 - 只在非手机版显示 */}
           {!isMobile && (
             <div
               className="w-2 hover:w-3 bg-gray-200 hover:bg-blue-400 cursor-col-resize relative flex-shrink-0 group transition-all"
@@ -172,7 +172,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
             )}
             style={{ width: isMobile ? '100%' : `${dragWidth ?? rightPanelWidth}%` }}
           >
-            {/* 面板控制按鈕 - 左上角 */}
+            {/* 面板控制按钮 - 左上角 */}
             <div className="absolute top-4 left-4 z-10 flex items-center space-x-2">
               {isMobile ? (
                 <Tooltip content={searchParams.get('from') === 'work-item' ? "返回 Work Item" : "返回列表"}>
@@ -203,7 +203,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
                       <Maximize2 className="w-4 h-4 text-gray-600" />
                     </button>
                   </Tooltip>
-                  <Tooltip content="關閉">
+                  <Tooltip content="关闭">
                     <button
                       onClick={() => navigate('/')}
                       className="p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -215,7 +215,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
               )}
             </div>
 
-            {/* SessionDetail 內容 */}
+            {/* SessionDetail 内容 */}
             <SessionDetail />
           </div>
         </>
@@ -224,7 +224,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
       {/* 全屏模式 */}
       {sessionId && isFullScreen && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
-          {/* 面板控制按鈕 - 左上角 */}
+          {/* 面板控制按钮 - 左上角 */}
           <div className="absolute top-4 left-4 z-10 flex items-center space-x-2">
             {searchParams.get('from') === 'work-item' && (
               <Tooltip content="返回 Work Item">
@@ -236,7 +236,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
                 </button>
               </Tooltip>
             )}
-            <Tooltip content="還原">
+            <Tooltip content="还原">
               <button
                 onClick={toggleFullScreen}
                 className="p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -244,7 +244,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
                 <Minimize2 className="w-4 h-4 text-gray-600" />
               </button>
             </Tooltip>
-            <Tooltip content="關閉">
+            <Tooltip content="关闭">
               <button
                 onClick={() => navigate('/')}
                 className="p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -254,7 +254,7 @@ export const SplitView: React.FC<SplitViewProps> = ({ onCreateSession }) => {
             </Tooltip>
           </div>
 
-          {/* SessionDetail 內容 */}
+          {/* SessionDetail 内容 */}
           <SessionDetail />
         </div>
       )}

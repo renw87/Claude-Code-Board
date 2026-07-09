@@ -24,7 +24,7 @@ export class NotificationService {
   }
 
   /**
-   * 發送桌面通知
+   * 发送桌面通知
    */
   async notify(options: NotificationOptions): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -33,17 +33,17 @@ export class NotificationService {
           title: options.title,
           message: options.message,
           icon: options.icon || path.join(__dirname, '../../assets/icon.png'),
-          sound: options.sound !== false, // 預設播放聲音
+          sound: options.sound !== false, // 默认播放声音
           wait: options.wait || false,
           timeout: options.timeout || 10,
-          appID: 'Claude Code Board' // Windows 用，會顯示在通知中心
+          appID: 'Claude Code Board' // Windows 用，会显示在通知中心
         };
 
-        // 使用 node-notifier 發送通知
+        // 使用 node-notifier 发送通知
         notifier.notify(notificationOptions, (err, response) => {
           if (err) {
             logger.error('Notification error:', err);
-            // 如果 node-notifier 失敗，嘗試使用原生方法
+            // 如果 node-notifier 失败，尝试使用原生方法
             this.fallbackNotify(options)
               .then(() => resolve())
               .catch(e => {
@@ -56,7 +56,7 @@ export class NotificationService {
           }
         });
 
-        // 處理點擊事件
+        // 处理点击事件
         notifier.on('click', (notifierObject, options, event) => {
           logger.info('Notification clicked');
         });
@@ -73,7 +73,7 @@ export class NotificationService {
   }
 
   /**
-   * 後備通知方法（當 node-notifier 失敗時）
+   * 后备通知方法（当 node-notifier 失败时）
    */
   private async fallbackNotify(options: NotificationOptions): Promise<void> {
     switch (this.platform) {
@@ -103,12 +103,12 @@ export class NotificationService {
   }
 
   /**
-   * Windows 通知（後備方案）
+   * Windows 通知（后备方案）
    */
   private async notifyWindows(options: NotificationOptions): Promise<void> {
     const { title, message } = options;
     
-    // 檢查是否在 WSL 環境
+    // 检查是否在 WSL 环境
     const isWSL = await this.isWSL();
     
     if (isWSL) {
@@ -152,7 +152,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
       await execAsync(`powershell -ExecutionPolicy Bypass -Command "${script.replace(/"/g, '\\"').replace(/\n/g, ' ')}"`);
     } catch (error) {
       logger.error('PowerShell notification failed:', error);
-      // 最後的後備：使用 msg 命令
+      // 最后的后备：使用 msg 命令
       await execAsync(`msg "%username%" /time:10 "${title}: ${message}"`).catch(() => {
         logger.warn('Windows msg command also failed');
       });
@@ -160,7 +160,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
   }
 
   /**
-   * WSL 環境下的 Windows 通知
+   * WSL 环境下的 Windows 通知
    */
   private async notifyWindowsFromWSL(options: NotificationOptions): Promise<void> {
     const { title, message, sound = true } = options;
@@ -204,14 +204,14 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
     // 使用 notify-send
     await execAsync(`notify-send "${this.escapeString(title)}" "${this.escapeString(message)}" -i dialog-information`);
     
-    // 播放聲音
+    // 播放声音
     if (sound) {
       try {
-        // 嘗試使用 paplay
+        // 尝试使用 paplay
         await execAsync('paplay /usr/share/sounds/freedesktop/stereo/complete.oga');
       } catch {
         try {
-          // 後備：使用 aplay
+          // 后备：使用 aplay
           await execAsync('aplay /usr/share/sounds/sound-icons/glass-water-1.wav');
         } catch {
           logger.warn('No sound player available on Linux');
@@ -221,13 +221,13 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
   }
 
   /**
-   * 播放聲音（如果需要自定義聲音）
+   * 播放声音（如果需要自定义声音）
    */
   async playSound(soundFile: string): Promise<void> {
     try {
       const soundPath = path.join(__dirname, '../../sounds', soundFile);
       
-      // Windows：使用 PowerShell 播放聲音
+      // Windows：使用 PowerShell 播放声音
       if (this.platform === 'win32') {
         await execAsync(`powershell -c "(New-Object Media.SoundPlayer '${soundPath}').PlaySync()"`);
       } else if (this.platform === 'darwin') {
@@ -242,7 +242,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
   }
 
   /**
-   * 檢查是否在 WSL 環境
+   * 检查是否在 WSL 环境
    */
   private async isWSL(): Promise<boolean> {
     try {
@@ -254,14 +254,14 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
   }
 
   /**
-   * 轉義字串
+   * 转义字符串
    */
   private escapeString(str: string): string {
     return str.replace(/"/g, '\\"').replace(/'/g, "\\'");
   }
 
   /**
-   * 轉義 XML
+   * 转义 XML
    */
   private escapeXml(str: string): string {
     return str
@@ -273,7 +273,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
   }
 }
 
-// 單例模式
+// 单例模式
 let notificationService: NotificationService | null = null;
 
 export function getNotificationService(): NotificationService {

@@ -61,7 +61,7 @@ const AgentPromptDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-gray-500">載入中...</div>
+        <div className="text-gray-500">加载中...</div>
       </div>
     );
   }
@@ -84,7 +84,7 @@ const AgentPromptDetailPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6">
-      {/* 頁面標題和操作 */}
+      {/* 页面标题和操作 */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -110,19 +110,19 @@ const AgentPromptDetailPage: React.FC = () => {
             {copied ? (
               <>
                 <CheckCircle className="h-4 w-4" />
-                <span>已複製</span>
+                <span>已拷贝</span>
               </>
             ) : (
               <>
                 <Copy className="h-4 w-4" />
-                <span>複製內容</span>
+                <span>拷贝内容</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Agent 資訊 */}
+      {/* Agent 信息 */}
       {(agent.description || agent.tools) && (
         <div className="bg-white rounded-lg shadow mb-6 p-4">
           {agent.description && (
@@ -150,12 +150,12 @@ const AgentPromptDetailPage: React.FC = () => {
         </div>
       )}
 
-      {/* Markdown 內容 */}
+      {/* Markdown 内容 */}
       <div className="bg-white rounded-lg shadow">
         <div className="border-b px-4 py-3">
           <div className="flex items-center space-x-2">
             <FileText className="h-5 w-5 text-gray-500" />
-            <h2 className="font-semibold text-gray-900">提示詞內容</h2>
+            <h2 className="font-semibold text-gray-900">提示词内容</h2>
           </div>
         </div>
         
@@ -168,7 +168,7 @@ const AgentPromptDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 操作按鈕 */}
+      {/* 操作按钮 */}
       <div className="mt-6 flex justify-end space-x-3">
         <button
           onClick={handleBack}
@@ -179,8 +179,8 @@ const AgentPromptDetailPage: React.FC = () => {
         <button
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
           onClick={() => {
-            // TODO: 實作套用到工作流程的功能
-            alert('套用功能尚未實作');
+            // TODO: 实作套用到工作流程的功能
+            alert('套用功能尚未实作');
           }}
         >
           套用到工作流程

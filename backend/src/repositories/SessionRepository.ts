@@ -374,7 +374,7 @@ export class SessionRepository {
     await this.db.run(sql, [sortOrder, sessionId]);
   }
 
-  // 獲取 session 的專案資訊
+  // 获取 session 的项目信息
   async getSessionProjects(sessionId: string): Promise<any[]> {
     const sql = `
       SELECT p.project_id, p.name, p.color, p.icon
@@ -387,7 +387,7 @@ export class SessionRepository {
     return await this.db.all(sql, [sessionId]);
   }
 
-  // 獲取 session 的標籤資訊
+  // 获取 session 的标签信息
   async getSessionTags(sessionId: string): Promise<any[]> {
     const sql = `
       SELECT t.tag_id, t.name, t.color, t.type
@@ -400,7 +400,7 @@ export class SessionRepository {
     return await this.db.all(sql, [sessionId]);
   }
 
-  // 批量獲取多個 sessions 的專案資訊
+  // 批量获取多个 sessions 的项目信息
   async getSessionsProjects(sessionIds: string[]): Promise<Map<string, any[]>> {
     if (sessionIds.length === 0) return new Map();
     
@@ -415,7 +415,7 @@ export class SessionRepository {
     
     const rows = await this.db.all(sql, sessionIds);
     
-    // 將結果按 session_id 分組
+    // 将结果按 session_id 分组
     const result = new Map<string, any[]>();
     for (const row of rows) {
       const sessionId = row.session_id;
@@ -433,7 +433,7 @@ export class SessionRepository {
     return result;
   }
 
-  // 批量獲取多個 sessions 的標籤資訊
+  // 批量获取多个 sessions 的标签信息
   async getSessionsTags(sessionIds: string[]): Promise<Map<string, any[]>> {
     if (sessionIds.length === 0) return new Map();
     
@@ -448,7 +448,7 @@ export class SessionRepository {
     
     const rows = await this.db.all(sql, sessionIds);
     
-    // 將結果按 session_id 分組
+    // 将结果按 session_id 分组
     const result = new Map<string, any[]>();
     for (const row of rows) {
       const sessionId = row.session_id;

@@ -4,9 +4,9 @@ import { TestContext } from './world';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
-// 認證相關的步驟定義
+// 认证相关的步骤定义
 
-When('使用者使用正確的帳號密碼登入：', async function(this: TestContext, dataTable: any) {
+When('用户使用正确的帐号密码登录：', async function(this: TestContext, dataTable: any) {
   const credentials = dataTable.rowsHash();
   
   try {
@@ -18,7 +18,7 @@ When('使用者使用正確的帳號密碼登入：', async function(this: TestC
     this.responseStatus = response.status;
     this.responseBody = response.data;
     
-    // 保存 token 供後續測試使用
+    // 保存 token 供后续测试使用
     if (response.data.token) {
       this.testData.authToken = response.data.token;
     }
@@ -28,7 +28,7 @@ When('使用者使用正確的帳號密碼登入：', async function(this: TestC
   }
 });
 
-When('使用者嘗試登入：', async function(this: TestContext, dataTable: any) {
+When('用户尝试登录：', async function(this: TestContext, dataTable: any) {
   const credentials = dataTable.rowsHash();
   
   try {
@@ -45,7 +45,7 @@ When('使用者嘗試登入：', async function(this: TestContext, dataTable: an
   }
 });
 
-Given('使用者已經成功登入並獲得 token', async function(this: TestContext) {
+Given('用户已经成功登录并获得 token', async function(this: TestContext) {
   const response = await axios.post('http://localhost:3001/api/auth/login', {
     username: 'admin',
     password: 'admin123'
@@ -57,7 +57,7 @@ Given('使用者已經成功登入並獲得 token', async function(this: TestCon
   this.testData.authToken = response.data.token;
 });
 
-When('使用者使用該 token 驗證身份', async function(this: TestContext) {
+When('用户使用该 token 验证身份', async function(this: TestContext) {
   try {
     const response = await axios.get('http://localhost:3001/api/auth/verify', {
       headers: {
@@ -73,7 +73,7 @@ When('使用者使用該 token 驗證身份', async function(this: TestContext) 
   }
 });
 
-When('使用者使用無效的 token 驗證身份', async function(this: TestContext) {
+When('用户使用无效的 token 验证身份', async function(this: TestContext) {
   try {
     const response = await axios.get('http://localhost:3001/api/auth/verify', {
       headers: {
@@ -89,7 +89,7 @@ When('使用者使用無效的 token 驗證身份', async function(this: TestCon
   }
 });
 
-When('使用者在沒有 token 的情況下嘗試驗證身份', async function(this: TestContext) {
+When('用户在没有 token 的情况下尝试验证身份', async function(this: TestContext) {
   try {
     const response = await axios.get('http://localhost:3001/api/auth/verify');
     
@@ -101,8 +101,8 @@ When('使用者在沒有 token 的情況下嘗試驗證身份', async function(t
   }
 });
 
-Given('使用者有一個有效的 token', async function(this: TestContext) {
-  // 生成一個有效的 token
+Given('用户有一个有效的 token', async function(this: TestContext) {
+  // 生成一个有效的 token
   const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-key';
   this.testData.authToken = jwt.sign(
     { username: 'admin', timestamp: Date.now() },
@@ -111,8 +111,8 @@ Given('使用者有一個有效的 token', async function(this: TestContext) {
   );
 });
 
-When('使用者攜帶 token 存取受保護的 API', async function(this: TestContext) {
-  // 測試一個受保護的端點（例如：獲取所有 sessions）
+When('用户携带 token 访问受保护的 API', async function(this: TestContext) {
+  // 测试一个受保护的端点（例如：获取所有 sessions）
   try {
     const response = await axios.get('http://localhost:3001/api/sessions', {
       headers: {
@@ -122,7 +122,7 @@ When('使用者攜帶 token 存取受保護的 API', async function(this: TestCo
     
     this.responseStatus = response.status;
     this.responseBody = response.data;
-    // 只有成功時才設定這個標記
+    // 只有成功时才设置这个标记
     if (response.status === 200) {
       this.testData.protectedApiAccessed = true;
     }
@@ -134,7 +134,7 @@ When('使用者攜帶 token 存取受保護的 API', async function(this: TestCo
   }
 });
 
-When('使用者在沒有 token 的情況下存取受保護的 API', async function(this: TestContext) {
+When('用户在没有 token 的情况下访问受保护的 API', async function(this: TestContext) {
   try {
     const response = await axios.get('http://localhost:3001/api/sessions');
     
@@ -146,17 +146,17 @@ When('使用者在沒有 token 的情況下存取受保護的 API', async functi
   }
 });
 
-Given('使用者有一個已過期的 token', async function(this: TestContext) {
-  // 生成一個已過期的 token
+Given('用户有一个已过期的 token', async function(this: TestContext) {
+  // 生成一个已过期的 token
   const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-key';
   this.testData.authToken = jwt.sign(
     { username: 'admin', timestamp: Date.now() },
     jwtSecret,
-    { expiresIn: '-1h' } // 已過期 1 小時
+    { expiresIn: '-1h' } // 已过期 1 小时
   );
 });
 
-When('使用者攜帶過期 token 存取受保護的 API', async function(this: TestContext) {
+When('用户携带过期 token 访问受保护的 API', async function(this: TestContext) {
   try {
     const response = await axios.get('http://localhost:3001/api/sessions', {
       headers: {
@@ -172,9 +172,9 @@ When('使用者攜帶過期 token 存取受保護的 API', async function(this: 
   }
 });
 
-// Then 步驟
+// Then 步骤
 
-Then('response 應包含 success 為 {word}', async function(this: TestContext, value: string) {
+Then('response 应包含 success 为 {word}', async function(this: TestContext, value: string) {
   const expectedValue = value === 'true';
   expect(this.responseBody.success).to.equal(expectedValue);
 });
@@ -183,24 +183,24 @@ Then('response 應包含 success 為 {word}', async function(this: TestContext, 
 
 // Removed - using generic step from common.steps.ts instead
 
-Then('response 應包含 message {string}', async function(this: TestContext, expectedMessage: string) {
+Then('response 应包含 message {string}', async function(this: TestContext, expectedMessage: string) {
   expect(this.responseBody.message).to.equal(expectedMessage);
 });
 
-Then('response 應包含 decoded 資訊', async function(this: TestContext) {
+Then('response 应包含 decoded 信息', async function(this: TestContext) {
   expect(this.responseBody.decoded).to.exist;
   expect(this.responseBody.decoded.username).to.exist;
   expect(this.responseBody.decoded.timestamp).to.exist;
 });
 
-Then('請求應該被允許通過', async function(this: TestContext) {
+Then('请求应该被允许通过', async function(this: TestContext) {
   expect(this.testData.protectedApiAccessed).to.be.true;
-  // 如果是受保護的 API，成功的狀態碼應該是 200
+  // 如果是受保护的 API，成功的状态码应该是 200
   expect(this.responseStatus).to.be.lessThan(400);
 });
 
-Then('使用者資訊應該被附加到請求物件', async function(this: TestContext) {
-  // 這個驗證通常在中間件內部發生
-  // 我們透過成功存取受保護的 API 來間接驗證
+Then('用户信息应该被附加到请求对象', async function(this: TestContext) {
+  // 这个验证通常在中间件内部发生
+  // 我们通过成功访问受保护的 API 来间接验证
   expect(this.testData.protectedApiAccessed).to.be.true;
 });

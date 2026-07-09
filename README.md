@@ -14,7 +14,7 @@
 
 **A comprehensive session management system for Claude Code with advanced workflow capabilities**
 
-**📖 Language / 語言:** [English](README.md) | [繁體中文](README-zh-TW.md)
+**📖 Language / 语言:** [English](README.md) | [简体中文](README-zh-CN.md)
 
 **⚠️ IMPORTANT:** [Read Disclaimer First](#️-disclaimer) | **🚀 Quick Start:** [Installation](#installation) | **📖 Guide:** [Usage](#-usage-guide)
 

@@ -5,7 +5,7 @@ export interface WorkflowStage {
   name: string;
   description?: string;
   system_prompt: string;
-  agent_ref?: string; // 參照的 Agent 檔名
+  agent_ref?: string; // 参照的 Agent 文件名
   suggested_tasks?: string[];
   color: string;
   icon: string;
@@ -39,42 +39,42 @@ export interface UpdateWorkflowStageRequest {
 }
 
 export const workflowStageService = {
-  // 獲取所有工作流程階段
+  // 获取所有工作流程阶段
   async getAllStages(activeOnly: boolean = false): Promise<WorkflowStage[]> {
     const params = activeOnly ? { params: { active: true } } : {};
     const response = await axiosInstance.get<WorkflowStage[]>('/workflow-stages', params);
     return response.data;
   },
 
-  // 獲取單個工作流程階段
+  // 获取单个工作流程阶段
   async getStage(stageId: string): Promise<WorkflowStage> {
     const response = await axiosInstance.get<WorkflowStage>(`/workflow-stages/${stageId}`);
     return response.data;
   },
 
-  // 創建新的工作流程階段
+  // 创建新的工作流程阶段
   async createStage(request: CreateWorkflowStageRequest): Promise<WorkflowStage> {
     const response = await axiosInstance.post<WorkflowStage>('/workflow-stages', request);
     return response.data;
   },
 
-  // 更新工作流程階段
+  // 更新工作流程阶段
   async updateStage(stageId: string, request: UpdateWorkflowStageRequest): Promise<WorkflowStage> {
     const response = await axiosInstance.put<WorkflowStage>(`/workflow-stages/${stageId}`, request);
     return response.data;
   },
 
-  // 刪除工作流程階段
+  // 删除工作流程阶段
   async deleteStage(stageId: string): Promise<void> {
     await axiosInstance.delete(`/workflow-stages/${stageId}`);
   },
 
-  // 重新排序階段
+  // 重新排序阶段
   async reorderStages(stages: { stage_id: string; sort_order: number }[]): Promise<void> {
     await axiosInstance.post('/workflow-stages/reorder', { stages });
   },
 
-  // 檢查 Agent 是否存在
+  // 检查 Agent 是否存在
   async checkAgentExists(agentName: string): Promise<boolean> {
     const response = await axiosInstance.post<{ exists: boolean }>('/workflow-stages/check-agent', {
       agentName
@@ -82,7 +82,7 @@ export const workflowStageService = {
     return response.data.exists;
   },
 
-  // 取得有效提示詞
+  // 取得有效提示词
   async getEffectivePrompt(stageId: string): Promise<{
     content: string;
     source: 'agent' | 'custom';

@@ -11,7 +11,7 @@ interface MessageInputProps {
 const MessageInput = React.memo(({ 
   onSendMessage, 
   disabled = false, 
-  placeholder = "輸入訊息..."
+  placeholder = "输入消息..."
 }: MessageInputProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -24,7 +24,7 @@ const MessageInput = React.memo(({
     setIsSending(true);
     try {
       await onSendMessage(messageContent);
-      setInputMessage(''); // 清空輸入框
+      setInputMessage(''); // 清空输入框
     } catch (error) {
       console.error('Send message error:', error);
     } finally {
@@ -90,7 +90,7 @@ const MessageInput = React.memo(({
               'flex items-center justify-center min-w-[48px] h-[48px]',
               'shadow-soft-md'
             )}
-            title="發送訊息 (Enter)"
+            title="发送消息 (Enter)"
           >
             {isSending ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

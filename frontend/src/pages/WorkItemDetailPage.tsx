@@ -50,42 +50,42 @@ export const WorkItemDetailPage: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [devMdContent, setDevMdContent] = useState<string>('');
   const [loadingDevMd, setLoadingDevMd] = useState(false);
-  const [rightPanelView, setRightPanelView] = useState<'devmd' | 'session' | null>('devmd'); // 控制右側顯示內容
-  const [showNavPanel, setShowNavPanel] = useState(false); // 顯示快速導覽面板
-  const [sessionSearchQuery, setSessionSearchQuery] = useState(''); // Session 搜尋關鍵字
+  const [rightPanelView, setRightPanelView] = useState<'devmd' | 'session' | null>('devmd'); // 控制右侧显示内容
+  const [showNavPanel, setShowNavPanel] = useState(false); // 显示快速导览面板
+  const [sessionSearchQuery, setSessionSearchQuery] = useState(''); // Session 搜索关键字
   const devMdContentRef = useRef<HTMLDivElement>(null);
   
-  // 從 localStorage 讀取 dev.md 側邊欄狀態
+  // 从 localStorage 读取 dev.md 侧边栏状态
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('devMdSidebarCollapsed');
     return saved ? JSON.parse(saved) : false;
   });
 
-  // 從 localStorage 讀取側邊欄寬度
+  // 从 localStorage 读取侧边栏宽度
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem('devMdSidebarWidth');
-    return saved ? parseInt(saved, 10) : 500; // 預設 500px
+    return saved ? parseInt(saved, 10) : 500; // 默认 500px
   });
 
-  // 拖曳調整寬度的狀態
+  // 拖曳调整宽度的状态
   const [isResizing, setIsResizing] = useState(false);
   const MIN_WIDTH = 300;
   const MAX_WIDTH = 1200;
 
-  // 切換側邊欄狀態並保存到 localStorage
+  // 切换侧边栏状态并保存到 localStorage
   const toggleDevMdSidebar = () => {
     const newState = !sidebarCollapsed;
     setSidebarCollapsed(newState);
     localStorage.setItem('devMdSidebarCollapsed', JSON.stringify(newState));
   };
 
-  // 處理拖曳開始
+  // 处理拖曳开始
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
   };
 
-  // 處理拖曳中
+  // 处理拖曳中
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
@@ -116,7 +116,7 @@ export const WorkItemDetailPage: React.FC = () => {
     };
   }, [isResizing]);
 
-  // 解析 dev.md 內容，提取 Session 段落資訊
+  // 解析 dev.md 内容，提取 Session 段落信息
   const sessionSections = useMemo(() => {
     if (!devMdContent) return [];
     
@@ -124,7 +124,7 @@ export const WorkItemDetailPage: React.FC = () => {
     const lines = devMdContent.split('\n');
     
     lines.forEach((line, index) => {
-      // 優先匹配標準格式：## [Session名稱] - sessionId
+      // 优先匹配标准格式：## [Session名称] - sessionId
       const standardMatch = line.match(/^##\s+\[([^\]]+)\]\s+-\s+([a-f0-9]{8})/i);
       if (standardMatch) {
         sections.push({
@@ -137,12 +137,12 @@ export const WorkItemDetailPage: React.FC = () => {
         return;
       }
       
-      // 回退：匹配任何 ## 開頭的標題
+      // 回退：匹配任何 ## 开头的标题
       const h2Match = line.match(/^##\s+(.+)/);
       if (h2Match) {
         const titleContent = h2Match[1].trim();
-        // 跳過一些可能的系統標題
-        if (!titleContent.match(/^(dev\.md|開發日誌|Work Item|任務|備註)/i)) {
+        // 跳过一些可能的系统标题
+        if (!titleContent.match(/^(dev\.md|开发日志|Work Item|任务|备注)/i)) {
           sections.push({
             title: titleContent,
             sessionName: titleContent,
@@ -157,22 +157,22 @@ export const WorkItemDetailPage: React.FC = () => {
     return sections;
   }, [devMdContent]);
 
-  // 滾動到指定的 Session 段落
+  // 滚动到指定的 Session 段落
   const scrollToSection = (sessionName: string, isStandard: boolean = true) => {
     if (!devMdContentRef.current) return;
     
-    // 找到對應的標題元素
+    // 找到对应的标题元素
     const headings = devMdContentRef.current.querySelectorAll('h2');
     for (const heading of headings) {
       const text = heading.textContent || '';
       
-      // 根據是否為標準格式使用不同的匹配方式
+      // 根据是否为标准格式使用不同的匹配方式
       const isMatch = isStandard 
         ? text.includes(`[${sessionName}]`)
         : text.trim() === sessionName;
         
       if (isMatch) {
-        // 滾動到該元素
+        // 滚动到该元素
         heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         // 高亮效果
@@ -189,43 +189,43 @@ export const WorkItemDetailPage: React.FC = () => {
   useEffect(() => {
     if (id) {
       loadWorkItem();
-      // 自動載入 dev.md
+      // 自动加载 dev.md
       loadDevMd();
     }
   }, [id]);
 
   useEffect(() => {
-    // 每次 sessions 更新時重新載入
+    // 每次 sessions 更新时重新加载
     loadSessions();
   }, []);
 
-  // 處理 Session 選擇
+  // 处理 Session 选择
   const handleSessionClick = (sessionId: string) => {
     setSelectedSessionId(sessionId);
-    setRightPanelView('session'); // 切換到顯示 Session
-    setSidebarCollapsed(false); // 展開側邊欄以顯示 Session
+    setRightPanelView('session'); // 切换到显示 Session
+    setSidebarCollapsed(false); // 展开侧边栏以显示 Session
   };
 
-  // 處理 Session 刪除
+  // 处理 Session 删除
   const handleSessionDelete = async (sessionId: string) => {
-    if (window.confirm('確定要刪除這個 Session 嗎？這個動作無法復原。')) {
+    if (window.confirm('确定要删除这个 Session 吗？这个动作无法复原。')) {
       try {
         await deleteSession(sessionId);
-        toast.success('Session 已刪除');
+        toast.success('Session 已删除');
         
-        // 如果刪除的是當前選中的 Session，清除選擇狀態
+        // 如果删除的是当前选中的 Session，清除选择状态
         if (selectedSessionId === sessionId) {
           setSelectedSessionId(null);
           setRightPanelView('devmd');
         }
         
-        // 重新載入相關資料
+        // 重新加载相关数据
         loadSessions();
         loadWorkItem();
-        loadDevMd(); // 刪除後重新載入 dev.md
+        loadDevMd(); // 删除后重新加载 dev.md
       } catch (error) {
         console.error('Failed to delete session:', error);
-        toast.error('刪除 Session 失敗');
+        toast.error('删除 Session 失败');
       }
     }
   };
@@ -241,11 +241,11 @@ export const WorkItemDetailPage: React.FC = () => {
     }
   };
 
-  // 過濾出屬於這個 Work Item 的 Sessions，並根據搜尋關鍵字過濾
+  // 过滤出属于这个 Work Item 的 Sessions，并根据搜索关键字过滤
   const workItemSessions = useMemo(() => {
     let filtered = sessions.filter(s => s.work_item_id === id);
     
-    // 如果有搜尋關鍵字，進一步過濾
+    // 如果有搜索关键字，进一步过滤
     if (sessionSearchQuery) {
       const query = sessionSearchQuery.toLowerCase();
       filtered = filtered.filter(s => 
@@ -268,29 +268,29 @@ export const WorkItemDetailPage: React.FC = () => {
       });
       
       const statusText: Record<string, string> = {
-        'planning': '已設為規劃中',
-        'in_progress': '已開始執行',
-        'completed': '已標記完成',
+        'planning': '已设为规划中',
+        'in_progress': '已开始运行',
+        'completed': '已标记完成',
         'cancelled': '已取消'
       };
-      toast.success(`Work Item ${statusText[status] || '狀態已更新'}`);
+      toast.success(`Work Item ${statusText[status] || '状态已更新'}`);
     } catch (err) {
       console.error('Failed to update work item status:', err);
-      toast.error('更新狀態失敗');
+      toast.error('更新状态失败');
     }
   };
 
 
   const handleDelete = async () => {
     if (!id) return;
-    if (window.confirm('確定要刪除這個 Work Item 嗎？相關的 Sessions 不會被刪除，但會解除關聯。')) {
+    if (window.confirm('确定要删除这个 Work Item 吗？相关的 Sessions 不会被删除，但会解除关联。')) {
       try {
         await deleteWorkItem(id);
-        toast.success('Work Item 已刪除');
+        toast.success('Work Item 已删除');
         navigate('/work-items');
       } catch (err) {
         console.error('Failed to delete work item:', err);
-        toast.error('刪除 Work Item 失敗');
+        toast.error('删除 Work Item 失败');
       }
     }
   };
@@ -304,7 +304,7 @@ export const WorkItemDetailPage: React.FC = () => {
       setDevMdContent(content);
     } catch (err) {
       console.error('Failed to load dev.md:', err);
-      toast.error('載入 dev.md 失敗');
+      toast.error('加载 dev.md 失败');
     } finally {
       setLoadingDevMd(false);
     }
@@ -320,7 +320,7 @@ export const WorkItemDetailPage: React.FC = () => {
     a.download = `${currentWorkItem.title}-dev.md`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('dev.md 已下載');
+    toast.success('dev.md 已下载');
   };
 
   if (loading) {
@@ -347,8 +347,8 @@ export const WorkItemDetailPage: React.FC = () => {
   }
 
   const statusConfig = {
-    planning: { icon: Clock, color: 'text-gray-500', bg: 'bg-gray-100', label: '規劃中' },
-    in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-100', label: '進行中' },
+    planning: { icon: Clock, color: 'text-gray-500', bg: 'bg-gray-100', label: '规划中' },
+    in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-100', label: '进行中' },
     completed: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-100', label: '已完成' },
     cancelled: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-100', label: '已取消' }
   };
@@ -357,7 +357,7 @@ export const WorkItemDetailPage: React.FC = () => {
   const status = statusConfig[currentWorkItem.status];
   const StatusIcon = status.icon;
 
-  // 計算進度
+  // 计算进度
   const completedSessions = workItemSessions.filter(s => s.status === 'completed').length;
   const progress = workItemSessions.length > 0 
     ? Math.round((completedSessions / workItemSessions.length) * 100)
@@ -366,7 +366,7 @@ export const WorkItemDetailPage: React.FC = () => {
   return (
     <div className="flex-1 bg-gray-50">
       <div className="flex h-full">
-        {/* 主內容區 */}
+        {/* 主内容区 */}
         <div
           className="flex-1 px-2 sm:px-3 lg:px-4 py-2 transition-all duration-300"
           style={{
@@ -411,17 +411,17 @@ export const WorkItemDetailPage: React.FC = () => {
 
                   {/* Progress */}
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-600">
-                    進度 {progress}%
+                    进度 {progress}%
                   </span>
                   
                   {/* Meta Info inline */}
                   <span className="text-gray-500 flex items-center gap-1 text-xs">
                     <Calendar className="w-3 h-3" />
-                    創建於 {formatDistanceToNow(new Date(currentWorkItem.created_at), { locale: zhTW, addSuffix: true })}
+                    创建于 {formatDistanceToNow(new Date(currentWorkItem.created_at), { locale: zhTW, addSuffix: true })}
                   </span>
                   {currentWorkItem.completed_at && (
                     <span className="text-green-600 text-xs">
-                      完成於 {formatDistanceToNow(new Date(currentWorkItem.completed_at), { locale: zhTW, addSuffix: true })}
+                      完成于 {formatDistanceToNow(new Date(currentWorkItem.completed_at), { locale: zhTW, addSuffix: true })}
                     </span>
                   )}
                 </div>
@@ -434,7 +434,7 @@ export const WorkItemDetailPage: React.FC = () => {
                     onClick={() => handleStatusChange('in_progress')}
                     className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs"
                   >
-                    開始執行
+                    开始运行
                   </button>
                 )}
                 {currentWorkItem.status === 'in_progress' && (
@@ -442,20 +442,20 @@ export const WorkItemDetailPage: React.FC = () => {
                     onClick={() => handleStatusChange('completed')}
                     className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs"
                   >
-                    標記完成
+                    标记完成
                   </button>
                 )}
                 <button
                   onClick={() => setEditDialogOpen(true)}
                   className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                  title="編輯"
+                  title="编辑"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={handleDelete}
                   className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                  title="刪除"
+                  title="删除"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -481,15 +481,15 @@ export const WorkItemDetailPage: React.FC = () => {
               className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1 text-xs"
             >
               <Plus className="w-3 h-3" />
-              新增
+              添加
             </button>
           </div>
 
-          {/* 搜尋框 - 只在有 Sessions 時顯示 */}
+          {/* 搜索框 - 只在有 Sessions 时显示 */}
           {sessions.filter(s => s.work_item_id === id).length > 0 && (
             <div className="mb-3">
               <SearchBar
-                placeholder="搜尋 Sessions..."
+                placeholder="搜索 Sessions..."
                 onSearch={setSessionSearchQuery}
                 defaultValue={sessionSearchQuery}
                 className="w-full"
@@ -517,34 +517,34 @@ export const WorkItemDetailPage: React.FC = () => {
                 <Calendar className="w-8 h-8 mx-auto" />
               </div>
               <p className="text-xs text-gray-500 mb-2">
-                還沒有 Sessions
+                还没有 Sessions
               </p>
               <button
                 onClick={() => setCreateSessionOpen(true)}
                 className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors inline-flex items-center gap-1 text-xs"
               >
                 <Plus className="w-3 h-3" />
-                創建第一個
+                创建第一个
               </button>
             </div>
           ) : (
             <div className="space-y-2">
               {workItemSessions.map((session, index) => {
-                // 根據 Session 狀態決定色塊顏色
+                // 根据 Session 状态决定色块颜色
                 const getStatusColor = () => {
                   switch (session.status) {
                     case 'processing':
-                      return { bg: 'bg-yellow-500', title: '處理中' };
+                      return { bg: 'bg-yellow-500', title: '处理中' };
                     case 'completed':
                       return { bg: 'bg-green-500', title: '已完成' };
                     case 'error':
-                      return { bg: 'bg-red-500', title: '發生錯誤' };
+                      return { bg: 'bg-red-500', title: '发生错误' };
                     case 'interrupted':
-                      return { bg: 'bg-orange-500', title: '已中斷' };
+                      return { bg: 'bg-orange-500', title: '已中断' };
                     case 'idle':
-                      return { bg: 'bg-blue-500', title: '閒置中' };
+                      return { bg: 'bg-blue-500', title: '闲置中' };
                     default:
-                      return { bg: 'bg-gray-400', title: '未知狀態' };
+                      return { bg: 'bg-gray-400', title: '未知状态' };
                   }
                 };
                 
@@ -586,14 +586,14 @@ export const WorkItemDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Create Session Modal - 預設關聯到這個 Work Item */}
+        {/* Create Session Modal - 默认关联到这个 Work Item */}
         {createSessionOpen && (
           <CreateSessionModal
             isOpen={createSessionOpen}
             onClose={() => {
               setCreateSessionOpen(false);
-              loadSessions(); // 重新載入 sessions
-              loadWorkItem(); // 重新載入 Work Item 以更新統計數據
+              loadSessions(); // 重新加载 sessions
+              loadWorkItem(); // 重新加载 Work Item 以更新统计数据
             }}
             defaultWorkItemId={id}
           />
@@ -612,7 +612,7 @@ export const WorkItemDetailPage: React.FC = () => {
         />
         </div>
 
-        {/* 右側側邊欄 - 統一容器 */}
+        {/* 右侧侧边栏 - 统一容器 */}
         <div
           className="fixed right-0 top-0 h-full bg-white shadow-lg z-10"
           style={{
@@ -620,7 +620,7 @@ export const WorkItemDetailPage: React.FC = () => {
             transition: isResizing ? 'none' : 'all 0.3s'
           }}
         >
-          {/* 拖曳調整手柄 - 只在展開時顯示 */}
+          {/* 拖曳调整手柄 - 只在展开时显示 */}
           {!sidebarCollapsed && (
             <div
               onMouseDown={handleMouseDown}
@@ -631,7 +631,7 @@ export const WorkItemDetailPage: React.FC = () => {
             </div>
           )}
 
-          {/* 收合/展開按鈕 */}
+          {/* 收合/展开按钮 */}
           <button
             onClick={toggleDevMdSidebar}
             className="absolute -left-3 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-1 hover:bg-gray-50 transition-colors z-20"
@@ -643,10 +643,10 @@ export const WorkItemDetailPage: React.FC = () => {
             )}
           </button>
 
-          {/* 側邊欄內容 */}
+          {/* 侧边栏内容 */}
           {!sidebarCollapsed ? (
             <div className="h-full flex flex-col">
-              {/* 頂部切換標籤 - 只在有 Session 時顯示 */}
+              {/* 顶部切换标签 - 只在有 Session 时显示 */}
               {selectedSessionId && (
                 <div className="flex border-b">
                   <button
@@ -658,7 +658,7 @@ export const WorkItemDetailPage: React.FC = () => {
                     }`}
                   >
                     <FileText className="w-4 h-4" />
-                    開發日誌
+                    开发日志
                   </button>
                   <button
                     onClick={() => setRightPanelView('session')}
@@ -669,29 +669,29 @@ export const WorkItemDetailPage: React.FC = () => {
                     }`}
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Session 詳情
+                    Session 详情
                   </button>
                 </div>
               )}
 
-              {/* 內容區域 */}
+              {/* 内容区域 */}
               {rightPanelView === 'session' && selectedSessionId ? (
-                // SessionDetail 內容
+                // SessionDetail 内容
                 <div className="flex-1 overflow-hidden">
                   <SessionDetail key={selectedSessionId} sessionId={selectedSessionId} embedded={true} />
                 </div>
               ) : (
-                // dev.md 內容
+                // dev.md 内容
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
-                    <h2 className="text-sm font-semibold text-gray-900">開發日誌 (dev.md)</h2>
+                    <h2 className="text-sm font-semibold text-gray-900">开发日志 (dev.md)</h2>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={loadDevMd}
                         className={`p-1.5 text-gray-600 hover:bg-gray-50 rounded transition-colors ${
                           loadingDevMd ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
-                        title="重新載入 dev.md"
+                        title="重新加载 dev.md"
                         disabled={loadingDevMd}
                       >
                         <RefreshCw className={`w-4 h-4 ${loadingDevMd ? 'animate-spin' : ''}`} />
@@ -701,7 +701,7 @@ export const WorkItemDetailPage: React.FC = () => {
                         className={`p-1.5 rounded transition-colors relative ${
                           showNavPanel ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
                         }`}
-                        title="快速導覽"
+                        title="快速导览"
                       >
                         <List className="w-4 h-4" />
                         {sessionSections.length > 0 && (
@@ -713,14 +713,14 @@ export const WorkItemDetailPage: React.FC = () => {
                       <button
                         onClick={downloadDevMd}
                         className="p-1.5 text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                        title="下載 dev.md"
+                        title="下载 dev.md"
                       >
                         <Download className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   
-                  {/* 快速導覽面板 */}
+                  {/* 快速导览面板 */}
                   {showNavPanel && (
                     <div className="border-b bg-gray-50 p-3 flex-shrink-0">
                       {sessionSections.length > 0 ? (
@@ -728,10 +728,10 @@ export const WorkItemDetailPage: React.FC = () => {
                           <div className="flex items-center justify-between mb-2">
                             <div className="text-xs font-medium text-gray-700 flex items-center gap-1">
                               <Hash className="w-3 h-3" />
-                              快速跳轉到 Session 段落
+                              快速跳转到 Session 段落
                             </div>
                             <span className="text-[10px] text-gray-500">
-                              共 {sessionSections.length} 個段落
+                              共 {sessionSections.length} 个段落
                             </span>
                           </div>
                           <div className="space-y-1 max-h-40 overflow-y-auto">
@@ -751,7 +751,7 @@ export const WorkItemDetailPage: React.FC = () => {
                                 {section.isStandard ? (
                                   <span className="text-gray-400 text-[10px]">{section.sessionId}</span>
                                 ) : (
-                                  <span className="text-orange-400 text-[10px]" title="非標準格式">H2</span>
+                                  <span className="text-orange-400 text-[10px]" title="非标准格式">H2</span>
                                 )}
                               </button>
                             ))}
@@ -760,9 +760,9 @@ export const WorkItemDetailPage: React.FC = () => {
                       ) : (
                         <div className="text-center py-3">
                           <Hash className="w-6 h-6 text-gray-300 mx-auto mb-2" />
-                          <p className="text-xs text-gray-500">尚無 Session 段落</p>
+                          <p className="text-xs text-gray-500">尚无 Session 段落</p>
                           <p className="text-[10px] text-gray-400 mt-1">
-                            Claude Code 執行後會自動建立段落
+                            Claude Code 运行后会自动创建段落
                           </p>
                         </div>
                       )}
@@ -781,7 +781,7 @@ export const WorkItemDetailPage: React.FC = () => {
                     ) : (
                       <div className="text-center text-gray-500 text-sm">
                         <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                        <p>dev.md 尚未建立</p>
+                        <p>dev.md 尚未创建</p>
                       </div>
                     )}
                   </div>
@@ -789,7 +789,7 @@ export const WorkItemDetailPage: React.FC = () => {
               )}
             </div>
           ) : (
-            // 收合時的圖示
+            // 收合时的图标
             <div className="h-full flex items-center justify-center">
               {rightPanelView === 'session' && selectedSessionId ? (
                 <MessageSquare className="w-5 h-5 text-gray-400" />

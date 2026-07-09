@@ -215,16 +215,16 @@ export class WorkItemService {
       const initialContent = `# ${workItem.title}
 
 ## 概述
-- **建立時間**: ${new Date(workItem.created_at).toLocaleString('zh-TW')}
-- **狀態**: ${workItem.status}
+- **创建时间**: ${new Date(workItem.created_at).toLocaleString('zh-CN')}
+- **状态**: ${workItem.status}
 - **Work Item ID**: ${workItem.work_item_id}
 ${workItem.description ? `- **描述**: ${workItem.description}` : ''}
 
 ---
 
-## 開發日誌
+## 开发日志
 
-<!-- AI 將在此處追加每個 Session 的進度和產出 -->
+<!-- AI 将在此处追加每个 Session 的进度和产出 -->
 `;
 
       fs.writeFileSync(devMdPath, initialContent, 'utf-8');

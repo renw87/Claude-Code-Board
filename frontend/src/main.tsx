@@ -3,7 +3,7 @@ import './index.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  // 暫時禁用 StrictMode 來減少開發環境的重複連接
+  // 暂时禁用 StrictMode 来减少开发环境的重复连接
   // <StrictMode>
     <App />
   // </StrictMode>

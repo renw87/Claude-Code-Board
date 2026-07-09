@@ -58,7 +58,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     loadSessionDetails();
   }, [sessionId, navigate, embedded]);
 
-  // 監聽 WebSocket 狀態更新
+  // 监听 WebSocket 状态更新
   useEffect(() => {
     if (!sessionId) return;
 
@@ -68,7 +68,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
         setSession(prev => {
           if (!prev) return prev;
           
-          // 將狀態字串轉換為 SessionStatus 枚舉
+          // 将状态字符串转换为 SessionStatus 枚举
           let newStatus: SessionStatus;
           switch (data.status) {
             case 'idle':
@@ -93,7 +93,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
           return {
             ...prev,
             status: newStatus,
-            // 如果狀態變為 idle，清除錯誤訊息
+            // 如果状态变为 idle，清调试误消息
             error: newStatus === SessionStatus.IDLE ? undefined : prev.error
           };
         });
@@ -109,7 +109,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     };
   }, [sessionId, addEventListener, removeEventListener]);
 
-  // 監聽 WebSocket 錯誤事件
+  // 监听 WebSocket 错误事件
   useEffect(() => {
     if (!sessionId) return;
 
@@ -117,23 +117,23 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
       if (data.sessionId === sessionId) {
         console.error('Session error received:', data);
         
-        // 顯示詳細的錯誤訊息
-        const errorMessage = data.error || '執行時發生未知錯誤';
+        // 显示详细的错误消息
+        const errorMessage = data.error || '运行时发生未知错误';
         const errorDetails = [];
         
         if (data.errorType) {
-          errorDetails.push(`錯誤類型: ${data.errorType}`);
+          errorDetails.push(`错误类型: ${data.errorType}`);
         }
         
         if (data.details?.stderr) {
-          errorDetails.push(`詳細資訊: ${data.details.stderr}`);
+          errorDetails.push(`详细信息: ${data.details.stderr}`);
         }
         
         if (data.details?.exitCode) {
-          errorDetails.push(`退出代碼: ${data.details.exitCode}`);
+          errorDetails.push(`退出代码: ${data.details.exitCode}`);
         }
         
-        // 顯示錯誤通知
+        // 显示错误通知
         toast.error(
           <div>
             <div className="font-semibold">{errorMessage}</div>
@@ -148,7 +148,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
           { duration: 10000 }
         );
         
-        // 更新 session 狀態
+        // 更新 session 状态
         setSession(prev => {
           if (!prev) return prev;
           return {
@@ -181,7 +181,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
         ...updates
       };
       console.log('=== SessionDetail session 更新前 ===', prev);
-      console.log('=== SessionDetail session 更新後 ===', updated);
+      console.log('=== SessionDetail session 更新后 ===', updated);
       return updated;
     });
   };
@@ -193,14 +193,14 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
       setLoading(true);
       setError(null);
       
-      // 並行載入 session 資料、專案和標籤
+      // 并行加载 session 数据、项目和标签
       const [sessionData, projects, tags] = await Promise.all([
         sessionApi.getSession(sessionId),
         projectApi.getProjectsBySessionId(sessionId).catch(() => []),
         tagApi.getTagsBySessionId(sessionId).catch(() => [])
       ]);
       
-      console.log('=== SessionDetail API 回傳資料 ===');
+      console.log('=== SessionDetail API 回传数据 ===');
       console.log('sessionData:', sessionData);
       console.log('projects:', projects);
       console.log('tags:', tags);
@@ -208,14 +208,14 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
       setSession(sessionData);
       setSessionProjects(projects.map((p: Project) => p.project_id));
       
-      // 根據標籤類型分組
+      // 根据标签类型分组
       const allTagIds = tags.map((t: Tag) => t.tag_id);
       const topicTagIds = tags.filter((t: Tag) => t.type === 'topic').map((t: Tag) => t.tag_id);
       
       setSessionTags(allTagIds);
       setTopicTags(topicTagIds);
       
-      // 不再這裡載入訊息，交給 ChatInterface 的 messageStore 處理
+      // 不再这里加载消息，交给 ChatInterface 的 messageStore 处理
       setMessages([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load session details');
@@ -231,9 +231,9 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     try {
       const updatedSession = await completeSession(sessionId);
       setSession(updatedSession);
-      toast.success('Session 已標記為完成');
+      toast.success('Session 已标记为完成');
     } catch (error) {
-      toast.error('無法完成 Session');
+      toast.error('无法完成 Session');
     }
   };
 
@@ -243,9 +243,9 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     try {
       const updatedSession = await interruptSession(sessionId);
       setSession(updatedSession);
-      toast.success('Session 已中斷');
+      toast.success('Session 已中断');
     } catch (error) {
-      toast.error('無法中斷 Session');
+      toast.error('无法中断 Session');
     }
   };
 
@@ -255,35 +255,35 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     try {
       const updatedSession = await resumeSession(sessionId);
       setSession(updatedSession);
-      toast.success('Session 已恢復');
+      toast.success('Session 已恢复');
     } catch (error) {
-      toast.error('無法恢復 Session');
+      toast.error('无法恢复 Session');
     }
   };
 
-  // handleContinue 函數已移除，因為用戶現在可以直接在聊天介面中繼續對話
+  // handleContinue 函数已移除，因为用户现在可以直接在聊天接口中继续对话
 
   const handleDelete = async () => {
     if (!sessionId) return;
     
-    if (!confirm('確定要刪除這個 Session 嗎？此操作無法復原。')) {
+    if (!confirm('确定要删除这个 Session 吗？此操作无法复原。')) {
       return;
     }
 
     try {
       await deleteSession(sessionId);
-      toast.success('Session 已刪除');
+      toast.success('Session 已删除');
       if (!embedded) {
         navigate('/');
       }
     } catch (error) {
-      toast.error('無法刪除 Session');
+      toast.error('无法删除 Session');
     }
   };
 
   const handleExportMessages = () => {
     if (!messages.length) {
-      toast.error('沒有訊息可以匯出');
+      toast.error('没有消息可以导出');
       return;
     }
 
@@ -314,7 +314,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast.success('訊息已匯出');
+    toast.success('消息已导出');
   };
 
   const handleQuickStart = () => {
@@ -323,12 +323,12 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
 
   const handleQuickStartCreated = (newSession: Session) => {
     setShowQuickStart(false);
-    toast.success('新 Session 已建立');
-    // 導航到新的 Session
+    toast.success('新 Session 已创建');
+    // 导航到新的 Session
     navigate(`/sessions/${newSession.sessionId}`);
   };
 
-  // 準備預填資料
+  // 准备预填数据
   const getPrefillData = () => {
     if (!session) return undefined;
 
@@ -337,17 +337,17 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
       workingDir: session.workingDir,
       work_item_id: session.work_item_id,
       workflow_stage_id: session.workflow_stage_id,
-      name: `${session.name} - 新任務`,
-      task: `基於前一個對話的上下文，請先閱讀 dev.md 和相關專案檔案。
+      name: `${session.name} - 新任务`,
+      task: `基于前一个对话的上下文，请先阅读 dev.md 和相关项目文件。
 
-新任務：`,
+新任务：`,
     };
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner text="載入 Session 詳情中..." />
+        <LoadingSpinner text="加载 Session 详情中..." />
       </div>
     );
   }
@@ -370,10 +370,10 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
 
   return (
     <div className="flex flex-col h-full">
-      {/* 頁面標題和操作 */}
+      {/* 页面标题和操作 */}
       <div className="glass-card border-b border-glass-border px-3 py-2">
         <div className="pl-24">
-          {/* 標題和狀態 */}
+          {/* 标题和状态 */}
           <div className="flex items-start justify-between gap-2 mb-1">
             <h1 className="text-lg font-bold text-gray-900 truncate flex-1 min-w-0">
               {session.name}
@@ -386,7 +386,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
             </div>
           </div>
           
-          {/* 元資訊 - 極簡模式 */}
+          {/* 元信息 - 极简模式 */}
           <div className="flex items-center gap-3 text-[11px] text-gray-500">
             <div className="flex items-center gap-1 min-w-0">
               <Folder className="w-3 h-3 flex-shrink-0" />
@@ -394,9 +394,9 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                 {session.workingDir.split('/').pop() || 'root'}
               </span>
             </div>
-            {/* 操作按鈕 - 移到第二行 */}
+            {/* 操作按钮 - 移到第二行 */}
             <div className="flex items-center gap-1 mt-1.5">
-              <Tooltip content="分類管理">
+              <Tooltip content="分类管理">
                 <button
                   onClick={() => setShowClassification(!showClassification)}
                   className={cn(
@@ -410,7 +410,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                 </button>
               </Tooltip>
 
-              <Tooltip content="匯出對話">
+              <Tooltip content="导出对话">
                 <button
                   onClick={handleExportMessages}
                   className="p-1.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -419,7 +419,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                 </button>
               </Tooltip>
 
-              <Tooltip content="基於此對話快速啟動">
+              <Tooltip content="基于此对话快速启动">
                 <button
                   onClick={handleQuickStart}
                   className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -428,9 +428,9 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                 </button>
               </Tooltip>
 
-              {/* 根據狀態顯示不同操作 */}
+              {/* 根据状态显示不同操作 */}
               {session.status === SessionStatus.PROCESSING && (
-                <Tooltip content="中斷執行">
+                <Tooltip content="中断运行">
                   <button
                     onClick={handleInterrupt}
                     className="p-1.5 text-warning-600 hover:bg-warning-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -441,7 +441,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
               )}
               
               {session.status === SessionStatus.IDLE && (
-                <Tooltip content="標記為完成">
+                <Tooltip content="标记为完成">
                   <button
                     onClick={handleComplete}
                     className="p-1.5 text-success-600 hover:bg-success-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -453,7 +453,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
 
               {session.status === SessionStatus.INTERRUPTED && (
                 <>
-                  <Tooltip content="恢復 Session">
+                  <Tooltip content="恢复 Session">
                     <button
                       onClick={handleResume}
                       className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -461,7 +461,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                       <RotateCcw className="w-3.5 h-3.5" />
                     </button>
                   </Tooltip>
-                  <Tooltip content="標記為完成">
+                  <Tooltip content="标记为完成">
                     <button
                       onClick={handleComplete}
                       className="p-1.5 text-success-600 hover:bg-success-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -472,9 +472,9 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
                 </>
               )}
 
-              {/* COMPLETED 和 ERROR 狀態的 Session 可以直接在聊天介面中繼續對話 */}
+              {/* COMPLETED 和 ERROR 状态的 Session 可以直接在聊天接口中继续对话 */}
 
-              <Tooltip content="刪除 Session">
+              <Tooltip content="删除 Session">
                 <button
                   onClick={handleDelete}
                   className="p-1.5 text-danger-600 hover:bg-danger-50 rounded-lg transition-all hover:shadow-soft-sm"
@@ -486,7 +486,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
           </div>
         </div>
 
-        {/* 分類管理面板 */}
+        {/* 分类管理面板 */}
         {showClassification && (
           <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
             <div className="space-y-4">
@@ -505,16 +505,16 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
           </div>
         )}
 
-        {/* 錯誤訊息 */}
+        {/* 错误消息 */}
         {session.error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <h3 className="text-sm font-medium text-red-700 mb-2">錯誤訊息：</h3>
+            <h3 className="text-sm font-medium text-red-700 mb-2">错误消息：</h3>
             <p className="text-red-600 text-sm">{session.error}</p>
           </div>
         )}
       </div>
 
-      {/* 聊天介面 */}
+      {/* 聊天接口 */}
       <div className="flex-1 overflow-hidden">
         <ChatInterface
           sessionId={sessionId!}
@@ -526,7 +526,7 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
         />
       </div>
 
-      {/* 快速啟動 Modal */}
+      {/* 快速启动 Modal */}
       <CreateSessionModal
         isOpen={showQuickStart}
         onClose={() => setShowQuickStart(false)}
@@ -537,5 +537,5 @@ const SessionDetailComponent: React.FC<SessionDetailProps> = ({ sessionId: propS
   );
 };
 
-// 使用 React.memo 來防止不必要的重新渲染
+// 使用 React.memo 来防止不必要的重新渲染
 export const SessionDetail = React.memo(SessionDetailComponent);

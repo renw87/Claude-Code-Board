@@ -22,7 +22,7 @@ function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { isConnected, connectionError } = useWebSocket();
   
-  // 啟用全域通知系統
+  // 激活全域通知系统
   useNotifications();
   
   return (
@@ -31,14 +31,14 @@ function App() {
         <AuthProvider>
           <div className="min-h-screen bg-gray-50 relative">
             <Routes>
-                {/* 登入頁面 */}
+                {/* 登录页面 */}
                 <Route path="/login" element={<LoginPage />} />
                 
-                {/* 受保護的路由 */}
+                {/* 受保护的路由 */}
                 <Route path="/*" element={
                   <ProtectedRoute>
                     <SessionsProvider>
-                      {/* WebSocket 連線狀態提示 - 固定在頂部 */}
+                      {/* WebSocket 连接状态提示 - 固定在顶部 */}
                       {!isConnected && (
                         <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-50 border-b border-yellow-400 p-4">
                           <div className="flex items-center justify-center">
@@ -47,7 +47,7 @@ function App() {
                             </div>
                             <div className="ml-3">
                               <p className="text-sm text-yellow-700">
-                                {connectionError ? `連線錯誤: ${connectionError.message}` : '正在連線到伺服器...'}
+                                {connectionError ? `连接错误: ${connectionError.message}` : '正在连接到服务器...'}
                               </p>
                             </div>
                           </div>
@@ -69,7 +69,7 @@ function App() {
                           </Routes>
                         </ErrorBoundary>
 
-                        {/* 建立 Session Modal */}
+                        {/* 创建 Session Modal */}
                         <CreateSessionModal
                           isOpen={isCreateModalOpen}
                           onClose={() => setIsCreateModalOpen(false)}

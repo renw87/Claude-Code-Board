@@ -1,72 +1,72 @@
 /**
- * 統一處理器配置
+ * 统一处理器配置
  * 
- * 用於解決 Claude Code stream JSON 重複儲存問題
+ * 用于解决 Claude Code stream JSON 重复保存问题
  */
 
 import { getEnvConfig } from './env.config';
 
 export interface UnifiedProcessorConfig {
-  // 是否啟用統一處理器
+  // 是否激活统一处理器
   enabled: boolean;
   
-  // 訊息去重配置
+  // 消息去重配置
   deduplication: {
     // 是否使用 message ID 去重
     useMessageId: boolean;
-    // 保留的已處理訊息 ID 數量
+    // 保留的已处理消息 ID 数量
     maxProcessedIds: number;
-    // 內容比對去重的時間窗口（毫秒）
+    // 内容比对去重的时间窗口（毫秒）
     contentDedupeWindow: number;
   };
   
-  // 訊息過濾配置
+  // 消息过滤配置
   filtering: {
-    // 忽略的訊息類型
+    // 忽略的消息类型
     ignoreTypes: string[];
-    // 是否忽略空白訊息
+    // 是否忽略空白消息
     ignoreEmpty: boolean;
   };
   
-  // 緩衝配置
+  // 缓冲配置
   buffering: {
-    // 最大緩衝訊息數量
+    // 最大缓冲消息数量
     maxBufferSize: number;
-    // 緩衝超時時間（毫秒）
+    // 缓冲超时时间（毫秒）
     bufferTimeout: number;
   };
   
-  // 效能配置
+  // 性能配置
   performance: {
-    // 是否並行處理工具使用
+    // 是否并行处理工具使用
     parallelToolProcessing: boolean;
-    // 是否啟用批次儲存
+    // 是否激活批量保存
     batchSave: boolean;
-    // 批次大小
+    // 批量大小
     batchSize: number;
   };
   
-  // 相容性配置
+  // 兼容性配置
   compatibility: {
-    // 是否啟用舊版串流處理器後備
+    // 是否激活旧版串流处理器后备
     enableStreamFallback: boolean;
-    // 是否啟用批次處理後備
+    // 是否激活批量处理后备
     enableBatchFallback: boolean;
   };
   
-  // 除錯配置
+  // 调试配置
   debug: {
-    // 是否記錄詳細日誌
+    // 是否记录详细日志
     verbose: boolean;
-    // 是否記錄訊息 ID
+    // 是否记录消息 ID
     logMessageIds: boolean;
-    // 是否記錄重複檢測
+    // 是否记录重复检测
     logDuplicates: boolean;
   };
 }
 
 /**
- * 預設配置
+ * 默认配置
  */
 export const defaultUnifiedProcessorConfig: UnifiedProcessorConfig = {
   enabled: true,
@@ -78,7 +78,7 @@ export const defaultUnifiedProcessorConfig: UnifiedProcessorConfig = {
   },
   
   filtering: {
-    ignoreTypes: ['result', 'echo'], // 學習 vibe-kanban
+    ignoreTypes: ['result', 'echo'], // 学习 vibe-kanban
     ignoreEmpty: true
   },
   
@@ -89,7 +89,7 @@ export const defaultUnifiedProcessorConfig: UnifiedProcessorConfig = {
   
   performance: {
     parallelToolProcessing: true,
-    batchSave: false, // 先保持單一儲存，確保穩定性
+    batchSave: false, // 先保持单一保存，确保稳定性
     batchSize: 10
   },
   
@@ -106,7 +106,7 @@ export const defaultUnifiedProcessorConfig: UnifiedProcessorConfig = {
 };
 
 /**
- * 生產環境配置
+ * 生产环境配置
  */
 export const productionUnifiedProcessorConfig: UnifiedProcessorConfig = {
   ...defaultUnifiedProcessorConfig,
@@ -119,12 +119,12 @@ export const productionUnifiedProcessorConfig: UnifiedProcessorConfig = {
   
   performance: {
     ...defaultUnifiedProcessorConfig.performance,
-    batchSave: true, // 生產環境啟用批次儲存
+    batchSave: true, // 生产环境激活批量保存
   }
 };
 
 /**
- * 開發環境配置
+ * 开发环境配置
  */
 export const developmentUnifiedProcessorConfig: UnifiedProcessorConfig = {
   ...defaultUnifiedProcessorConfig,
@@ -137,12 +137,12 @@ export const developmentUnifiedProcessorConfig: UnifiedProcessorConfig = {
   
   deduplication: {
     ...defaultUnifiedProcessorConfig.deduplication,
-    maxProcessedIds: 100 // 開發時保持較小的記憶體使用
+    maxProcessedIds: 100 // 开发时保持较小的内存使用
   }
 };
 
 /**
- * 獲取當前環境配置
+ * 获取当前环境配置
  */
 export function getUnifiedProcessorConfig(): UnifiedProcessorConfig {
   const env = getEnvConfig().nodeEnv;
@@ -158,15 +158,15 @@ export function getUnifiedProcessorConfig(): UnifiedProcessorConfig {
 }
 
 /**
- * 配置驗證
+ * 配置验证
  */
 export function validateUnifiedProcessorConfig(config: UnifiedProcessorConfig): boolean {
-  // 基本驗證
+  // 基本验证
   if (!config || typeof config !== 'object') {
     return false;
   }
   
-  // 驗證數值範圍
+  // 验证数值范围
   if (config.deduplication.maxProcessedIds < 10 || config.deduplication.maxProcessedIds > 10000) {
     console.warn('UnifiedProcessor: maxProcessedIds should be between 10 and 10000, using default');
     config.deduplication.maxProcessedIds = 1000;

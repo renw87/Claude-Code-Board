@@ -2,8 +2,8 @@ import { Database } from '../database';
 import { logger } from '../../utils/logger';
 
 /**
- * 遷移資料庫 messages 表的 role 欄位為 type 欄位
- * 統一 WebSocket 即時訊息與 API 載入訊息的格式
+ * 迁移数据库 messages 表的 role 字段为 type 字段
+ * 统一 WebSocket 即时消息与 API 加载消息的格式
  */
 export class MigrateRoleToTypeMigration {
   private db: Database;
@@ -13,52 +13,52 @@ export class MigrateRoleToTypeMigration {
   }
 
   async up(): Promise<void> {
-    logger.info('=== 開始執行 role → type 遷移 ===');
+    logger.info('=== 开始运行 role → type 迁移 ===');
 
     try {
-      // 1. 檢查 type 欄位是否已存在
+      // 1. 检查 type 字段是否已存在
       const hasTypeColumn = await this.checkColumnExists('messages', 'type');
       
       if (hasTypeColumn) {
-        logger.info('type 欄位已存在，跳過遷移');
+        logger.info('type 字段已存在，跳过迁移');
         return;
       }
 
-      // 2. 新增 type 欄位
+      // 2. 添加 type 字段
       await this.addTypeColumn();
 
-      // 3. 遷移現有資料
+      // 3. 迁移现有数据
       await this.migrateData();
 
-      // 4. 更新約束條件
+      // 4. 更新约束条件
       await this.updateConstraints();
 
-      // 5. 驗證遷移結果
+      // 5. 验证迁移结果
       await this.validateMigration();
 
-      logger.info('=== role → type 遷移完成 ===');
+      logger.info('=== role → type 迁移完成 ===');
     } catch (error) {
-      logger.error('遷移失敗:', error);
+      logger.error('迁移失败:', error);
       throw error;
     }
   }
 
   async down(): Promise<void> {
-    logger.info('=== 開始執行 type → role 回滾 ===');
+    logger.info('=== 开始运行 type → role 回滚 ===');
 
     try {
-      // 回滾：移除 type 欄位，保留 role 欄位
+      // 回滚：移除 type 字段，保留 role 字段
       const hasTypeColumn = await this.checkColumnExists('messages', 'type');
       
       if (hasTypeColumn) {
-        // SQLite 不支援 DROP COLUMN，需要重建表
+        // SQLite 不支持 DROP COLUMN，需要重建表
         await this.rebuildTableWithoutType();
-        logger.info('=== type → role 回滾完成 ===');
+        logger.info('=== type → role 回滚完成 ===');
       } else {
-        logger.info('type 欄位不存在，無需回滾');
+        logger.info('type 字段不存在，无需回滚');
       }
     } catch (error) {
-      logger.error('回滾失敗:', error);
+      logger.error('回滚失败:', error);
       throw error;
     }
   }
@@ -68,49 +68,49 @@ export class MigrateRoleToTypeMigration {
       const tableInfo = await this.db.all(`PRAGMA table_info(${tableName})`);
       return tableInfo.some((column: any) => column.name === columnName);
     } catch (error) {
-      logger.error(`檢查欄位 ${columnName} 失敗:`, error);
+      logger.error(`检查字段 ${columnName} 失败:`, error);
       return false;
     }
   }
 
   private async addTypeColumn(): Promise<void> {
-    logger.info('新增 type 欄位...');
+    logger.info('添加 type 字段...');
     
     await this.db.run(`
       ALTER TABLE messages 
       ADD COLUMN type TEXT
     `);
     
-    logger.info('type 欄位新增成功');
+    logger.info('type 字段添加成功');
   }
 
   private async migrateData(): Promise<void> {
-    logger.info('開始遷移 role → type 資料...');
+    logger.info('开始迁移 role → type 数据...');
     
-    // 將所有 role 的值複製到 type 欄位
+    // 将所有 role 的值拷贝到 type 字段
     const result = await this.db.run(`
       UPDATE messages 
       SET type = role 
       WHERE type IS NULL
     `);
     
-    logger.info(`成功遷移 ${result.changes} 筆訊息資料`);
+    logger.info(`成功迁移 ${result.changes} 笔消息数据`);
   }
 
   private async updateConstraints(): Promise<void> {
-    logger.info('更新約束條件...');
+    logger.info('更新约束条件...');
     
-    // SQLite 不支援修改約束條件，需要重建表
+    // SQLite 不支持修改约束条件，需要重建表
     await this.rebuildTableWithTypeConstraint();
     
-    logger.info('約束條件更新完成');
+    logger.info('约束条件更新完成');
   }
 
   private async rebuildTableWithTypeConstraint(): Promise<void> {
     await this.db.beginTransaction();
     
     try {
-      // 1. 建立新表結構
+      // 1. 创建新表结构
       await this.db.run(`
         CREATE TABLE messages_new (
           message_id TEXT PRIMARY KEY,
@@ -126,7 +126,7 @@ export class MigrateRoleToTypeMigration {
         )
       `);
 
-      // 2. 複製資料到新表
+      // 2. 拷贝数据到新表
       await this.db.run(`
         INSERT INTO messages_new (
           message_id, session_id, type, content, compressed, 
@@ -138,7 +138,7 @@ export class MigrateRoleToTypeMigration {
         FROM messages
       `);
 
-      // 3. 刪除舊表
+      // 3. 删除旧表
       await this.db.run(`DROP TABLE messages`);
 
       // 4. 重命名新表
@@ -158,7 +158,7 @@ export class MigrateRoleToTypeMigration {
       `);
 
       await this.db.commit();
-      logger.info('表結構重建完成');
+      logger.info('表结构重建完成');
     } catch (error) {
       await this.db.rollback();
       throw error;
@@ -169,7 +169,7 @@ export class MigrateRoleToTypeMigration {
     await this.db.beginTransaction();
     
     try {
-      // 1. 建立舊表結構（只有 role）
+      // 1. 创建旧表结构（只有 role）
       await this.db.run(`
         CREATE TABLE messages_old (
           message_id TEXT PRIMARY KEY,
@@ -184,7 +184,7 @@ export class MigrateRoleToTypeMigration {
         )
       `);
 
-      // 2. 複製資料，將 type 複製回 role
+      // 2. 拷贝数据，将 type 拷贝回 role
       await this.db.run(`
         INSERT INTO messages_old (
           message_id, session_id, role, content, compressed, 
@@ -194,14 +194,14 @@ export class MigrateRoleToTypeMigration {
           message_id, session_id, 
           CASE 
             WHEN type IN ('user', 'assistant', 'system') THEN type
-            ELSE 'assistant'  -- 將新增的類型映射回 assistant
+            ELSE 'assistant'  -- 将添加的类型映射回 assistant
           END as role,
           content, compressed,
           original_size, compressed_size, timestamp
         FROM messages
       `);
 
-      // 3. 刪除新表
+      // 3. 删除新表
       await this.db.run(`DROP TABLE messages`);
 
       // 4. 重命名回原表名
@@ -224,9 +224,9 @@ export class MigrateRoleToTypeMigration {
   }
 
   private async validateMigration(): Promise<void> {
-    logger.info('驗證遷移結果...');
+    logger.info('验证迁移结果...');
     
-    // 檢查資料一致性
+    // 检查数据一致性
     const roleTypeMatch = await this.db.get(`
       SELECT COUNT(*) as count 
       FROM messages 
@@ -239,10 +239,10 @@ export class MigrateRoleToTypeMigration {
     `);
     
     if (roleTypeMatch?.count !== totalMessages?.count) {
-      throw new Error(`遷移驗證失敗: role 與 type 資料不一致`);
+      throw new Error(`迁移验证失败: role 与 type 数据不一致`);
     }
     
-    // 檢查約束條件
+    // 检查约束条件
     const invalidTypes = await this.db.get(`
       SELECT COUNT(*) as count 
       FROM messages 
@@ -250,10 +250,10 @@ export class MigrateRoleToTypeMigration {
     `);
     
     if (invalidTypes?.count > 0) {
-      logger.warn(`發現 ${invalidTypes.count} 筆無效的 type 值`);
+      logger.warn(`发现 ${invalidTypes.count} 笔无效的 type 值`);
     }
     
-    logger.info(`遷移驗證成功: ${totalMessages?.count} 筆訊息資料一致`);
+    logger.info(`迁移验证成功: ${totalMessages?.count} 笔消息数据一致`);
   }
 
   async getStatus(): Promise<{

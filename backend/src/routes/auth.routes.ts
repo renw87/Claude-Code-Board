@@ -5,22 +5,22 @@ import { getEnvConfig } from '../config/env.config';
 
 const router = express.Router();
 
-// 登入 API
+// 登录 API
 router.post('/login', (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // 從統一配置獲取帳號密碼
+    // 从统一配置获取帐号密码
     const config = getEnvConfig();
     const adminUsername = config.auth.username;
     const adminPassword = config.auth.password;
     const jwtSecret = config.auth.jwtSecret;
 
-    // 驗證帳號密碼
+    // 验证帐号密码
     if (username !== adminUsername || password !== adminPassword) {
       return res.status(401).json({
         success: false,
-        message: '帳號或密碼錯誤'
+        message: '帐号或密码错误'
       });
     }
 
@@ -34,19 +34,19 @@ router.post('/login', (req, res) => {
     res.json({
       success: true,
       token,
-      expiresIn: 7 * 24 * 60 * 60 * 1000, // 7天的毫秒數
-      message: '登入成功'
+      expiresIn: 7 * 24 * 60 * 60 * 1000, // 7天的毫秒数
+      message: '登录成功'
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: '登入時發生錯誤'
+      message: '登录时发生错误'
     });
   }
 });
 
-// 驗證 token API（用於檢查 token 是否有效）
+// 验证 token API（用于检查 token 是否有效）
 router.get('/verify', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   
@@ -69,7 +69,7 @@ router.get('/verify', (req, res) => {
   } catch (error) {
     res.status(401).json({
       success: false,
-      message: 'Token 無效或已過期'
+      message: 'Token 无效或已过期'
     });
   }
 });

@@ -4,7 +4,7 @@ import { Message } from '../types/session.types';
 import { sessionApi } from '../services/api';
 
 interface MessageState {
-  // 狀態
+  // 状态
   messages: Map<string, Message>;
   currentSessionId: string | null;
   isInitialized: boolean;
@@ -13,7 +13,7 @@ interface MessageState {
   lastSyncTime: Date | null;
   error: Error | null;
   
-  // 分頁狀態
+  // 分页状态
   pagination: {
     currentPage: number;
     totalPages: number;
@@ -39,7 +39,7 @@ interface MessageState {
 
 export const useMessageStore = create<MessageState>()(
   subscribeWithSelector((set, get) => ({
-    // 初始狀態
+    // 初始状态
     messages: new Map(),
     currentSessionId: null,
     isInitialized: false,
@@ -48,7 +48,7 @@ export const useMessageStore = create<MessageState>()(
     lastSyncTime: null,
     error: null,
     
-    // 分頁狀態
+    // 分页状态
     pagination: {
       currentPage: 1,
       totalPages: 1,
@@ -57,11 +57,11 @@ export const useMessageStore = create<MessageState>()(
       loadedPages: new Set<number>(),
     },
     
-    // 從 API 初始化（頁面載入/重新整理時）
+    // 从 API 初始化（页面加载/刷新时）
     initializeFromAPI: async (sessionId: string) => {
       const state = get();
       
-      // 如果是同一個 session 且已初始化或正在載入，不重複載入
+      // 如果是同一个 session 且已初始化或正在加载，不重复加载
       if (state.currentSessionId === sessionId && (state.isInitialized || state.isLoading)) {
         console.log('Skipping duplicate initialization for session:', sessionId);
         return;
@@ -71,15 +71,15 @@ export const useMessageStore = create<MessageState>()(
         isLoading: true, 
         error: null,
         currentSessionId: sessionId,
-        isInitialized: false // 確保重置初始化狀態
+        isInitialized: false // 确保重置初始化状态
       });
       
       try {
-        // 先獲取第一頁來得知總頁數
+        // 先获取第一页来得知总页数
         const firstPageResponse = await sessionApi.getMessages(sessionId, 1, 100);
         const totalPages = firstPageResponse.pagination.totalPages;
         
-        // 如果有多頁，載入最後一頁；否則就用第一頁的資料
+        // 如果有多页，加载最后一页；否则就用第一页的数据
         let response;
         if (totalPages > 1) {
           response = await sessionApi.getMessages(sessionId, totalPages, 100);
@@ -89,11 +89,11 @@ export const useMessageStore = create<MessageState>()(
         
         const messages = new Map<string, Message>();
         
-        // 將訊息加入 Map，保留原始的訊息類型
+        // 将消息加入 Map，保留原始的消息类型
         response.messages.forEach(msg => {
           messages.set(msg.messageId, {
             ...msg,
-            // 確保 timestamp 是 Date 物件
+            // 确保 timestamp 是 Date 对象
             timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
           });
         });
@@ -102,7 +102,7 @@ export const useMessageStore = create<MessageState>()(
           messages,
           isInitialized: true,
           isLoading: false,
-          lastSyncTime: new Date(), // 記錄同步時間
+          lastSyncTime: new Date(), // 记录同步时间
           error: null,
           pagination: {
             currentPage: totalPages > 1 ? totalPages : 1,
@@ -123,30 +123,30 @@ export const useMessageStore = create<MessageState>()(
       }
     },
     
-    // 添加訊息（來自 WebSocket 或用戶輸入）
+    // 添加消息（来自 WebSocket 或用户输入）
     addMessage: (message: Message) => {
       const state = get();
       
-      // 檢查 session 是否匹配
+      // 检查 session 是否匹配
       if (state.currentSessionId && message.sessionId !== state.currentSessionId) {
         console.log('Ignoring message from different session:', message.sessionId);
         return;
       }
       
-      // 檢查是否已存在（避免重複）
+      // 检查是否已存在（避免重复）
       if (state.hasMessage(message.messageId)) {
         console.log('Message already exists:', message.messageId);
         return;
       }
       
-      // 檢查時間戳（避免處理舊訊息）
+      // 检查时间戳（避免处理旧消息）
       const messageTime = message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp);
       if (state.lastSyncTime && messageTime < state.lastSyncTime) {
         console.log('Skipping old message:', message.messageId, 'timestamp:', messageTime, 'lastSync:', state.lastSyncTime);
         return;
       }
       
-      // 特殊處理：如果是用戶訊息，檢查是否需要替換臨時訊息
+      // 特殊处理：如果是用户消息，检查是否需要替换临时消息
       if (message.type === 'user' && !message.messageId.startsWith('temp-')) {
         const existingMessages = Array.from(state.messages.entries());
         const tempMessage = existingMessages.find(([id, msg]) => 
@@ -159,9 +159,9 @@ export const useMessageStore = create<MessageState>()(
         if (tempMessage) {
           console.log('Replacing temp message with official message:', tempMessage[0], '->', message.messageId);
           const messages = new Map(state.messages);
-          // 刪除臨時訊息
+          // 删除临时消息
           messages.delete(tempMessage[0]);
-          // 添加正式訊息
+          // 添加正式消息
           messages.set(message.messageId, {
             ...message,
             timestamp: messageTime
@@ -171,13 +171,13 @@ export const useMessageStore = create<MessageState>()(
         }
       }
       
-      // 進一步檢查：避免相同時間、相同類型、相同內容的訊息
+      // 进一步检查：避免相同时间、相同类型、相同内容的消息
       const existingMessages = Array.from(state.messages.values());
       const isDuplicate = existingMessages.some(existing => {
         const existingTime = existing.timestamp instanceof Date ? existing.timestamp.getTime() : new Date(existing.timestamp).getTime();
         const newTime = messageTime.getTime();
         
-        // 如果時間差在 100ms 內，且類型和內容相同，視為重複
+        // 如果时间差在 100ms 内，且类型和内容相同，视为重复
         return Math.abs(existingTime - newTime) < 100 && 
                existing.type === message.type && 
                existing.content === message.content;
@@ -188,7 +188,7 @@ export const useMessageStore = create<MessageState>()(
         return;
       }
       
-      // 添加新訊息
+      // 添加新消息
       const messages = new Map(state.messages);
       messages.set(message.messageId, {
         ...message,
@@ -199,7 +199,7 @@ export const useMessageStore = create<MessageState>()(
       console.log('Added new message:', message.messageId, 'type:', message.type);
     },
     
-    // 更新訊息狀態（用於發送狀態追蹤）
+    // 更新消息状态（用于发送状态追踪）
     updateMessageStatus: (messageId: string, status: 'sending' | 'sent' | 'failed') => {
       const state = get();
       const message = state.messages.get(messageId);
@@ -218,7 +218,7 @@ export const useMessageStore = create<MessageState>()(
       set({ messages });
     },
     
-    // 移除訊息（用於發送失敗時）
+    // 移除消息（用于发送失败时）
     removeMessage: (messageId: string) => {
       const state = get();
       const messages = new Map(state.messages);
@@ -226,7 +226,7 @@ export const useMessageStore = create<MessageState>()(
       set({ messages });
     },
     
-    // 載入更多訊息
+    // 加载更多消息
     loadMoreMessages: async (direction: 'older' | 'newer') => {
       const state = get();
       
@@ -237,15 +237,15 @@ export const useMessageStore = create<MessageState>()(
       set({ isLoadingMore: true, error: null });
       
       try {
-        // 計算要載入的頁數
+        // 计算要加载的页数
         let pageToLoad: number;
         const loadedPages = Array.from(state.pagination.loadedPages).sort((a, b) => a - b);
         
         if (direction === 'older') {
-          // 載入更舊的訊息（較小的頁數）
+          // 加载更旧的消息（较小的页数）
           pageToLoad = Math.min(...loadedPages) - 1;
         } else {
-          // 載入更新的訊息（較大的頁數）
+          // 加载更新的消息（较大的页数）
           pageToLoad = Math.max(...loadedPages) + 1;
         }
         
@@ -254,11 +254,11 @@ export const useMessageStore = create<MessageState>()(
           return;
         }
         
-        // 載入新頁面
+        // 加载新页面
         const response = await sessionApi.getMessages(state.currentSessionId, pageToLoad, 100);
         const messages = new Map(state.messages);
         
-        // 將新訊息加入 Map
+        // 将新消息加入 Map
         response.messages.forEach(msg => {
           if (!messages.has(msg.messageId)) {
             messages.set(msg.messageId, {
@@ -268,7 +268,7 @@ export const useMessageStore = create<MessageState>()(
           }
         });
         
-        // 更新載入的頁面集合
+        // 更新加载的页面集合
         const newLoadedPages = new Set(state.pagination.loadedPages);
         newLoadedPages.add(pageToLoad);
         
@@ -292,7 +292,7 @@ export const useMessageStore = create<MessageState>()(
       }
     },
     
-    // 重置狀態（切換 session 時）
+    // 重置状态（切换 session 时）
     reset: () => {
       set({
         messages: new Map(),
@@ -312,7 +312,7 @@ export const useMessageStore = create<MessageState>()(
       });
     },
     
-    // 獲取排序後的訊息陣列
+    // 获取排序后的消息数组
     getSortedMessages: () => {
       const messages = Array.from(get().messages.values());
       return messages.sort((a, b) => {
@@ -322,17 +322,17 @@ export const useMessageStore = create<MessageState>()(
       });
     },
     
-    // 檢查訊息是否存在
+    // 检查消息是否存在
     hasMessage: (messageId: string) => {
       return get().messages.has(messageId);
     },
     
-    // 獲取訊息數量
+    // 获取消息数量
     getMessageCount: () => {
       return get().messages.size;
     },
     
-    // 檢查是否可以載入更多
+    // 检查是否可以加载更多
     canLoadMore: (direction: 'older' | 'newer') => {
       const state = get();
       const loadedPages = Array.from(state.pagination.loadedPages);

@@ -18,7 +18,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
         components={{
-          // 自訂程式碼區塊
+          // 自订代码区块
           code({ node, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
             const inline = !match;
@@ -37,7 +37,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </code>
           );
         },
-        // 自訂連結
+        // 自订链接
         a({ node, children, ...props }: any) {
           return (
             <a
@@ -50,7 +50,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </a>
           );
         },
-        // 自訂表格
+        // 自订表格
         table({ node, children, ...props }: any) {
           return (
             <div className="overflow-x-auto my-4">
@@ -74,7 +74,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </td>
           );
         },
-        // 自訂引用區塊
+        // 自订引用区块
         blockquote({ node, children, ...props }: any) {
           return (
             <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-4 italic text-gray-700 bg-blue-50 rounded-r-lg" {...props}>
@@ -82,7 +82,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </blockquote>
           );
         },
-        // 自訂圖片
+        // 自订图片
         img({ node, ...props }: any) {
           return (
             <img
@@ -92,7 +92,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             />
           );
         },
-        // 自訂清單
+        // 自订清单
         ul({ node, children, ...props }: any) {
           return (
             <ul className="list-disc list-inside space-y-1 my-3 pl-4" {...props}>
@@ -107,7 +107,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </ol>
           );
         },
-        // 自訂標題
+        // 自订标题
         h1({ node, children, ...props }: any) {
           return (
             <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4" {...props}>
@@ -136,7 +136,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </h4>
           );
         },
-        // 自訂段落
+        // 自订段落
         p({ node, children, ...props }: any) {
           return (
             <p className="my-3 leading-relaxed text-gray-800" {...props}>
@@ -144,7 +144,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </p>
           );
         },
-        // 自訂水平線
+        // 自订水平线
         hr({ node, ...props }: any) {
           return <hr className="my-6 border-gray-300" {...props} />;
         },

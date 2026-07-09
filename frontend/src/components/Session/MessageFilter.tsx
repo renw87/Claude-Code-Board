@@ -3,16 +3,16 @@ import { createPortal } from 'react-dom';
 import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { Message } from '../../types/session.types';
 
-// 訊息類型配置
+// 消息类型配置
 const MESSAGE_TYPE_CONFIG: Record<Message['type'], { label: string; color: string; defaultVisible: boolean }> = {
-  user: { label: '使用者訊息', color: 'text-blue-600', defaultVisible: true },
-  claude: { label: 'Claude 回應', color: 'text-green-600', defaultVisible: true },
-  assistant: { label: '助理訊息', color: 'text-purple-600', defaultVisible: true },
-  system: { label: '系統訊息', color: 'text-gray-600', defaultVisible: true },
+  user: { label: '用户消息', color: 'text-blue-600', defaultVisible: true },
+  claude: { label: 'Claude 回应', color: 'text-green-600', defaultVisible: true },
+  assistant: { label: '助理消息', color: 'text-purple-600', defaultVisible: true },
+  system: { label: '系统消息', color: 'text-gray-600', defaultVisible: true },
   tool_use: { label: '工具使用', color: 'text-orange-600', defaultVisible: false },
-  thinking: { label: '思考過程', color: 'text-indigo-600', defaultVisible: false },
-  output: { label: '輸出結果', color: 'text-cyan-600', defaultVisible: true },
-  error: { label: '錯誤訊息', color: 'text-red-600', defaultVisible: true },
+  thinking: { label: '思考过程', color: 'text-indigo-600', defaultVisible: false },
+  output: { label: '输出结果', color: 'text-cyan-600', defaultVisible: true },
+  error: { label: '错误消息', color: 'text-red-600', defaultVisible: true },
 };
 
 interface MessageFilterProps {
@@ -63,13 +63,13 @@ export const MessageFilter: React.FC<MessageFilterProps> = ({ hiddenTypes, onFil
     setIsExpanded(!isExpanded);
   };
 
-  // 點擊外部關閉
+  // 点击外部关闭
   React.useEffect(() => {
     if (!isExpanded) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      // 檢查點擊是否在按鈕或下拉選單內
+      // 检查点击是否在按钮或下拉列表内
       if (
         buttonRef.current && !buttonRef.current.contains(target) &&
         dropdownRef.current && !dropdownRef.current.contains(target)
@@ -84,18 +84,18 @@ export const MessageFilter: React.FC<MessageFilterProps> = ({ hiddenTypes, onFil
 
   return (
     <div className="relative">
-      {/* 過濾器按鈕 */}
+      {/* 过滤器按钮 */}
       <button
         ref={buttonRef}
         onClick={handleToggle}
         className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
       >
         <Filter className="w-4 h-4" />
-        <span>訊息過濾 ({visibleCount}/{Object.keys(MESSAGE_TYPE_CONFIG).length})</span>
+        <span>消息过滤 ({visibleCount}/{Object.keys(MESSAGE_TYPE_CONFIG).length})</span>
         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
 
-      {/* 過濾器面板 - 使用 Portal 渲染到 body */}
+      {/* 过滤器面板 - 使用 Portal 渲染到 body */}
       {isExpanded && buttonRect && createPortal(
         <div
           ref={dropdownRef}
@@ -106,29 +106,29 @@ export const MessageFilter: React.FC<MessageFilterProps> = ({ hiddenTypes, onFil
           }}
         >
           <div className="space-y-3">
-            {/* 快速操作按鈕 */}
+            {/* 快速操作按钮 */}
             <div className="flex gap-2 pb-3 border-b border-gray-200">
               <button
                 onClick={showAll}
                 className="flex-1 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
               >
-                顯示全部
+                显示全部
               </button>
               <button
                 onClick={hideAll}
                 className="flex-1 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 rounded transition-colors"
               >
-                隱藏全部
+                隐藏全部
               </button>
               <button
                 onClick={resetToDefault}
                 className="flex-1 px-3 py-1 text-xs text-green-600 hover:bg-green-50 rounded transition-colors"
               >
-                預設值
+                默认值
               </button>
             </div>
 
-            {/* 訊息類型選項 */}
+            {/* 消息类型选项 */}
             <div className="space-y-2">
               {Object.entries(MESSAGE_TYPE_CONFIG).map(([type, config]) => {
                 const isVisible = !hiddenTypes.has(type as Message['type']);
@@ -145,19 +145,19 @@ export const MessageFilter: React.FC<MessageFilterProps> = ({ hiddenTypes, onFil
                     />
                     <span className={`text-sm ${config.color}`}>{config.label}</span>
                     {!config.defaultVisible && (
-                      <span className="text-xs text-gray-400 ml-auto">(預設隱藏)</span>
+                      <span className="text-xs text-gray-400 ml-auto">(默认隐藏)</span>
                     )}
                   </label>
                 );
               })}
             </div>
 
-            {/* 統計資訊 */}
+            {/* 统计信息 */}
             <div className="pt-3 border-t border-gray-200 text-xs text-gray-500">
               {hiddenTypes.size > 0 ? (
-                <span>已隱藏 {hiddenTypes.size} 種訊息類型</span>
+                <span>已隐藏 {hiddenTypes.size} 种消息类型</span>
               ) : (
-                <span>顯示所有訊息類型</span>
+                <span>显示所有消息类型</span>
               )}
             </div>
           </div>

@@ -17,9 +17,9 @@ export interface Session {
   updatedAt: Date;
   completedAt?: Date;
   deletedAt?: Date;
-  // Work Item 關聯
+  // Work Item 关联
   work_item_id?: string;
-  // 工作流程階段
+  // 工作流程阶段
   workflow_stage_id?: string;
   workflow_stage?: {
     stage_id: string;
@@ -28,7 +28,7 @@ export interface Session {
     icon?: string;
     description?: string;
   };
-  // 分類相關
+  // 分类相关
   projects?: Array<{
     project_id: string;
     name: string;

@@ -2,7 +2,7 @@ import { World, setWorldConstructor } from '@cucumber/cucumber';
 import { Session, SessionStatus } from '../../src/types/session.types';
 
 export interface TestContext extends World {
-  // API 相關
+  // API 相关
   baseUrl: string;
   response?: any;
   responseStatus?: number;
@@ -10,17 +10,17 @@ export interface TestContext extends World {
   responseHeaders?: any;
   requestOptions?: any;
   
-  // Session 相關
+  // Session 相关
   currentSession?: Session;
   sessions: Map<string, Session>;
   
-  // Process 相關
+  // Process 相关
   mockProcesses: Map<string, any>;
   
-  // 測試資料
+  // 测试数据
   testData: any;
   
-  // 斷言工具
+  // 断言工具
   assert: any;
   
   // 方法
@@ -54,7 +54,7 @@ class CustomWorld extends World implements TestContext {
     super(options);
   }
   
-  // 清理函數
+  // 清理函数
   async cleanup() {
     this.sessions.clear();
     this.mockProcesses.clear();
@@ -72,8 +72,8 @@ class CustomWorld extends World implements TestContext {
   }
 
   async makeRequest(method: string, path: string, data?: any): Promise<any> {
-    // 模擬 HTTP 請求
-    // 在實際測試中，這裡會使用真正的 HTTP 客戶端如 axios
+    // 仿真 HTTP 请求
+    // 在实际测试中，这里会使用真正的 HTTP 客户端如 axios
     return {
       status: 200,
       data: data || {},
@@ -83,7 +83,7 @@ class CustomWorld extends World implements TestContext {
 
   redactSensitiveInfo(content: string): string {
     const sensitivePatterns = [
-      /\b[A-Za-z0-9]{32,}\b/g,  // API 金鑰模式
+      /\b[A-Za-z0-9]{32,}\b/g,  // API 密钥模式
       /password\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
       /token\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
       /api_key\s*[:=]\s*["']?([^"'\s]+)["']?/gi,

@@ -7,25 +7,25 @@ import { logger } from '../utils/logger';
 import { getUnifiedProcessorConfig, UnifiedProcessorConfig } from '../config/unified-processor.config';
 
 /**
- * 統一串流處理器 - 解決重複儲存問題
+ * 统一串流处理器 - 解决重复保存问题
  * 
- * 核心設計原則：
- * 1. 單一處理點：只有一個地方處理 Claude 輸出
- * 2. 即時串流：發送給前端並統一儲存到資料庫  
- * 3. 學習 vibe-kanban：忽略不必要的訊息類型（如 result）
- * 4. 完整工具資訊：顯示工具名稱、參數、執行狀態
+ * 内核设计原则：
+ * 1. 单一处理点：只有一个地方处理 Claude 输出
+ * 2. 即时串流：发送给前端并统一保存到数据库  
+ * 3. 学习 vibe-kanban：忽略不必要的消息类型（如 result）
+ * 4. 完整工具信息：显示工具名称、参数、运行状态
  */
 export class UnifiedStreamProcessor extends EventEmitter {
   private childProcess: ChildProcess | null = null;
   private messageRepository: MessageRepository;
   private config: UnifiedProcessorConfig;
   
-  // 訊息管理
+  // 消息管理
   private processedMessageIds: Set<string> = new Set();
   private messageBuffer: Map<string, MessageBuffer> = new Map();
   private currentSequenceId: string | null = null;
   
-  // 工具使用追蹤
+  // 工具使用追踪
   private toolUsageStack: Map<string, ToolUsageRecord[]> = new Map();
   
   
@@ -40,7 +40,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 啟動 Claude 進程並處理串流
+   * 启动 Claude 进程并处理串流
    */
   async startProcess(
     sessionId: string,
@@ -51,10 +51,10 @@ export class UnifiedStreamProcessor extends EventEmitter {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        // 清理 session 狀態
+        // 清理 session 状态
         this.cleanupSession(sessionId);
         
-        // 使用 spawn 啟動進程
+        // 使用 spawn 启动进程
         this.childProcess = spawn(command, args, {
           cwd: workingDir,
           shell: process.platform === 'win32',
@@ -69,24 +69,24 @@ export class UnifiedStreamProcessor extends EventEmitter {
           throw new Error('Failed to create process streams');
         }
 
-        // 設定進程 PID
+        // 设置进程 PID
         const pid = this.childProcess.pid;
         if (pid) {
           this.emit('processStarted', { sessionId, pid });
         }
 
-        // 創建 readline 介面來處理 stdout
+        // 创建 readline 接口来处理 stdout
         const rl = readline.createInterface({
           input: this.childProcess.stdout,
           crlfDelay: Infinity
         });
 
-        // 逐行處理輸出 - 統一處理點
+        // 逐行处理输出 - 统一处理点
         rl.on('line', (line) => {
           this.processLine(sessionId, line);
         });
 
-        // 處理 stderr
+        // 处理 stderr
         const rlErr = readline.createInterface({
           input: this.childProcess.stderr,
           crlfDelay: Infinity
@@ -101,22 +101,22 @@ export class UnifiedStreamProcessor extends EventEmitter {
           });
         });
 
-        // 寫入 prompt
+        // 写入 prompt
         if (this.childProcess.stdin) {
           this.childProcess.stdin.write(prompt);
           this.childProcess.stdin.end();
         }
 
-        // 處理進程結束
+        // 处理进程结束
         this.childProcess.on('close', (code) => {
-          // 完成所有緩衝的訊息並儲存
+          // 完成所有缓冲的消息并保存
           this.flushAndSaveBuffers(sessionId);
           
           this.emit('processExit', { sessionId, code });
           resolve();
         });
 
-        // 處理錯誤
+        // 处理错误
         this.childProcess.on('error', (error) => {
           logger.error(`Process error: ${error.message}`);
           this.emit('error', {
@@ -135,7 +135,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理單行輸出 - 統一處理點
+   * 处理单行输出 - 统一处理点
    */
   private processLine(sessionId: string, line: string): void {
     if (!line.trim()) return;
@@ -149,27 +149,27 @@ export class UnifiedStreamProcessor extends EventEmitter {
       
       this.processStreamJson(sessionId, json);
     } catch (parseError) {
-      // 如果不是 JSON，可能是普通文字輸出
+      // 如果不是 JSON，可能是普通文本输出
       logger.debug(`Non-JSON output: ${line}`);
       this.handleRawOutput(sessionId, line);
     }
   }
 
   /**
-   * 處理 stream-json 格式的訊息 - 核心邏輯
+   * 处理 stream-json 格式的消息 - 内核逻辑
    */
   private processStreamJson(sessionId: string, json: any): void {
     const timestamp = new Date();
     
-    // 提取並儲存 session ID
+    // 提取并保存 session ID
     if (json.session_id) {
       this.emit('sessionId', { sessionId, claudeSessionId: json.session_id });
     }
 
-    // 生成或提取訊息 ID
+    // 生成或提取消息 ID
     const messageId = this.generateMessageId(json);
     
-    // 學習 vibe-kanban：忽略不必要的訊息類型
+    // 学习 vibe-kanban：忽略不必要的消息类型
     if (this.shouldIgnoreMessage(json)) {
       if (this.config.debug.verbose) {
         logger.debug(`Ignoring message type: ${json.type}`);
@@ -177,7 +177,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
       return;
     }
 
-    // 根據訊息類型統一處理
+    // 根据消息类型统一处理
     switch (json.type) {
       case 'message_start':
         this.handleMessageStart(sessionId, json, messageId);
@@ -196,7 +196,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
         break;
         
       case 'content_block_delta':
-        // 處理內容塊增量，暫時跳過
+        // 处理内容块增量，暂时跳过
         logger.debug('Content block delta received', { sessionId, json });
         break;
         
@@ -226,24 +226,24 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 生成訊息 ID（簡化版本，不處理重複）
+   * 生成消息 ID（简化版本，不处理重复）
    */
   private generateMessageId(json: any): string {
-    // 優先使用官方 ID
+    // 优先使用官方 ID
     if (json.id) return json.id;
     if (json.message?.id) return json.message.id;
     
-    // 根據內容和類型生成 ID
+    // 根据内容和类型生成 ID
     const content = JSON.stringify(json).slice(0, 100);
     const hash = Buffer.from(content).toString('base64').slice(0, 8);
     return `${json.type}_${Date.now()}_${hash}`;
   }
 
   /**
-   * 檢查是否應該忽略訊息（學習 vibe-kanban）
+   * 检查是否应该忽略消息（学习 vibe-kanban）
    */
   private shouldIgnoreMessage(json: any): boolean {
-    // 根據配置忽略指定類型
+    // 根据配置忽略指定类型
     if (this.config.filtering.ignoreTypes.includes(json.type)) {
       if (this.config.debug.verbose) {
         logger.debug(`Ignoring message type from config: ${json.type}`);
@@ -251,7 +251,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
       return true;
     }
     
-    // 忽略空的系統訊息
+    // 忽略空的系统消息
     if (this.config.filtering.ignoreEmpty && json.type === 'system' && !json.message && !json.subtype) {
       return true;
     }
@@ -260,7 +260,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理助手訊息 - 統一處理
+   * 处理助手消息 - 统一处理
    */
   private handleAssistantMessage(sessionId: string, json: any, messageId: string): void {
     if (!json.message?.content) return;
@@ -269,7 +269,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
     
     for (const contentItem of contentArray) {
       if (contentItem.type === 'text' && contentItem.text) {
-        // 即時發送給前端
+        // 即时发送给前端
         const realtimeMessage: ClaudeStreamMessage = {
           sessionId,
           type: 'assistant',
@@ -283,18 +283,18 @@ export class UnifiedStreamProcessor extends EventEmitter {
         
         this.emit('message', realtimeMessage);
         
-        // 儲存到資料庫
+        // 保存到数据库
         this.saveMessage(sessionId, 'assistant', contentItem.text, { messageId });
         
       } else if (contentItem.type === 'tool_use') {
-        // 處理工具使用
+        // 处理工具使用
         this.handleToolUse(sessionId, contentItem, messageId);
       }
     }
   }
 
   /**
-   * 處理工具使用
+   * 处理工具使用
    */
   private handleToolUse(sessionId: string, toolUse: any, messageId: string): void {
     const toolName = toolUse.name || 'unknown';
@@ -307,7 +307,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
     }
     
     
-    // 即時發送工具使用訊息給前端
+    // 即时发送工具使用消息给前端
     const toolMessage: ClaudeStreamMessage = {
       sessionId,
       type: 'tool_use',
@@ -324,7 +324,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
     
     this.emit('message', toolMessage);
     
-    // 儲存工具使用記錄
+    // 保存工具使用记录
     this.saveMessage(sessionId, 'tool_use', toolDescription, {
       messageId,
       toolName,
@@ -334,7 +334,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 生成工具描述（更接近 vibe-kanban 的簡潔方式）
+   * 生成工具描述（更接近 vibe-kanban 的简洁方式）
    */
   private generateToolDescription(toolName: string, input: any): string {
     switch (toolName.toLowerCase()) {
@@ -378,7 +378,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
       
       case 'todoread':
       case 'todowrite':
-        // 學習 vibe-kanban 顯示完整 todo 內容
+        // 学习 vibe-kanban 显示完整 todo 内容
         if (input?.todos && Array.isArray(input.todos)) {
           const todoItems: string[] = [];
           for (const todo of input.todos) {
@@ -409,7 +409,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 獲取狀態 emoji（學習 vibe-kanban）
+   * 获取状态 emoji（学习 vibe-kanban）
    */
   private getStatusEmoji(status: string): string {
     switch (status) {
@@ -422,17 +422,17 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 將絕對路徑轉為相對路徑（簡化版本）
+   * 将绝对路径转为相对路径（简化版本）
    */
   private makePathRelative(path: string): string {
     if (!path) return '';
     
-    // 如果已經是相對路徑，直接返回
+    // 如果已经是相对路径，直接返回
     if (!path.startsWith('/') && !path.match(/^[A-Za-z]:/)) {
       return path;
     }
     
-    // 簡單的路徑處理 - 可以後續改進
+    // 简单的路径处理 - 可以后续改进
     const segments = path.split(/[/\\]/);
     const lastFew = segments.slice(-2).join('/');
     return lastFew || path;
@@ -440,7 +440,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
 
 
   /**
-   * 處理訊息開始
+   * 处理消息开始
    */
   private handleMessageStart(sessionId: string, json: any, messageId: string): void {
     this.currentSequenceId = messageId;
@@ -460,19 +460,19 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理訊息片段
+   * 处理消息片段
    */
   private handleMessageDelta(sessionId: string, json: any): void {
     if (!this.currentSequenceId) return;
     
     const delta = json.delta;
     if (delta?.text) {
-      // 累積文字
+      // 累积文本
       const buffer = this.messageBuffer.get(this.currentSequenceId);
       if (buffer) {
         buffer.content.push(delta.text);
         
-        // 即時發送片段
+        // 即时发送片段
         const message: ClaudeStreamMessage = {
           sessionId,
           type: 'assistant',
@@ -490,7 +490,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理訊息結束
+   * 处理消息结束
    */
   private handleMessageStop(sessionId: string, json: any): void {
     if (!this.currentSequenceId) return;
@@ -499,13 +499,13 @@ export class UnifiedStreamProcessor extends EventEmitter {
     if (buffer) {
       const fullContent = buffer.content.join('');
       
-      // 儲存完整訊息
+      // 保存完整消息
       this.saveMessage(sessionId, 'assistant', fullContent, {
         messageId: this.currentSequenceId,
         duration: Date.now() - buffer.startTime.getTime()
       });
       
-      // 發送完成事件
+      // 发送完成事件
       this.emit('messageComplete', {
         sessionId,
         messageId: this.currentSequenceId,
@@ -513,14 +513,14 @@ export class UnifiedStreamProcessor extends EventEmitter {
         timestamp: new Date()
       });
       
-      // 清理緩衝
+      // 清理缓冲
       this.messageBuffer.delete(this.currentSequenceId);
       this.currentSequenceId = null;
     }
   }
 
   /**
-   * 處理內容區塊開始
+   * 处理内容区块开始
    */
   private handleContentBlockStart(sessionId: string, json: any): void {
     const block = json.content_block;
@@ -529,7 +529,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
       const toolName = block.name;
       const toolInput = block.input;
       
-      // 記錄工具使用開始
+      // 记录工具使用开始
       this.emit('toolUseStart', {
         sessionId,
         toolName,
@@ -540,7 +540,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理內容區塊結束
+   * 处理内容区块结束
    */
   private handleContentBlockStop(sessionId: string, json: any): void {
     const block = json.content_block;
@@ -555,7 +555,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理用戶訊息
+   * 处理用户消息
    */
   private handleUserMessage(sessionId: string, json: any, messageId: string): void {
     if (!json.message?.content) return;
@@ -564,14 +564,14 @@ export class UnifiedStreamProcessor extends EventEmitter {
     
     for (const contentItem of contentArray) {
       if (contentItem.type === 'tool_result') {
-        // 直接處理 tool_result，顯示工具 ID 和結果
+        // 直接处理 tool_result，显示工具 ID 和结果
         const toolId = contentItem.tool_use_id;
         
         let resultContent: string;
         if (contentItem.is_error) {
-          resultContent = `❌ 工具 ${toolId} 執行失敗: ${contentItem.content}`;
+          resultContent = `❌ 工具 ${toolId} 运行失败: ${contentItem.content}`;
         } else {
-          resultContent = `✅ 工具 ${toolId} 執行完成`;
+          resultContent = `✅ 工具 ${toolId} 运行完成`;
         }
         
         const toolResultMessage: ClaudeStreamMessage = {
@@ -590,7 +590,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
         
         this.emit('message', toolResultMessage);
         
-        // 儲存工具結果
+        // 保存工具结果
         this.saveMessage(sessionId, 'tool_use', resultContent, {
           messageId,
           toolId: contentItem.tool_use_id,
@@ -599,25 +599,25 @@ export class UnifiedStreamProcessor extends EventEmitter {
         });
         
       } else if (contentItem.type === 'text') {
-        // 用戶文字訊息（通常已在發送時處理，這裡跳過避免重複）
+        // 用户文本消息（通常已在发送时处理，这里跳过避免重复）
         logger.debug('Skipping user text message from stream (already sent)');
       }
     }
   }
 
   /**
-   * 處理系統訊息
+   * 处理系统消息
    */
   private handleSystemMessage(sessionId: string, json: any, messageId: string): void {
     let content = '';
     
     if (json.subtype === 'init') {
-      content = `系統初始化 - 模型: ${json.model || 'unknown'}`;
+      content = `系统初始化 - 模型: ${json.model || 'unknown'}`;
     } else {
       content = json.message || JSON.stringify(json);
     }
     
-    // 即時發送系統訊息
+    // 即时发送系统消息
     const systemMessage: ClaudeStreamMessage = {
       sessionId,
       type: 'system',
@@ -628,12 +628,12 @@ export class UnifiedStreamProcessor extends EventEmitter {
     
     this.emit('message', systemMessage);
     
-    // 儲存系統訊息
+    // 保存系统消息
     this.saveMessage(sessionId, 'system', content, { messageId });
   }
 
   /**
-   * 處理錯誤訊息
+   * 处理错误消息
    */
   private handleErrorMessage(sessionId: string, json: any): void {
     this.emit('error', {
@@ -646,10 +646,10 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 處理原始輸出
+   * 处理原始输出
    */
   private handleRawOutput(sessionId: string, line: string): void {
-    // 即時發送原始輸出
+    // 即时发送原始输出
     this.emit('output', {
       sessionId,
       type: 'output',
@@ -657,12 +657,12 @@ export class UnifiedStreamProcessor extends EventEmitter {
       timestamp: new Date()
     });
     
-    // 儲存原始輸出
+    // 保存原始输出
     this.saveMessage(sessionId, 'output', line, { type: 'raw_output' });
   }
 
   /**
-   * 儲存訊息到資料庫
+   * 保存消息到数据库
    */
   private async saveMessage(
     sessionId: string,
@@ -671,7 +671,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
     metadata?: any
   ): Promise<void> {
     try {
-      // 檢查內容是否為空
+      // 检查内容是否为空
       if (!content.trim()) {
         return;
       }
@@ -691,10 +691,10 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 完成所有緩衝的訊息並儲存
+   * 完成所有缓冲的消息并保存
    */
   private flushAndSaveBuffers(sessionId: string): void {
-    // 完成所有未完成的訊息
+    // 完成所有未完成的消息
     this.messageBuffer.forEach((buffer, messageId) => {
       if (buffer.content.length > 0) {
         const fullContent = buffer.content.join('');
@@ -710,10 +710,10 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 清理 session 資料
+   * 清理 session 数据
    */
   private cleanupSession(sessionId: string): void {
-    // 清理該 session 的所有資料
+    // 清理该 session 的所有数据
     const keysToDelete: string[] = [];
     this.messageBuffer.forEach((_, key) => {
       if (key.includes(sessionId)) {
@@ -724,11 +724,11 @@ export class UnifiedStreamProcessor extends EventEmitter {
     
     this.toolUsageStack.delete(sessionId);
     
-    // 清理處理過的訊息 ID（使用配置的限制）
+    // 清理处理过的消息 ID（使用配置的限制）
     if (this.processedMessageIds.size > this.config.deduplication.maxProcessedIds) {
       const idsArray = Array.from(this.processedMessageIds);
       this.processedMessageIds.clear();
-      // 保留後半部分
+      // 保留后半部分
       const keepCount = Math.floor(this.config.deduplication.maxProcessedIds / 2);
       idsArray.slice(-keepCount).forEach(id => this.processedMessageIds.add(id));
       
@@ -739,7 +739,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 
   /**
-   * 中斷進程
+   * 中断进程
    */
   interrupt(): void {
     if (this.childProcess) {
@@ -760,7 +760,7 @@ export class UnifiedStreamProcessor extends EventEmitter {
   }
 }
 
-// 類型定義
+// 类型定义
 interface MessageBuffer {
   sessionId: string;
   content: string[];

@@ -19,7 +19,7 @@ interface ChatInterfaceProps {
   onSessionUpdate?: (updates: Partial<Session>) => void;
 }
 
-// 將訊息列表提取為單獨的組件，使用 React.memo 優化
+// 将消息列表提取为单独的组件，使用 React.memo 优化
 interface MessageListProps {
   messages: Message[];
 }
@@ -35,7 +35,7 @@ const MessageList = React.memo<MessageListProps>(({ messages }) => {
 });
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session, isSessionActive, isProcessing = false, onSessionUpdate }) => {
-  // 使用 message store - 分別獲取 actions 和 state
+  // 使用 message store - 分别获取 actions 和 state
   const messages = useMessageStore((state) => state.messages);
   const isLoading = useMessageStore((state) => state.isLoading);
   const isLoadingMore = useMessageStore((state) => state.isLoadingMore);
@@ -46,7 +46,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
   const addMessage = useMessageStore((state) => state.addMessage);
   const updateMessageStatus = useMessageStore((state) => state.updateMessageStatus);
 
-  // 訊息過濾狀態 - 從 localStorage 讀取或使用預設值
+  // 消息过滤状态 - 从 localStorage 读取或使用默认值
   const [hiddenMessageTypes, setHiddenMessageTypes] = useState<Set<Message['type']>>(() => {
     const saved = localStorage.getItem('messageFilterHiddenTypes');
     if (saved) {
@@ -54,20 +54,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
         const parsed = JSON.parse(saved);
         return new Set(parsed as Message['type'][]);
       } catch {
-        // 如果解析失敗，使用預設值
+        // 如果解析失败，使用默认值
       }
     }
-    // 預設隱藏 tool_use 和 thinking
+    // 默认隐藏 tool_use 和 thinking
     return new Set(['tool_use', 'thinking'] as Message['type'][]);
   });
 
-  // 當過濾設置改變時，保存到 localStorage
+  // 当过滤设置改变时，保存到 localStorage
   const handleFilterChange = useCallback((types: Set<Message['type']>) => {
     setHiddenMessageTypes(types);
     localStorage.setItem('messageFilterHiddenTypes', JSON.stringify(Array.from(types)));
   }, []);
 
-  // 將 Map 轉換為排序後的陣列，並應用過濾
+  // 将 Map 转换为排序后的数组，并应用过滤
   const { sortedMessages, filteredCount } = React.useMemo(() => {
     const allMessages = Array.from(messages.values());
     const filtered = allMessages.filter((message) => !hiddenMessageTypes.has(message.type));
@@ -87,37 +87,37 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { addEventListener, removeEventListener, subscribe, unsubscribe } = useWebSocket();
 
-  // 1️⃣ 初始載入（頁面載入/重新整理時）
+  // 1️⃣ 初始加载（页面加载/刷新时）
   useEffect(() => {
     if (sessionId) {
       const state = useMessageStore.getState();
-      // 只有在切換到不同 session 或尚未初始化時才載入
+      // 只有在切换到不同 session 或尚未初始化时才加载
       if (state.currentSessionId !== sessionId || !state.isInitialized) {
-        // 重置舊資料並從 API 載入歷史訊息
+        // 重置旧数据并从 API 加载历史消息
         state.reset();
         state.initializeFromAPI(sessionId);
       }
     }
 
     return () => {
-      // 清理時重置 store
+      // 清理时重置 store
       useMessageStore.getState().reset();
     };
-  }, [sessionId]); // 只依賴 sessionId
+  }, [sessionId]); // 只依赖 sessionId
 
-  // 2️⃣ WebSocket 即時訊息監聽
+  // 2️⃣ WebSocket 即时消息监听
   useEffect(() => {
     if (!sessionId) return;
 
-    // WebSocket 事件處理函數
+    // WebSocket 事件处理函数
     const handleWebSocketMessage = (data: WebSocketMessage) => {
       if (data.sessionId !== sessionId) return;
 
-      // 轉換 WebSocket 訊息為標準 Message 格式，保留原始類型
+      // 转换 WebSocket 消息为标准 Message 格式，保留原始类型
       const message: Message = {
         messageId: data.messageId || `ws-${Date.now()}-${Math.random()}`,
         sessionId: data.sessionId,
-        type: data.type as Message["type"], // 保留原始類型，不做轉換
+        type: data.type as Message["type"], // 保留原始类型，不做转换
         content: data.content || "",
         timestamp: data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp),
         metadata: data.metadata,
@@ -126,14 +126,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
       addMessage(message);
     };
 
-    // 訂閱這個 session
+    // 订阅这个 session
     subscribe(sessionId);
 
-    // 只監聽統一的 message 事件
-    // （WebSocket 服務已經修改為所有訊息都觸發 message 事件）
+    // 只监听统一的 message 事件
+    // （WebSocket 服务已经修改为所有消息都触发 message 事件）
     addEventListener("message" as any, handleWebSocketMessage);
 
-    // 清理函數
+    // 清理函数
     return () => {
       if (sessionId) {
         unsubscribe(sessionId);
@@ -142,10 +142,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
     };
   }, [sessionId, addEventListener, removeEventListener, subscribe, unsubscribe, addMessage]);
 
-  // 3️⃣ 自動滾動處理
+  // 3️⃣ 自动滚动处理
   const [isInitialScroll, setIsInitialScroll] = useState(true);
 
-  // 初次載入立即滾動（在瀏覽器繪製前）
+  // 初次加载立即滚动（在浏览器绘制前）
   useLayoutEffect(() => {
     if (sortedMessages.length > 0 && isInitialScroll && !isLoading) {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -153,31 +153,31 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
     }
   }, [sortedMessages.length, isInitialScroll, isLoading]);
 
-  // 新訊息平滑滾動
+  // 新消息平滑滚动
   useEffect(() => {
     if (sortedMessages.length > 0 && !isInitialScroll) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [sortedMessages.length, isInitialScroll]); // 只依賴訊息數量變化
+  }, [sortedMessages.length, isInitialScroll]); // 只依赖消息数量变化
 
-  // 當 sessionId 改變時，重置初次滾動狀態
+  // 当 sessionId 改变时，重置初次滚动状态
   useEffect(() => {
     setIsInitialScroll(true);
   }, [sessionId]);
 
-  // 4️⃣ 無限滾動檢測
+  // 4️⃣ 无限滚动检测
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
-      // 檢查是否滾動到頂部（載入更舊的訊息）
+      // 检查是否滚动到顶部（加载更旧的消息）
       if (container.scrollTop < 100 && canLoadMore("older") && !isLoadingMore) {
         const previousScrollHeight = container.scrollHeight;
         const previousScrollTop = container.scrollTop;
 
         loadMoreMessages("older").then(() => {
-          // 載入完成後，保持滾動位置
+          // 加载完成后，保持滚动位置
           requestAnimationFrame(() => {
             const newScrollHeight = container.scrollHeight;
             const scrollDiff = newScrollHeight - previousScrollHeight;
@@ -191,14 +191,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
     return () => container.removeEventListener("scroll", handleScroll);
   }, [canLoadMore, loadMoreMessages, isLoadingMore]);
 
-  // 4️⃣ 發送新訊息
+  // 4️⃣ 发送新消息
   const handleSendMessage = useCallback(
     async (messageContent: string) => {
       if (!messageContent.trim() || !isSessionActive) {
         return;
       }
 
-      // 樂觀更新：立即顯示用戶訊息
+      // 乐观更新：立即显示用户消息
       const tempMessage: Message = {
         messageId: `temp-${Date.now()}`,
         sessionId,
@@ -211,12 +211,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
       addMessage(tempMessage);
 
       try {
-        // 發送訊息到後端，WebSocket 會推送正式的訊息
+        // 发送消息到后端，WebSocket 会推送正式的消息
         await sessionApi.sendMessage(sessionId, messageContent);
 
         // 立即更新 session 的 lastUserMessage 和 messageCount
         if (onSessionUpdate) {
-          console.log("=== ChatInterface 調用 onSessionUpdate ===", {
+          console.log("=== ChatInterface 调用 onSessionUpdate ===", {
             lastUserMessage: messageContent,
             messageCount: (session?.messageCount || 0) + 1,
           });
@@ -226,14 +226,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
           });
         }
 
-        // 成功後更新狀態
+        // 成功后更新状态
         updateMessageStatus(tempMessage.messageId, "sent");
       } catch (error) {
-        toast.error("發送訊息失敗");
+        toast.error("发送消息失败");
         console.error("Error sending message:", error);
-        // 標記為失敗
+        // 标记为失败
         updateMessageStatus(tempMessage.messageId, "failed");
-        throw error; // 讓 MessageInput 組件能夠處理錯誤
+        throw error; // 让 MessageInput 组件能够处理错误
       }
     },
     [sessionId, isSessionActive, onSessionUpdate, session?.messageCount, addMessage, updateMessageStatus]
@@ -245,7 +245,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">載入對話記錄中...</p>
+          <p className="text-gray-600">加载对话记录中...</p>
         </div>
       </div>
     );
@@ -256,9 +256,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">載入訊息失敗</p>
+          <p className="text-red-600 mb-4">加载消息失败</p>
           <button onClick={() => initializeFromAPI(sessionId)} className="btn-primary">
-            重試
+            重试
           </button>
         </div>
       </div>
@@ -267,16 +267,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
 
   return (
     <div className="flex flex-col h-full">
-      {/* 頂部工具列 */}
+      {/* 顶部工具列 */}
       <div className="glass border-b border-glass-border px-4 py-2">
         <div className="flex items-center justify-between">
           {!isSessionActive ? (
             <div className="flex items-center space-x-2 text-gray-600">
               <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">Session 已停止，無法發送新訊息</span>
+              <span className="text-sm">Session 已停止，无法发送新消息</span>
             </div>
           ) : (
-            <div className="flex-1" /> // 佔位元素
+            <div className="flex-1" /> // 占比特素
           )}
           <MessageFilter 
             hiddenTypes={hiddenMessageTypes}
@@ -285,21 +285,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
         </div>
       </div>
 
-      {/* 訊息列表 */}
+      {/* 消息列表 */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto bg-gradient-soft px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
         <div ref={messagesStartRef} />
 
-        {/* 載入更多指示器 */}
+        {/* 加载更多指示器 */}
         {canLoadMore("older") && (
           <div className="text-center py-4">
             {isLoadingMore ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span className="text-sm text-gray-500">載入更多訊息...</span>
+                <span className="text-sm text-gray-500">加载更多消息...</span>
               </div>
             ) : (
               <button onClick={() => loadMoreMessages("older")} className="text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline">
-                載入更早的訊息
+                加载更早的消息
               </button>
             )}
           </div>
@@ -312,27 +312,27 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
                 <div className="bg-gradient-to-br from-warning-400 to-warning-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-soft-md">
                   <Bot className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">沒有可顯示的訊息</h3>
-                <p className="text-gray-600">有 {filteredCount} 則訊息被過濾隱藏</p>
-                <p className="text-sm text-gray-500 mt-2">點擊右上角的訊息過濾按鈕調整設定</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">没有可显示的消息</h3>
+                <p className="text-gray-600">有 {filteredCount} 则消息被过滤隐藏</p>
+                <p className="text-sm text-gray-500 mt-2">点击右上角的消息过滤按钮调整设置</p>
               </>
             ) : (
               <>
                 <div className="bg-gradient-to-br from-success-400 to-success-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-soft-md animate-float">
                   <Bot className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">開始新的對話</h3>
-                <p className="text-gray-600">向 Claude Code 發送訊息開始互動</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">开始新的对话</h3>
+                <p className="text-gray-600">向 Claude Code 发送消息开始交互</p>
               </>
             )}
           </div>
         ) : (
           <>
-            {/* 過濾提示 */}
+            {/* 过滤提示 */}
             {filteredCount > 0 && (
               <div className="flex justify-center mb-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-warning-50 text-warning-700 text-sm rounded-full border border-warning-200">
-                  <span>已隱藏 {filteredCount} 則訊息</span>
+                  <span>已隐藏 {filteredCount} 则消息</span>
                 </div>
               </div>
             )}
@@ -340,7 +340,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
           </>
         )}
 
-        {/* 處理中的 loading 動畫 */}
+        {/* 处理中的 loading 动画 */}
         {isProcessing && (
           <div className="w-full">
             <div className="mb-4 pr-4 sm:pr-4 md:pr-4 lg:pr-4">
@@ -366,8 +366,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, session
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 輸入框 - 使用獨立的 MessageInput 組件 */}
-      <MessageInput onSendMessage={handleSendMessage} disabled={!isSessionActive} placeholder={isSessionActive ? "輸入訊息..." : "Session 已停止"} />
+      {/* 输入框 - 使用独立的 MessageInput 组件 */}
+      <MessageInput onSendMessage={handleSendMessage} disabled={!isSessionActive} placeholder={isSessionActive ? "输入消息..." : "Session 已停止"} />
     </div>
   );
 };

@@ -3,10 +3,10 @@ import { expect } from 'chai';
 import { TestContext } from './world';
 import { v4 as uuidv4 } from 'uuid';
 
-// WebSocket 連線相關的 Steps
+// WebSocket 连接相关的 Steps
 
-Given('WebSocket 服務已啟動', async function(this: TestContext) {
-  // 模擬 WebSocket 服務啟動
+Given('WebSocket 服务已启动', async function(this: TestContext) {
+  // 仿真 WebSocket 服务启动
   this.testData.websocketServer = {
     status: 'running',
     port: 3000,
@@ -14,8 +14,8 @@ Given('WebSocket 服務已啟動', async function(this: TestContext) {
   };
 });
 
-Given('客戶端已建立 WebSocket 連線', async function(this: TestContext) {
-  // 模擬客戶端連線
+Given('客户端已创建 WebSocket 连接', async function(this: TestContext) {
+  // 仿真客户端连接
   const clientId = uuidv4();
   this.testData.clientId = clientId;
   this.testData.websocketConnection = {
@@ -28,42 +28,42 @@ Given('客戶端已建立 WebSocket 連線', async function(this: TestContext) {
   this.testData.websocketServer.connections.set(clientId, this.testData.websocketConnection);
 });
 
-Given('客戶端已成功連線', async function(this: TestContext) {
-  // 確保客戶端已連線
+Given('客户端已成功连接', async function(this: TestContext) {
+  // 确保客户端已连接
   expect(this.testData.websocketConnection).to.exist;
   expect(this.testData.websocketConnection.connected).to.be.true;
 });
 
-Given('客戶端已訂閱 Session {string}', async function(this: TestContext, sessionId: string) {
-  // 模擬訂閱
+Given('客户端已订阅 Session {string}', async function(this: TestContext, sessionId: string) {
+  // 仿真订阅
   this.testData.websocketConnection.subscriptions.add(sessionId);
   this.testData.subscribedSessionId = sessionId;
 });
 
-Given('客戶端已訂閱多個 Sessions', async function(this: TestContext) {
-  // 模擬訂閱多個 Sessions
+Given('客户端已订阅多个 Sessions', async function(this: TestContext) {
+  // 仿真订阅多个 Sessions
   this.testData.websocketConnection.subscriptions.add('session-1');
   this.testData.websocketConnection.subscriptions.add('session-2');
   this.testData.websocketConnection.subscriptions.add('session-3');
 });
 
-Given('客戶端因網路問題斷線', async function(this: TestContext) {
-  // 模擬網路斷線
+Given('客户端因网络问题断线', async function(this: TestContext) {
+  // 仿真网络断线
   this.testData.websocketConnection.connected = false;
   this.testData.websocketConnection.disconnectedAt = new Date();
   this.testData.websocketConnection.disconnectReason = 'network_error';
 });
 
-Given('客戶端已連線超過 30 秒', async function(this: TestContext) {
-  // 模擬客戶端連線超過 30 秒
+Given('客户端已连接超过 30 秒', async function(this: TestContext) {
+  // 仿真客户端连接超过 30 秒
   const thirtySecondsAgo = new Date(Date.now() - 31 * 1000);
   this.testData.websocketConnection.connectedAt = thirtySecondsAgo;
 });
 
-// WebSocket 操作相關的 Steps
+// WebSocket 操作相关的 Steps
 
-When('客戶端嘗試建立 WebSocket 連線', async function(this: TestContext) {
-  // 模擬連線請求
+When('客户端尝试创建 WebSocket 连接', async function(this: TestContext) {
+  // 仿真连接请求
   const clientId = uuidv4();
   this.testData.connectionRequest = {
     clientId: clientId,
@@ -72,9 +72,9 @@ When('客戶端嘗試建立 WebSocket 連線', async function(this: TestContext)
   };
 });
 
-When('客戶端訂閱 Session {string} 的更新', async function(this: TestContext, sessionId: string) {
+When('客户端订阅 Session {string} 的更新', async function(this: TestContext, sessionId: string) {
   try {
-    // 模擬訂閱請求
+    // 仿真订阅请求
     if (!this.testData.websocketConnection.connected) {
       throw new Error('Client not connected');
     }
@@ -98,8 +98,8 @@ When('客戶端訂閱 Session {string} 的更新', async function(this: TestCont
   }
 });
 
-When('Session 狀態從 {string} 變更為 {string}', async function(this: TestContext, oldStatus: string, newStatus: string) {
-  // 模擬狀態變更
+When('Session 状态从 {string} 变更为 {string}', async function(this: TestContext, oldStatus: string, newStatus: string) {
+  // 仿真状态变更
   this.testData.statusUpdate = {
     type: 'status_update',
     sessionId: this.testData.subscribedSessionId || 'session-123',
@@ -109,28 +109,28 @@ When('Session 狀態從 {string} 變更為 {string}', async function(this: TestC
   };
 });
 
-When('Claude Code 產生新的回應內容', async function(this: TestContext) {
-  // 模擬 Claude Code 回應
+When('Claude Code 产生新的回应内容', async function(this: TestContext) {
+  // 仿真 Claude Code 回应
   this.testData.messageUpdate = {
     type: 'message',
     sessionId: this.testData.subscribedSessionId || 'session-123',
     role: 'assistant',
-    content: '這是 Claude Code 的回應內容',
+    content: '这是 Claude Code 的回应内容',
     timestamp: new Date()
   };
 });
 
-When('Claude Code 正在產生串流回應', async function(this: TestContext) {
-  // 模擬串流回應
+When('Claude Code 正在产生串流回应', async function(this: TestContext) {
+  // 仿真串流回应
   this.testData.streamChunks = [
     { type: 'stream_chunk', sessionId: 'session-123', chunk: '正在分析', index: 0 },
-    { type: 'stream_chunk', sessionId: 'session-123', chunk: '程式碼...', index: 1 },
+    { type: 'stream_chunk', sessionId: 'session-123', chunk: '代码...', index: 1 },
     { type: 'stream_chunk', sessionId: 'session-123', chunk: '完成分析', index: 2 }
   ];
 });
 
-When('系統資源使用率超過 80%', async function(this: TestContext) {
-  // 模擬系統警告
+When('系统资源使用率超过 80%', async function(this: TestContext) {
+  // 仿真系统警告
   this.testData.systemAlert = {
     type: 'system_alert',
     level: 'warning',
@@ -144,15 +144,15 @@ When('系統資源使用率超過 80%', async function(this: TestContext) {
   };
 });
 
-When('客戶端連線中斷', async function(this: TestContext) {
-  // 模擬客戶端斷線
+When('客户端连接中断', async function(this: TestContext) {
+  // 仿真客户端断线
   this.testData.websocketConnection.connected = false;
   this.testData.websocketConnection.disconnectedAt = new Date();
   this.testData.websocketConnection.disconnectReason = 'client_disconnect';
 });
 
-When('客戶端在 30 秒內重新連線', async function(this: TestContext) {
-  // 模擬重連
+When('客户端在 30 秒内重新连接', async function(this: TestContext) {
+  // 仿真重连
   const reconnectionTime = new Date();
   const disconnectionTime = this.testData.websocketConnection.disconnectedAt;
   const timeDiff = reconnectionTime.getTime() - disconnectionTime.getTime();
@@ -166,8 +166,8 @@ When('客戶端在 30 秒內重新連線', async function(this: TestContext) {
   }
 });
 
-When('客戶端取消訂閱該 Session', async function(this: TestContext) {
-  // 模擬取消訂閱
+When('客户端取消订阅该 Session', async function(this: TestContext) {
+  // 仿真取消订阅
   const sessionId = this.testData.subscribedSessionId;
   this.testData.websocketConnection.subscriptions.delete(sessionId);
   
@@ -179,8 +179,8 @@ When('客戶端取消訂閱該 Session', async function(this: TestContext) {
   };
 });
 
-When('系統發送心跳檢測', async function(this: TestContext) {
-  // 模擬心跳檢測
+When('系统发送心跳检测', async function(this: TestContext) {
+  // 仿真心跳检测
   this.testData.heartbeatRequest = {
     type: 'ping',
     timestamp: new Date(),
@@ -188,27 +188,27 @@ When('系統發送心跳檢測', async function(this: TestContext) {
   };
 });
 
-// 驗證相關的 Steps
+// 验证相关的 Steps
 
-Then('系統應該驗證連線請求', async function(this: TestContext) {
-  // 驗證連線請求被處理
+Then('系统应该验证连接请求', async function(this: TestContext) {
+  // 验证连接请求被处理
   expect(this.testData.connectionRequest).to.exist;
   expect(this.testData.connectionRequest.clientId).to.be.a('string');
 });
 
-Then('為通過驗證的客戶端建立連線', async function(this: TestContext) {
-  // 驗證連線建立
+Then('为通过验证的客户端创建连接', async function(this: TestContext) {
+  // 验证连接创建
   const clientId = this.testData.connectionRequest.clientId;
   expect(clientId).to.exist;
 });
 
-Then('發送連線成功訊息：', async function(this: TestContext, dataTable: any) {
-  // 驗證連線成功訊息
+Then('发送连接成功消息：', async function(this: TestContext, dataTable: any) {
+  // 验证连接成功消息
   const expectedData = dataTable.rowsHash();
   
   const connectionMessage = {
-    type: expectedData.type.replace(/"/g, ''), // 移除引號
-    status: expectedData.status.replace(/"/g, ''), // 移除引號
+    type: expectedData.type.replace(/"/g, ''), // 移除引号
+    status: expectedData.status.replace(/"/g, ''), // 移除引号
     clientId: this.testData.connectionRequest.clientId
   };
   
@@ -217,14 +217,14 @@ Then('發送連線成功訊息：', async function(this: TestContext, dataTable:
   expect(connectionMessage.clientId).to.be.a('string');
 });
 
-Then('系統應該記錄該訂閱關係', async function(this: TestContext) {
-  // 驗證訂閱記錄
+Then('系统应该记录该订阅关系', async function(this: TestContext) {
+  // 验证订阅记录
   const sessionId = this.testData.subscriptionResponse.sessionId;
   expect(this.testData.websocketConnection.subscriptions.has(sessionId)).to.be.true;
 });
 
-Then('發送訂閱確認訊息：', async function(this: TestContext, dataTable: any) {
-  // 驗證訂閱確認訊息
+Then('发送订阅确认消息：', async function(this: TestContext, dataTable: any) {
+  // 验证订阅确认消息
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.subscriptionResponse).to.exist;
@@ -232,8 +232,8 @@ Then('發送訂閱確認訊息：', async function(this: TestContext, dataTable:
   expect(this.testData.subscriptionResponse.status).to.equal(expectedData.status.replace(/"/g, ''));
 });
 
-Then('WebSocket 應推送狀態更新：', async function(this: TestContext, dataTable: any) {
-  // 驗證狀態更新推送
+Then('WebSocket 应推送状态更新：', async function(this: TestContext, dataTable: any) {
+  // 验证状态更新推送
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.statusUpdate).to.exist;
@@ -243,8 +243,8 @@ Then('WebSocket 應推送狀態更新：', async function(this: TestContext, dat
   expect(this.testData.statusUpdate.timestamp).to.be.instanceOf(Date);
 });
 
-Then('WebSocket 應推送訊息更新：', async function(this: TestContext, dataTable: any) {
-  // 驗證訊息更新推送
+Then('WebSocket 应推送消息更新：', async function(this: TestContext, dataTable: any) {
+  // 验证消息更新推送
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.messageUpdate).to.exist;
@@ -254,8 +254,8 @@ Then('WebSocket 應推送訊息更新：', async function(this: TestContext, dat
   expect(this.testData.messageUpdate.timestamp).to.be.instanceOf(Date);
 });
 
-Then('WebSocket 應推送每個內容片段：', async function(this: TestContext, dataTable: any) {
-  // 驗證串流片段推送
+Then('WebSocket 应推送每个内容片段：', async function(this: TestContext, dataTable: any) {
+  // 验证串流片段推送
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.streamChunks).to.exist;
@@ -269,8 +269,8 @@ Then('WebSocket 應推送每個內容片段：', async function(this: TestContex
   });
 });
 
-Then('WebSocket 應向所有連線的客戶端廣播：', async function(this: TestContext, dataTable: any) {
-  // 驗證系統廣播
+Then('WebSocket 应向所有连接的客户端广播：', async function(this: TestContext, dataTable: any) {
+  // 验证系统广播
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.systemAlert).to.exist;
@@ -280,24 +280,24 @@ Then('WebSocket 應向所有連線的客戶端廣播：', async function(this: T
   expect(this.testData.systemAlert.metrics).to.be.an('object');
 });
 
-Then('系統應該清理該客戶端的所有訂閱', async function(this: TestContext) {
-  // 驗證訂閱清理
+Then('系统应该清理该客户端的所有订阅', async function(this: TestContext) {
+  // 验证订阅清理
   if (this.testData.websocketConnection.connected === false) {
-    // 模擬清理訂閱
+    // 仿真清理订阅
     this.testData.websocketConnection.subscriptions.clear();
   }
   
   expect(this.testData.websocketConnection.subscriptions.size).to.equal(0);
 });
 
-Then('記錄斷線事件', async function(this: TestContext) {
-  // 驗證斷線事件記錄
+Then('记录断线事件', async function(this: TestContext) {
+  // 验证断线事件记录
   expect(this.testData.websocketConnection.disconnectedAt).to.be.instanceOf(Date);
   expect(this.testData.websocketConnection.disconnectReason).to.be.a('string');
 });
 
-Then('如果是異常斷線則保留訂閱資訊 30 秒', async function(this: TestContext) {
-  // 驗證異常斷線處理
+Then('如果是异常断线则保留订阅信息 30 秒', async function(this: TestContext) {
+  // 验证异常断线处理
   if (this.testData.websocketConnection.disconnectReason === 'network_error') {
     this.testData.subscriptionBuffer = {
       clientId: this.testData.clientId,
@@ -310,18 +310,18 @@ Then('如果是異常斷線則保留訂閱資訊 30 秒', async function(this: T
   }
 });
 
-Then('系統應該識別該客戶端', async function(this: TestContext) {
-  // 驗證客戶端識別
+Then('系统应该识别该客户端', async function(this: TestContext) {
+  // 验证客户端识别
   if (this.testData.reconnectionSuccessful) {
     expect(this.testData.websocketConnection.connected).to.be.true;
     expect(this.testData.websocketConnection.reconnectedAt).to.be.instanceOf(Date);
   }
 });
 
-Then('自動恢復之前的訂閱關係', async function(this: TestContext) {
-  // 驗證訂閱恢復
+Then('自动恢复之前的订阅关系', async function(this: TestContext) {
+  // 验证订阅恢复
   if (this.testData.reconnectionSuccessful && this.testData.subscriptionBuffer) {
-    // 模擬恢復訂閱
+    // 仿真恢复订阅
     this.testData.subscriptionBuffer.subscriptions.forEach((sessionId: string) => {
       this.testData.websocketConnection.subscriptions.add(sessionId);
     });
@@ -330,11 +330,11 @@ Then('自動恢復之前的訂閱關係', async function(this: TestContext) {
   }
 });
 
-Then('推送斷線期間的遺漏更新', async function(this: TestContext) {
-  // 驗證遺漏更新推送
+Then('推送断线期间的遗漏更新', async function(this: TestContext) {
+  // 验证遗漏更新推送
   if (this.testData.reconnectionSuccessful) {
     this.testData.missedUpdates = [
-      { type: 'message', sessionId: 'session-1', content: '遺漏的訊息1' },
+      { type: 'message', sessionId: 'session-1', content: '遗漏的消息1' },
       { type: 'status_update', sessionId: 'session-2', status: 'completed' }
     ];
     
@@ -343,14 +343,14 @@ Then('推送斷線期間的遺漏更新', async function(this: TestContext) {
   }
 });
 
-Then('系統應該移除訂閱關係', async function(this: TestContext) {
-  // 驗證訂閱移除
+Then('系统应该移除订阅关系', async function(this: TestContext) {
+  // 验证订阅移除
   const sessionId = this.testData.subscribedSessionId;
   expect(this.testData.websocketConnection.subscriptions.has(sessionId)).to.be.false;
 });
 
-Then('發送取消訂閱確認：', async function(this: TestContext, dataTable: any) {
-  // 驗證取消訂閱確認
+Then('发送取消订阅确认：', async function(this: TestContext, dataTable: any) {
+  // 验证取消订阅确认
   const expectedData = dataTable.rowsHash();
   
   expect(this.testData.unsubscriptionResponse).to.exist;
@@ -358,8 +358,8 @@ Then('發送取消訂閱確認：', async function(this: TestContext, dataTable:
   expect(this.testData.unsubscriptionResponse.status).to.equal(expectedData.status.replace(/"/g, ''));
 });
 
-Then('客戶端應該在 5 秒內回應', async function(this: TestContext) {
-  // 模擬客戶端心跳回應
+Then('客户端应该在 5 秒内回应', async function(this: TestContext) {
+  // 仿真客户端心跳回应
   this.testData.heartbeatResponse = {
     type: 'pong',
     timestamp: new Date(),
@@ -370,27 +370,27 @@ Then('客戶端應該在 5 秒內回應', async function(this: TestContext) {
   expect(this.testData.heartbeatResponse.type).to.equal('pong');
 });
 
-Then('如果客戶端未回應則標記為失去連線', async function(this: TestContext) {
-  // 驗證心跳超時處理
+Then('如果客户端未回应则标记为失去连接', async function(this: TestContext) {
+  // 验证心跳超时处理
   if (!this.testData.heartbeatResponse) {
     this.testData.websocketConnection.connected = false;
     this.testData.websocketConnection.heartbeatTimeout = true;
   }
 });
 
-Then('在確認斷線前重試 3 次', async function(this: TestContext) {
-  // 驗證重試機制
+Then('在确认断线前重试 3 次', async function(this: TestContext) {
+  // 验证重试机制
   this.testData.heartbeatRetries = 3;
   expect(this.testData.heartbeatRetries).to.equal(3);
 });
 
-Then('WebSocket 應推送狀態更新為 {string}', async function(this: TestContext, expectedStatus: string) {
-  // 驗證 WebSocket 推送了特定狀態的更新
+Then('WebSocket 应推送状态更新为 {string}', async function(this: TestContext, expectedStatus: string) {
+  // 验证 WebSocket 推送了特定状态的更新
   if (!this.testData.websocketUpdates) {
     this.testData.websocketUpdates = [];
   }
   
-  // 模擬 WebSocket 狀態更新
+  // 仿真 WebSocket 状态更新
   this.testData.websocketUpdates.push({
     event: 'status_update',
     data: {
@@ -408,8 +408,8 @@ Then('WebSocket 應推送狀態更新為 {string}', async function(this: TestCon
   expect(lastUpdate.data.status).to.equal(expectedStatus);
 });
 
-Then('WebSocket 應推送狀態更新', async function(this: TestContext) {
-  // 驗證 WebSocket 推送了狀態更新
+Then('WebSocket 应推送状态更新', async function(this: TestContext) {
+  // 验证 WebSocket 推送了状态更新
   if (!this.testData.websocketUpdates) {
     this.testData.websocketUpdates = [{
       event: 'status_update',
@@ -430,26 +430,26 @@ Then('WebSocket 應推送狀態更新', async function(this: TestContext) {
   expect(lastUpdate.data).to.have.property('status');
 });
 
-// 新增的步驟定義
-When('客戶端因 {word} 斷線', async function(this: TestContext, reason: string) {
-  // 模擬客戶端斷線
+// 添加的步骤定义
+When('客户端因 {word} 断线', async function(this: TestContext, reason: string) {
+  // 仿真客户端断线
   this.testData.disconnectionReason = reason;
   this.testData.websocketConnection.connected = false;
   this.testData.disconnectionTime = new Date();
   
-  // 設定斷線記錄
+  // 设置断线记录
   this.testData.websocketConnection.disconnectedAt = new Date();
   this.testData.websocketConnection.disconnectReason = reason;
   
-  if (reason === '異常斷線') {
+  if (reason === '异常断线') {
     this.testData.abnormalDisconnection = true;
-  } else if (reason === '正常斷開') {
+  } else if (reason === '正常断开') {
     this.testData.normalDisconnection = true;
   }
 });
 
-Then('保留訂閱資訊 {int} 秒', async function(this: TestContext, seconds: number) {
-  // 驗證訂閱資訊保留
+Then('保留订阅信息 {int} 秒', async function(this: TestContext, seconds: number) {
+  // 验证订阅信息保留
   expect(this.testData.abnormalDisconnection).to.be.true;
   this.testData.subscriptionRetention = {
     duration: seconds,
@@ -460,8 +460,8 @@ Then('保留訂閱資訊 {int} 秒', async function(this: TestContext, seconds: 
   expect(this.testData.subscriptionRetention.duration).to.equal(seconds);
 });
 
-Then('立即清除所有訂閱資訊', async function(this: TestContext) {
-  // 驗證立即清除訂閱
+Then('立即清除所有订阅信息', async function(this: TestContext) {
+  // 验证立即清除订阅
   expect(this.testData.normalDisconnection).to.be.true;
   this.testData.subscriptionsCleared = true;
   this.testData.websocketConnection.subscriptions.clear();

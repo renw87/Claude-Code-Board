@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-// import { sessionRouter } from './routes/session.routes'; // 動態載入
+// import { sessionRouter } from './routes/session.routes'; // 动态加载
 import { errorHandler } from './middleware/error.middleware';
 import { logger } from './utils/logger';
 import { Database } from './database/database';
@@ -25,7 +25,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Routes - 延遲到 ProcessManager 初始化後再載入
+// Routes - 延迟到 ProcessManager 初始化后再加载
 // app.use('/api/sessions', sessionRouter);
 
 // Error handling
@@ -59,15 +59,15 @@ const PORT = config.port;
 // Global process manager instance
 let processManager: ProcessManager;
 
-// 全局錯誤處理
+// 全局错误处理
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught Exception:', error);
-  // 不要退出程序，繼續運行
+  // 不要退出进程，继续运行
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // 不要退出程序，繼續運行
+  // 不要退出进程，继续运行
 });
 
 async function startServer() {
@@ -85,7 +85,7 @@ async function startServer() {
     // Initialize process manager
     processManager = new ProcessManager();
     
-    // 設定 ProcessManager 錯誤處理，防止程序崩潰
+    // 设置 ProcessManager 错误处理，防止进程崩溃
     processManager.on('error', (data) => {
       logger.error(`ProcessManager error for session ${data.sessionId}:`, {
         error: data.error,
@@ -93,7 +93,7 @@ async function startServer() {
         details: data.details,
         timestamp: data.timestamp
       });
-      // 將結構化錯誤轉發給訂閱的客戶端
+      // 将结构化错误转发给订阅的客户端
       io.to(`session:${data.sessionId}`).emit('error', {
         sessionId: data.sessionId,
         error: data.error,
@@ -103,21 +103,21 @@ async function startServer() {
       });
     });
     
-    // 設定 ProcessManager 事件處理，用於 WebSocket 推送
+    // 设置 ProcessManager 事件处理，用于 WebSocket 推送
     processManager.on('message', (data) => {
       logger.info(`=== WebSocket: Received message event from ProcessManager ===`);
       logger.info(`SessionId: ${data.sessionId}, Type: ${data.type}, Content: ${data.content?.slice(0, 100)}`);
       
-      // 檢查是否有客戶端訂閱這個 session
+      // 检查是否有客户端订阅这个 session
       const room = `session:${data.sessionId}`;
       const clientsInRoom = io.sockets.adapter.rooms.get(room);
       logger.info(`Clients in room ${room}:`, clientsInRoom ? Array.from(clientsInRoom) : 'No clients');
       
-      // 發送通用的 message 事件和特定類型事件，前端會過濾重複
+      // 发送通用的 message 事件和特定类型事件，前端会过滤重复
       logger.info(`Emitting message to room: ${room}, type: ${data.type}`);
       io.to(room).emit('message', data);
       
-      // 同時發送特定類型事件，確保前端兼容性
+      // 同时发送特定类型事件，确保前端兼容性
       if (data.type === 'assistant') {
         io.to(room).emit('assistant', data);
       } else if (data.type === 'user') {
@@ -134,9 +134,9 @@ async function startServer() {
     });
 
     processManager.on('statusUpdate', (data) => {
-      // 發送到特定 session 房間（詳細頁面使用）
+      // 发送到特定 session 房间（详细页面使用）
       io.to(`session:${data.sessionId}`).emit('status_update', data);
-      // 同時發送全域事件（列表頁面使用）
+      // 同时发送全域事件（列表页面使用）
       io.emit('global_status_update', data);
     });
 
@@ -145,43 +145,43 @@ async function startServer() {
     });
 
     processManager.on('processExit', (data) => {
-      // 發送到特定 session 房間（詳細頁面使用）
+      // 发送到特定 session 房间（详细页面使用）
       io.to(`session:${data.sessionId}`).emit('process_exit', data);
-      // 同時發送全域事件（列表頁面使用）
+      // 同时发送全域事件（列表页面使用）
       io.emit('global_process_exit', data);
     });
 
     logger.info('ProcessManager initialized successfully');
 
-    // 現在動態載入 routes，這樣 SessionController 就能獲得正確的 ProcessManager 實例
+    // 现在动态加载 routes，这样 SessionController 就能获得正确的 ProcessManager 实例
     const { sessionRouter } = await import('./routes/session.routes');
     
-    // Auth routes (不需要認證)
+    // Auth routes (不需要认证)
     const authRouter = (await import('./routes/auth.routes')).default;
     app.use('/api/auth', authRouter);
     
-    // Common paths routes (需要認證)
+    // Common paths routes (需要认证)
     const commonPathRouter = (await import('./routes/commonPath.routes')).default;
     
-    // Project routes (需要認證)
+    // Project routes (需要认证)
     const projectRouter = (await import('./routes/project.routes')).default;
     
-    // Tag routes (需要認證)
+    // Tag routes (需要认证)
     const tagRouter = (await import('./routes/tag.routes')).default;
     
-    // Workflow Stage routes (需要認證)
+    // Workflow Stage routes (需要认证)
     const workflowStageRouter = (await import('./routes/workflowStage.routes')).default;
     
-    // Work Item routes (需要認證)
+    // Work Item routes (需要认证)
     const { workItemRouter } = await import('./routes/workitem.routes');
     
-    // Agent Prompts routes (需要認證)
+    // Agent Prompts routes (需要认证)
     const agentPromptsRouter = (await import('./routes/agentPrompts')).default;
 
-    // Task Template routes (需要認證)
+    // Task Template routes (需要认证)
     const taskTemplateRouter = (await import('./routes/taskTemplate.routes')).default;
 
-    // Session routes (需要認證)
+    // Session routes (需要认证)
     const { authMiddleware } = await import('./middleware/auth.middleware');
     app.use('/api/sessions', authMiddleware, sessionRouter);
     app.use('/api/common-paths', authMiddleware, commonPathRouter);

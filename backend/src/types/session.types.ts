@@ -6,18 +6,18 @@ export interface Session {
   status: SessionStatus;
   continueChat: boolean;
   previousSessionId?: string;
-  claudeSessionId?: string; // Claude Code 的實際 session ID
+  claudeSessionId?: string; // Claude Code 的实际 session ID
   processId?: number;
   dangerouslySkipPermissions?: boolean;
-  lastUserMessage?: string; // 最後用戶發送的訊息
-  messageCount?: number; // 對話次數
-  sortOrder?: number; // 排序順序
+  lastUserMessage?: string; // 最后用户发送的消息
+  messageCount?: number; // 对话次数
+  sortOrder?: number; // 排序顺序
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
   deletedAt?: Date;
   error?: string | null;
-  // 工作流程階段
+  // 工作流程阶段
   workflow_stage_id?: string;
   workflow_stage?: {
     stage_id: string;
@@ -28,9 +28,9 @@ export interface Session {
     temperature?: number;
     suggested_tasks?: string[];
   };
-  // Work Item 關聯
+  // Work Item 关联
   work_item_id?: string;
-  // 分類相關
+  // 分类相关
   projects?: Array<{
     project_id: string;
     name: string;

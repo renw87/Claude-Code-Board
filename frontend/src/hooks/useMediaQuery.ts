@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// 預定義的斷點
+// 预定义的断点
 export const BREAKPOINTS = {
   sm: 640,
   md: 768,
@@ -34,11 +34,11 @@ export function useMediaQuery(query: string): boolean {
       setMatches(event.matches);
     };
 
-    // 新版瀏覽器使用 addEventListener
+    // 新版浏览器使用 addEventListener
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleChange);
     } else {
-      // 舊版瀏覽器使用 addListener
+      // 旧版浏览器使用 addListener
       mediaQuery.addListener(handleChange);
     }
 

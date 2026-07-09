@@ -4,10 +4,10 @@ import { TestContext } from './world';
 import { SessionStatus } from '../../src/types/session.types';
 import { v4 as uuidv4 } from 'uuid';
 
-// Claude Code 進程管理相關的 Steps
+// Claude Code 进程管理相关的 Steps
 
-Given('進程管理系統已啟動', async function(this: TestContext) {
-  // 模擬系統啟動
+Given('进程管理系统已启动', async function(this: TestContext) {
+  // 仿真系统启动
   this.testData.systemStatus = {
     running: true,
     startTime: new Date(),
@@ -16,13 +16,13 @@ Given('進程管理系統已啟動', async function(this: TestContext) {
   };
 });
 
-Given('Claude Code 執行檔路徑已設定', async function(this: TestContext) {
-  // 模擬執行檔路徑設定
+Given('Claude Code 运行档路径已设置', async function(this: TestContext) {
+  // 仿真运行档路径设置
   this.testData.claudeCodePath = '/usr/local/bin/claude-code';
 });
 
-Given('有 {int} 個運行中的 Claude Code 進程', async function(this: TestContext, count: number) {
-  // 模擬多個運行中的進程
+Given('有 {int} 个运行中的 Claude Code 进程', async function(this: TestContext, count: number) {
+  // 仿真多个运行中的进程
   this.testData.runningProcesses = new Map();
   
   for (let i = 0; i < count; i++) {
@@ -32,7 +32,7 @@ Given('有 {int} 個運行中的 Claude Code 進程', async function(this: TestC
     this.testData.runningProcesses.set(sessionId, {
       pid: processId,
       sessionId: sessionId,
-      startTime: new Date(Date.now() - (i * 300000)), // 不同的啟動時間
+      startTime: new Date(Date.now() - (i * 300000)), // 不同的启动时间
       cpuUsage: 15 + Math.random() * 10, // 15-25%
       memoryUsage: 256 + Math.random() * 512, // 256-768MB
       status: 'running'
@@ -42,15 +42,15 @@ Given('有 {int} 個運行中的 Claude Code 進程', async function(this: TestC
   this.testData.systemStatus.currentProcesses = count;
 });
 
-Given('一個運行中的 Claude Code 進程', async function(this: TestContext) {
-  // 模擬單個運行中的進程
+Given('一个运行中的 Claude Code 进程', async function(this: TestContext) {
+  // 仿真单个运行中的进程
   const sessionId = uuidv4();
   const processId = Math.floor(Math.random() * 10000) + 1000;
   
   this.testData.currentProcess = {
     pid: processId,
     sessionId: sessionId,
-    startTime: new Date(Date.now() - 600000), // 10分鐘前啟動
+    startTime: new Date(Date.now() - 600000), // 10分钟前启动
     cpuUsage: 20,
     memoryUsage: 512,
     status: 'running'
@@ -60,19 +60,19 @@ Given('一個運行中的 Claude Code 進程', async function(this: TestContext)
   this.testData.runningProcesses.set(sessionId, this.testData.currentProcess);
 });
 
-Given('系統設定的資源限制如下：', async function(this: TestContext, dataTable: any) {
-  // 設定資源限制
+Given('系统设置的资源限制如下：', async function(this: TestContext, dataTable: any) {
+  // 设置资源限制
   const limits = dataTable.rowsHash();
   
   this.testData.resourceLimits = {
-    maxProcesses: parseInt(limits['最大進程數']),
-    maxMemoryPerProcess: limits['單進程最大記憶體'],
-    maxExecutionTime: limits['單進程最大執行時間']
+    maxProcesses: parseInt(limits['最大进程数']),
+    maxMemoryPerProcess: limits['单进程最大内存'],
+    maxExecutionTime: limits['单进程最大运行时间']
   };
 });
 
-Given('一個運行中的進程已執行 2 小時', async function(this: TestContext) {
-  // 模擬長時間運行的進程
+Given('一个运行中的进程已运行 2 小时', async function(this: TestContext) {
+  // 仿真长时间运行的进程
   const sessionId = uuidv4();
   const processId = Math.floor(Math.random() * 10000) + 1000;
   const twoHoursAgo = new Date(Date.now() - (2 * 60 * 60 * 1000));
@@ -88,8 +88,8 @@ Given('一個運行中的進程已執行 2 小時', async function(this: TestCon
   };
 });
 
-Given('Claude Code 進程正在產生大量輸出', async function(this: TestContext) {
-  // 模擬大量輸出
+Given('Claude Code 进程正在产生大量输出', async function(this: TestContext) {
+  // 仿真大量输出
   this.testData.processOutput = {
     sessionId: uuidv4(),
     bufferSize: 1024 * 1024, // 1MB buffer
@@ -97,14 +97,14 @@ Given('Claude Code 進程正在產生大量輸出', async function(this: TestCon
     outputChunks: []
   };
   
-  // 產生大量輸出數據
+  // 产生大量输出数据
   for (let i = 0; i < 100; i++) {
     this.testData.processOutput.outputChunks.push(`Output chunk ${i}: Lorem ipsum dolor sit amet, consectetur adipiscing elit...`);
   }
 });
 
-Given('系統意外重啟前有 {int} 個運行中的 Sessions', async function(this: TestContext, count: number) {
-  // 模擬重啟前的狀態
+Given('系统意外重启前有 {int} 个运行中的 Sessions', async function(this: TestContext, count: number) {
+  // 仿真重启前的状态
   this.testData.preRestartSessions = [];
   
   for (let i = 0; i < count; i++) {
@@ -112,11 +112,11 @@ Given('系統意外重啟前有 {int} 個運行中的 Sessions', async function(
       sessionId: `session-${i + 1}`,
       status: SessionStatus.IDLE,
       processId: 1000 + i,
-      lastUpdate: new Date(Date.now() - 600000) // 10分鐘前
+      lastUpdate: new Date(Date.now() - 600000) // 10分钟前
     });
   }
   
-  // 模擬持久化儲存
+  // 仿真持久化保存
   this.testData.persistentStorage = {
     sessions: [...this.testData.preRestartSessions]
   };
@@ -124,8 +124,8 @@ Given('系統意外重啟前有 {int} 個運行中的 Sessions', async function(
 
 // When Steps
 
-When('系統需要為新 Session 啟動進程', async function(this: TestContext) {
-  // 模擬啟動進程的請求
+When('系统需要为新 Session 启动进程', async function(this: TestContext) {
+  // 仿真启动进程的请求
   this.testData.processStartRequest = {
     sessionId: uuidv4(),
     workingDir: '/test/project',
@@ -134,8 +134,8 @@ When('系統需要為新 Session 啟動進程', async function(this: TestContext
   };
 });
 
-When('系統執行健康檢查', async function(this: TestContext) {
-  // 模擬健康檢查
+When('系统运行健康检查', async function(this: TestContext) {
+  // 仿真健康检查
   this.testData.healthCheckResults = [];
   
   if (this.testData.runningProcesses) {
@@ -146,7 +146,7 @@ When('系統執行健康檢查', async function(this: TestContext) {
         cpuUsage: process.cpuUsage,
         memoryUsage: process.memoryUsage,
         runTime: Date.now() - process.startTime.getTime(),
-        responsive: process.cpuUsage < 90 && process.memoryUsage < 1500, // 假設閾值
+        responsive: process.cpuUsage < 90 && process.memoryUsage < 1500, // 假设阈值
         status: process.status
       };
       
@@ -155,13 +155,13 @@ When('系統執行健康檢查', async function(this: TestContext) {
   }
 });
 
-When('進程意外終止', async function(this: TestContext) {
-  // 模擬進程異常終止
+When('进程意外终止', async function(this: TestContext) {
+  // 仿真进程异常终止
   if (this.testData.currentProcess) {
     this.testData.processTermination = {
       pid: this.testData.currentProcess.pid,
       sessionId: this.testData.currentProcess.sessionId,
-      exitCode: 1, // 異常退出碼
+      exitCode: 1, // 异常退出码
       terminationReason: 'unexpected_termination',
       timestamp: new Date()
     };
@@ -170,8 +170,8 @@ When('進程意外終止', async function(this: TestContext) {
   }
 });
 
-When('系統需要終止該進程', async function(this: TestContext) {
-  // 模擬優雅終止流程
+When('系统需要终止该进程', async function(this: TestContext) {
+  // 仿真优雅终止流程
   if (this.testData.currentProcess) {
     this.testData.terminationProcess = {
       pid: this.testData.currentProcess.pid,
@@ -179,7 +179,7 @@ When('系統需要終止該進程', async function(this: TestContext) {
       terminationSteps: []
     };
     
-    // 記錄終止步驟
+    // 记录终止步骤
     this.testData.terminationProcess.terminationSteps.push({
       step: 'SIGTERM_SENT',
       timestamp: new Date()
@@ -187,12 +187,12 @@ When('系統需要終止該進程', async function(this: TestContext) {
   }
 });
 
-When('第 {int} 個 Session 嘗試啟動', async function(this: TestContext, sessionNumber: number) {
+When('第 {int} 个 Session 尝试启动', async function(this: TestContext, sessionNumber: number) {
   try {
-    // 設定當前進程數為 10 (達到限制)
+    // 设置当前进程数为 10 (达到限制)
     this.testData.systemStatus.currentProcesses = 10;
     
-    // 檢查資源限制
+    // 检查资源限制
     const currentProcesses = this.testData.systemStatus.currentProcesses;
     const maxProcesses = this.testData.resourceLimits.maxProcesses;
     
@@ -204,7 +204,7 @@ When('第 {int} 個 Session 嘗試啟動', async function(this: TestContext, ses
       };
     }
     
-    // 如果沒有超過限制，成功啟動
+    // 如果没有超过限制，成功启动
     this.responseStatus = 201;
     this.responseBody = { success: true };
   } catch (error: any) {
@@ -216,8 +216,8 @@ When('第 {int} 個 Session 嘗試啟動', async function(this: TestContext, ses
   }
 });
 
-When('系統執行超時檢查', async function(this: TestContext) {
-  // 模擬超時檢查
+When('系统运行超时检查', async function(this: TestContext) {
+  // 仿真超时检查
   if (this.testData.longRunningProcess) {
     const executionTime = this.testData.longRunningProcess.executionTime;
     const maxTime = 2 * 60 * 60; // 2 hours in seconds
@@ -236,12 +236,12 @@ When('系統執行超時檢查', async function(this: TestContext) {
   }
 });
 
-When('輸出緩衝區接近滿載', async function(this: TestContext) {
-  // 模擬緩衝區管理
+When('输出缓冲区接近满载', async function(this: TestContext) {
+  // 仿真缓冲区管理
   if (this.testData.processOutput) {
     const bufferUsage = this.testData.processOutput.currentSize / this.testData.processOutput.bufferSize;
     
-    if (bufferUsage > 0.9) { // 90% 滿
+    if (bufferUsage > 0.9) { // 90% 满
       this.testData.bufferManagement = {
         action: 'write_to_temp_file',
         tempFilePath: `/tmp/claude-output-${this.testData.processOutput.sessionId}.log`,
@@ -252,18 +252,18 @@ When('輸出緩衝區接近滿載', async function(this: TestContext) {
   }
 });
 
-When('系統重新啟動', async function(this: TestContext) {
-  // 模擬系統重啟
+When('系统重新启动', async function(this: TestContext) {
+  // 仿真系统重启
   this.testData.systemRestart = {
     timestamp: new Date(),
     loadedSessions: []
   };
   
-  // 載入持久化的 Session 資訊
+  // 加载持久化的 Session 信息
   if (this.testData.persistentStorage) {
     this.testData.systemRestart.loadedSessions = this.testData.persistentStorage.sessions.map((session: any) => ({
       ...session,
-      status: SessionStatus.ERROR, // 標記為 crashed
+      status: SessionStatus.ERROR, // 标记为 crashed
       error: 'System restart detected'
     }));
   }
@@ -271,8 +271,8 @@ When('系統重新啟動', async function(this: TestContext) {
 
 // Then Steps
 
-Then('系統應該使用正確的參數啟動 Claude Code', async function(this: TestContext) {
-  // 驗證啟動參數
+Then('系统应该使用正确的参数启动 Claude Code', async function(this: TestContext) {
+  // 验证启动参数
   if (this.testData.processStartRequest) {
     this.testData.startupParams = {
       executable: this.testData.claudeCodePath,
@@ -286,8 +286,8 @@ Then('系統應該使用正確的參數啟動 Claude Code', async function(this:
   }
 });
 
-Then('進程應該成功啟動', async function(this: TestContext) {
-  // 模擬成功啟動
+Then('进程应该成功启动', async function(this: TestContext) {
+  // 仿真成功启动
   const processId = Math.floor(Math.random() * 10000) + 1000;
   this.testData.newProcess = {
     pid: processId,
@@ -300,14 +300,14 @@ Then('進程應該成功啟動', async function(this: TestContext) {
   expect(this.testData.newProcess.status).to.equal('starting');
 });
 
-Then('系統應該記錄進程 PID', async function(this: TestContext) {
-  // 驗證 PID 記錄
+Then('系统应该记录进程 PID', async function(this: TestContext) {
+  // 验证 PID 记录
   expect(this.testData.newProcess.pid).to.be.a('number');
   expect(this.testData.newProcess.pid).to.be.greaterThan(0);
 });
 
-Then('系統應該建立 stdin\\/stdout\\/stderr 管道', async function(this: TestContext) {
-  // 模擬建立管道
+Then('系统应该创建 stdin\\/stdout\\/stderr 管道', async function(this: TestContext) {
+  // 仿真创建管道
   this.testData.processStreams = {
     stdin: { writable: true, connected: true },
     stdout: { readable: true, connected: true },
@@ -320,15 +320,15 @@ Then('系統應該建立 stdin\\/stdout\\/stderr 管道', async function(this: T
 });
 
 
-Then('系統應該檢查每個進程的狀態', async function(this: TestContext) {
-  // 驗證健康檢查
+Then('系统应该检查每个进程的状态', async function(this: TestContext) {
+  // 验证健康检查
   expect(this.testData.healthCheckResults).to.exist;
   expect(this.testData.healthCheckResults).to.be.an('array');
   expect(this.testData.healthCheckResults.length).to.be.greaterThan(0);
 });
 
-Then('記錄每個進程的資源使用情況：', async function(this: TestContext, dataTable: any) {
-  // 驗證資源使用記錄
+Then('记录每个进程的资源使用情况：', async function(this: TestContext, dataTable: any) {
+  // 验证资源使用记录
   const expectedFields = dataTable.raw()[0];
   
   expect(this.testData.healthCheckResults).to.be.an('array');
@@ -340,23 +340,23 @@ Then('記錄每個進程的資源使用情況：', async function(this: TestCont
   });
 });
 
-Then('偵測到無回應的進程', async function(this: TestContext) {
-  // 檢查無回應的進程
+Then('侦测到无回应的进程', async function(this: TestContext) {
+  // 检查无回应的进程
   const unresponsiveProcesses = this.testData.healthCheckResults.filter((result: any) => !result.responsive);
   this.testData.unresponsiveProcesses = unresponsiveProcesses;
   
-  // 至少應該能檢測到無回應狀態（即使沒有實際的無回應進程）
+  // 至少应该能检测到无回应状态（即使没有实际的无回应进程）
   expect(this.testData.healthCheckResults.every((result: any) => result.hasOwnProperty('responsive'))).to.be.true;
 });
 
-Then('系統應該偵測到進程結束', async function(this: TestContext) {
-  // 驗證進程終止檢測
+Then('系统应该侦测到进程结束', async function(this: TestContext) {
+  // 验证进程终止检测
   expect(this.testData.processTermination).to.exist;
   expect(this.testData.processTermination.exitCode).to.equal(1);
 });
 
-Then('更新對應 Session 狀態為 {string}', async function(this: TestContext, status: string) {
-  // 模擬更新 Session 狀態
+Then('更新对应 Session 状态为 {string}', async function(this: TestContext, status: string) {
+  // 仿真更新 Session 状态
   if (this.testData.processTermination) {
     this.testData.sessionStatusUpdate = {
       sessionId: this.testData.processTermination.sessionId,
@@ -368,14 +368,14 @@ Then('更新對應 Session 狀態為 {string}', async function(this: TestContext
   }
 });
 
-Then('記錄錯誤訊息和退出碼', async function(this: TestContext) {
-  // 驗證錯誤記錄
+Then('记录错误消息和退出码', async function(this: TestContext) {
+  // 验证错误记录
   expect(this.testData.processTermination.exitCode).to.exist;
   expect(this.testData.processTermination.terminationReason).to.equal('unexpected_termination');
 });
 
-Then('WebSocket 應推送錯誤通知', async function(this: TestContext) {
-  // 模擬 WebSocket 錯誤通知
+Then('WebSocket 应推送错误通知', async function(this: TestContext) {
+  // 仿真 WebSocket 错误通知
   this.testData.websocketErrorNotification = {
     type: 'error',
     sessionId: this.testData.processTermination?.sessionId,
@@ -386,14 +386,14 @@ Then('WebSocket 應推送錯誤通知', async function(this: TestContext) {
   expect(this.testData.websocketErrorNotification.type).to.equal('error');
 });
 
-Then('系統應該先發送 SIGTERM 信號', async function(this: TestContext) {
-  // 驗證 SIGTERM 發送
+Then('系统应该先发送 SIGTERM 信号', async function(this: TestContext) {
+  // 验证 SIGTERM 发送
   const sigtermStep = this.testData.terminationProcess.terminationSteps.find((step: any) => step.step === 'SIGTERM_SENT');
   expect(sigtermStep).to.exist;
 });
 
-Then('等待最多 10 秒讓進程優雅退出', async function(this: TestContext) {
-  // 模擬等待期
+Then('等待最多 10 秒让进程优雅退出', async function(this: TestContext) {
+  // 仿真等待期
   this.testData.terminationProcess.terminationSteps.push({
     step: 'WAITING_FOR_GRACEFUL_EXIT',
     timestamp: new Date(),
@@ -405,11 +405,11 @@ Then('等待最多 10 秒讓進程優雅退出', async function(this: TestContex
   expect(waitStep.maxWaitTime).to.equal(10000);
 });
 
-Then('如果進程仍在運行則發送 SIGKILL', async function(this: TestContext) {
-  // 模擬 SIGKILL
+Then('如果进程仍在运行则发送 SIGKILL', async function(this: TestContext) {
+  // 仿真 SIGKILL
   this.testData.terminationProcess.terminationSteps.push({
     step: 'SIGKILL_SENT',
-    timestamp: new Date(Date.now() + 10000), // 10秒後
+    timestamp: new Date(Date.now() + 10000), // 10秒后
     reason: 'graceful_exit_timeout'
   });
   
@@ -417,8 +417,8 @@ Then('如果進程仍在運行則發送 SIGKILL', async function(this: TestConte
   expect(sigkillStep).to.exist;
 });
 
-Then('清理相關資源', async function(this: TestContext) {
-  // 模擬資源清理
+Then('清理相关资源', async function(this: TestContext) {
+  // 仿真资源清理
   this.testData.resourceCleanup = {
     processId: this.testData.terminationProcess.pid,
     cleanupSteps: [
@@ -434,13 +434,13 @@ Then('清理相關資源', async function(this: TestContext) {
   expect(this.testData.resourceCleanup.completed).to.be.true;
 });
 
-Then('系統應該標記該進程為超時', async function(this: TestContext) {
-  // 驗證超時標記
+Then('系统应该标记该进程为超时', async function(this: TestContext) {
+  // 验证超时标记
   expect(this.testData.timeoutCheckResult.isTimeout).to.be.true;
 });
 
-Then('發送警告通知給使用者', async function(this: TestContext) {
-  // 模擬警告通知
+Then('发送警告通知给用户', async function(this: TestContext) {
+  // 仿真警告通知
   this.testData.timeoutWarning = {
     processId: this.testData.longRunningProcess?.pid,
     sessionId: this.testData.longRunningProcess?.sessionId,
@@ -452,34 +452,34 @@ Then('發送警告通知給使用者', async function(this: TestContext) {
   expect(this.testData.timeoutWarning.warningType).to.equal('execution_timeout');
 });
 
-Then('如果使用者未回應則在 10 分鐘後終止進程', async function(this: TestContext) {
-  // 模擬終止排程
+Then('如果用户未回应则在 10 分钟后终止进程', async function(this: TestContext) {
+  // 仿真终止调度
   this.testData.terminationSchedule = {
     processId: this.testData.longRunningProcess?.pid,
-    scheduledTime: new Date(Date.now() + (10 * 60 * 1000)), // 10分鐘後
+    scheduledTime: new Date(Date.now() + (10 * 60 * 1000)), // 10分钟后
     reason: 'timeout_no_user_response'
   };
   
   expect(this.testData.terminationSchedule.reason).to.equal('timeout_no_user_response');
 });
 
-Then('系統應該將部分內容寫入暫存檔', async function(this: TestContext) {
-  // 驗證暫存檔寫入
+Then('系统应该将部分内容写入暂存盘', async function(this: TestContext) {
+  // 验证暂存盘写入
   expect(this.testData.bufferManagement.action).to.equal('write_to_temp_file');
   expect(this.testData.bufferManagement.tempFilePath).to.include('/tmp/claude-output-');
   expect(this.testData.bufferManagement.chunksWritten).to.be.greaterThan(0);
 });
 
-Then('保持最近的輸出在記憶體中', async function(this: TestContext) {
-  // 驗證記憶體中的輸出
+Then('保持最近的输出在内存中', async function(this: TestContext) {
+  // 验证内存中的输出
   expect(this.testData.bufferManagement.chunksInMemory).to.be.greaterThan(0);
 });
 
-Then('確保不會因緩衝區滿而阻塞進程', async function(this: TestContext) {
-  // 驗證非阻塞處理
+Then('确保不会因缓冲区满而阻塞进程', async function(this: TestContext) {
+  // 验证非阻塞处理
   this.testData.bufferStatus = {
     blocked: false,
-    bufferUtilization: 0.3, // 清理後降到 30%
+    bufferUtilization: 0.3, // 清理后降到 30%
     processCanWrite: true
   };
   
@@ -487,23 +487,23 @@ Then('確保不會因緩衝區滿而阻塞進程', async function(this: TestCont
   expect(this.testData.bufferStatus.processCanWrite).to.be.true;
 });
 
-Then('系統應該從持久化儲存載入 Session 資訊', async function(this: TestContext) {
-  // 驗證資料載入
+Then('系统应该从持久化保存加载 Session 信息', async function(this: TestContext) {
+  // 验证数据加载
   expect(this.testData.systemRestart.loadedSessions).to.exist;
   expect(this.testData.systemRestart.loadedSessions).to.be.an('array');
   expect(this.testData.systemRestart.loadedSessions.length).to.equal(5);
 });
 
-Then('將所有未完成的 Sessions 標記為 {string}', async function(this: TestContext, status: string) {
-  // 驗證狀態標記
+Then('将所有未完成的 Sessions 标记为 {string}', async function(this: TestContext, status: string) {
+  // 验证状态标记
   this.testData.systemRestart.loadedSessions.forEach((session: any) => {
     expect(session.status).to.equal('error');
     expect(session.error).to.equal('System restart detected');
   });
 });
 
-Then('允許使用者選擇是否恢復這些 Sessions', async function(this: TestContext) {
-  // 模擬恢復選項
+Then('允许用户选择是否恢复这些 Sessions', async function(this: TestContext) {
+  // 仿真恢复选项
   this.testData.recoveryOptions = {
     availableSessions: this.testData.systemRestart.loadedSessions.map((session: any) => session.sessionId),
     recoveryEnabled: true,

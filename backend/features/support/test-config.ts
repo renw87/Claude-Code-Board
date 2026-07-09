@@ -1,4 +1,4 @@
-// 測試環境配置
+// 测试环境配置
 export const testConfig = {
   // API 配置
   api: {
@@ -13,22 +13,22 @@ export const testConfig = {
     processTimeout: 10000
   },
   
-  // 測試資料配置
+  // 测试数据配置
   testData: {
     defaultSessionName: 'Test Session',
     defaultTask: 'Test task',
     cleanupAfterTest: true
   },
   
-  // 資源限制配置（用於測試）
+  // 资源限制配置（用于测试）
   resourceLimits: {
     maxConcurrentSessions: 10,
     maxMemoryPerSession: '2GB',
-    sessionTimeout: 7200 // 2 小時
+    sessionTimeout: 7200 // 2 小时
   }
 };
 
-// 測試用的錯誤碼定義
+// 测试用的错误码定义
 export enum ErrorCode {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   SESSION_NOT_FOUND = 'SESSION_NOT_FOUND',
@@ -49,7 +49,7 @@ export enum ErrorCode {
   ACCESS_DENIED = 'ACCESS_DENIED'
 }
 
-// 測試用的狀態碼對應
+// 测试用的状态码对应
 export const errorStatusCodes: { [key: string]: number } = {
   [ErrorCode.VALIDATION_ERROR]: 400,
   [ErrorCode.SESSION_NOT_FOUND]: 404,

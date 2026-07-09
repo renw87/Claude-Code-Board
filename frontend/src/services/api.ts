@@ -25,7 +25,7 @@ export interface CommonPath {
 }
 
 export const sessionApi = {
-  // 獲取所有 Sessions
+  // 获取所有 Sessions
   async getAllSessions(): Promise<Session[]> {
     const response = await api.get<Session[]>('/sessions');
     return response.data.map(session => ({
@@ -37,7 +37,7 @@ export const sessionApi = {
     }));
   },
 
-  // 獲取單個 Session
+  // 获取单个 Session
   async getSession(sessionId: string): Promise<Session> {
     const response = await api.get<Session>(`/sessions/${sessionId}`);
     return {
@@ -49,7 +49,7 @@ export const sessionApi = {
     };
   },
 
-  // 建立新 Session
+  // 创建新 Session
   async createSession(request: CreateSessionRequest): Promise<Session> {
     const response = await api.post<Session>('/sessions', request);
     return {
@@ -73,12 +73,12 @@ export const sessionApi = {
     };
   },
 
-  // 刪除 Session
+  // 删除 Session
   async deleteSession(sessionId: string): Promise<void> {
     await api.delete(`/sessions/${sessionId}`);
   },
 
-  // 中斷 Session
+  // 中断 Session
   async interruptSession(sessionId: string): Promise<Session> {
     const response = await api.post<Session>(`/sessions/${sessionId}/interrupt`);
     return {
@@ -90,7 +90,7 @@ export const sessionApi = {
     };
   },
 
-  // 恢復 Session
+  // 恢复 Session
   async resumeSession(sessionId: string): Promise<Session> {
     const response = await api.post<Session>(`/sessions/${sessionId}/resume`);
     return {
@@ -102,7 +102,7 @@ export const sessionApi = {
     };
   },
 
-  // 發送訊息
+  // 发送消息
   async sendMessage(sessionId: string, content: string): Promise<Message> {
     const response = await api.post(`/sessions/${sessionId}/messages`, { content });
     const msg = response.data;
@@ -119,7 +119,7 @@ export const sessionApi = {
     };
   },
 
-  // 獲取訊息
+  // 获取消息
   async getMessages(sessionId: string, page: number = 1, limit: number = 50): Promise<{
     messages: Message[];
     pagination: {
@@ -150,7 +150,7 @@ export const sessionApi = {
     };
   },
 
-  // 獲取系統統計
+  // 获取系统统计
   async getSystemStats(): Promise<SystemStats> {
     const response = await api.get<SystemStats>('/sessions/system/stats');
     return response.data;
@@ -164,41 +164,41 @@ export const sessionApi = {
 
 // Common Paths API
 export const commonPathApi = {
-  // 獲取所有常用路徑
+  // 获取所有常用路径
   async getAllPaths(): Promise<CommonPath[]> {
     const response = await api.get<{ success: boolean; data: CommonPath[] }>('/common-paths');
     return response.data.data;
   },
 
-  // 獲取單個路徑
+  // 获取单个路径
   async getPath(id: string): Promise<CommonPath> {
     const response = await api.get<{ success: boolean; data: CommonPath }>(`/common-paths/${id}`);
     return response.data.data;
   },
 
-  // 創建新路徑
+  // 创建新路径
   async createPath(path: Omit<CommonPath, 'id' | 'created_at' | 'updated_at'>): Promise<CommonPath> {
     const response = await api.post<{ success: boolean; data: CommonPath }>('/common-paths', path);
     return response.data.data;
   },
 
-  // 更新路徑
+  // 更新路径
   async updatePath(id: string, updates: Partial<Omit<CommonPath, 'id' | 'created_at'>>): Promise<CommonPath> {
     const response = await api.put<{ success: boolean; data: CommonPath }>(`/common-paths/${id}`, updates);
     return response.data.data;
   },
 
-  // 刪除路徑
+  // 删除路径
   async deletePath(id: string): Promise<void> {
     await api.delete(`/common-paths/${id}`);
   },
 
-  // 重新排序路徑
+  // 重新排序路径
   async reorderPaths(paths: { id: string; sort_order: number }[]): Promise<void> {
     await api.post('/common-paths/reorder', { paths });
   },
 
-  // 重置為預設值
+  // 重置为默认值
   async resetToDefault(): Promise<CommonPath[]> {
     const response = await api.post<{ success: boolean; data: CommonPath[] }>('/common-paths/reset');
     return response.data.data;
@@ -207,54 +207,54 @@ export const commonPathApi = {
 
 // Projects API
 export const projectApi = {
-  // 獲取所有專案
+  // 获取所有项目
   async getAllProjects(): Promise<Project[]> {
     const response = await api.get<{ success: boolean; data: Project[] }>('/projects');
     return response.data.data;
   },
 
-  // 獲取活躍專案
+  // 获取活跃项目
   async getActiveProjects(): Promise<Project[]> {
     const response = await api.get<{ success: boolean; data: Project[] }>('/projects/active');
     return response.data.data;
   },
 
-  // 獲取單個專案
+  // 获取单个项目
   async getProject(projectId: string): Promise<Project> {
     const response = await api.get<{ success: boolean; data: Project }>(`/projects/${projectId}`);
     return response.data.data;
   },
 
-  // 創建新專案
+  // 创建新项目
   async createProject(project: CreateProjectRequest): Promise<Project> {
     const response = await api.post<{ success: boolean; data: Project }>('/projects', project);
     return response.data.data;
   },
 
-  // 更新專案
+  // 更新项目
   async updateProject(projectId: string, updates: UpdateProjectRequest): Promise<Project> {
     const response = await api.put<{ success: boolean; data: Project }>(`/projects/${projectId}`, updates);
     return response.data.data;
   },
 
-  // 刪除專案
+  // 删除项目
   async deleteProject(projectId: string): Promise<void> {
     await api.delete(`/projects/${projectId}`);
   },
 
-  // 獲取專案統計
+  // 获取项目统计
   async getProjectStats(projectId: string): Promise<ProjectStats> {
     const response = await api.get<{ success: boolean; data: ProjectStats }>(`/projects/${projectId}/stats`);
     return response.data.data;
   },
 
-  // 獲取對話的專案列表
+  // 获取对话的项目列表
   async getProjectsBySessionId(sessionId: string): Promise<Project[]> {
     const response = await api.get<{ success: boolean; data: Project[] }>(`/projects/sessions/${sessionId}/projects`);
     return response.data.data;
   },
 
-  // 更新對話的專案（替換所有）
+  // 更新对话的项目（替换所有）
   async updateSessionProjects(sessionId: string, projectIds: string[]): Promise<void> {
     await api.put(`/projects/sessions/${sessionId}/projects`, { projectIds });
   },
@@ -262,19 +262,19 @@ export const projectApi = {
 
 // Tags API
 export const tagApi = {
-  // 獲取所有標籤
+  // 获取所有标签
   async getAllTags(): Promise<Tag[]> {
     const response = await api.get<{ success: boolean; data: Tag[] }>('/tags');
     return response.data.data;
   },
 
-  // 按類型獲取標籤
+  // 按类型获取标签
   async getTagsByType(type: 'general' | 'activity' | 'topic' | 'department'): Promise<Tag[]> {
     const response = await api.get<{ success: boolean; data: Tag[] }>(`/tags/type/${type}`);
     return response.data.data;
   },
 
-  // 獲取熱門標籤
+  // 获取热门标签
   async getPopularTags(limit: number = 10): Promise<Tag[]> {
     const response = await api.get<{ success: boolean; data: Tag[] }>('/tags/popular', {
       params: { limit }
@@ -282,41 +282,41 @@ export const tagApi = {
     return response.data.data;
   },
 
-  // 獲取單個標籤
+  // 获取单个标签
   async getTag(tagId: string): Promise<Tag> {
     const response = await api.get<{ success: boolean; data: Tag }>(`/tags/${tagId}`);
     return response.data.data;
   },
 
-  // 創建新標籤
+  // 创建新标签
   async createTag(tag: CreateTagRequest): Promise<Tag> {
     const response = await api.post<{ success: boolean; data: Tag }>('/tags', tag);
     return response.data.data;
   },
 
-  // 更新標籤
+  // 更新标签
   async updateTag(tagId: string, updates: UpdateTagRequest): Promise<Tag> {
     const response = await api.put<{ success: boolean; data: Tag }>(`/tags/${tagId}`, updates);
     return response.data.data;
   },
 
-  // 刪除標籤
+  // 删除标签
   async deleteTag(tagId: string): Promise<void> {
     await api.delete(`/tags/${tagId}`);
   },
 
-  // 獲取對話的標籤列表
+  // 获取对话的标签列表
   async getTagsBySessionId(sessionId: string): Promise<Tag[]> {
     const response = await api.get<{ success: boolean; data: Tag[] }>(`/tags/sessions/${sessionId}/tags`);
     return response.data.data;
   },
 
-  // 更新對話的標籤（替換所有）
+  // 更新对话的标签（替换所有）
   async updateSessionTags(sessionId: string, tagIds: string[]): Promise<void> {
     await api.put(`/tags/sessions/${sessionId}/tags`, { tagIds });
   },
 
-  // 按名稱分配標籤（會自動創建不存在的標籤）
+  // 按名称分配标签（会自动创建不存在的标签）
   async assignTagsByNames(sessionId: string, tagNames: string[], type?: 'general' | 'activity' | 'topic' | 'department'): Promise<void> {
     await api.post(`/tags/sessions/${sessionId}/tags/by-names`, { tagNames, type });
   },
@@ -326,41 +326,41 @@ export const tagApi = {
 import { TaskTemplate, CreateTaskTemplateRequest, UpdateTaskTemplateRequest, ReorderTaskTemplatesRequest } from '../types/taskTemplate.types';
 
 export const taskTemplateApi = {
-  // 獲取所有任務模板
+  // 获取所有任务模板
   async getAllTemplates(): Promise<TaskTemplate[]> {
     const response = await api.get<{ success: boolean; data: TaskTemplate[] }>('/task-templates');
     return response.data.data;
   },
 
-  // 獲取單個任務模板
+  // 获取单个任务模板
   async getTemplate(id: string): Promise<TaskTemplate> {
     const response = await api.get<{ success: boolean; data: TaskTemplate }>(`/task-templates/${id}`);
     return response.data.data;
   },
 
-  // 創建新任務模板
+  // 创建新任务模板
   async createTemplate(data: CreateTaskTemplateRequest): Promise<TaskTemplate> {
     const response = await api.post<{ success: boolean; data: TaskTemplate }>('/task-templates', data);
     return response.data.data;
   },
 
-  // 更新任務模板
+  // 更新任务模板
   async updateTemplate(id: string, data: UpdateTaskTemplateRequest): Promise<TaskTemplate> {
     const response = await api.put<{ success: boolean; data: TaskTemplate }>(`/task-templates/${id}`, data);
     return response.data.data;
   },
 
-  // 刪除任務模板
+  // 删除任务模板
   async deleteTemplate(id: string): Promise<void> {
     await api.delete(`/task-templates/${id}`);
   },
 
-  // 重新排序任務模板
+  // 重新排序任务模板
   async reorderTemplates(templates: ReorderTaskTemplatesRequest[]): Promise<void> {
     await api.post('/task-templates/reorder', { templates });
   },
 
-  // 重置為預設模板
+  // 重置为默认模板
   async resetToDefault(): Promise<TaskTemplate[]> {
     const response = await api.post<{ success: boolean; data: TaskTemplate[] }>('/task-templates/reset');
     return response.data.data;

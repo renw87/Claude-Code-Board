@@ -8,28 +8,28 @@ export interface WebSocketMessage {
   timestamp: Date;
   messageId?: string;
   metadata?: {
-    // 工具使用相關
+    // 工具使用相关
     toolName?: string;
     toolInput?: any;
     toolOutput?: any;
     toolStatus?: 'start' | 'complete' | 'error';
     
-    // 思考過程
+    // 思考过程
     isThinking?: boolean;
     thinkingDepth?: number;
     
-    // 檔案操作
+    // 文件操作
     fileOperation?: 'read' | 'write' | 'edit' | 'delete';
     filePath?: string;
     fileContent?: string;
     lineNumbers?: { start: number; end: number };
     
-    // 串流相關
+    // 串流相关
     isPartial?: boolean;
     sequenceId?: string;
     isComplete?: boolean;
     
-    // 原始資料
+    // 原始数据
     raw?: any;
   };
 }
@@ -67,7 +67,7 @@ export interface WebSocketEvents {
   disconnect: () => void;
   connect_error: (error: Error) => void;
   
-  // 發送的事件
+  // 发送的事件
   subscribe: (sessionId: string) => void;
   unsubscribe: (sessionId: string) => void;
 }
@@ -80,13 +80,13 @@ class WebSocketService {
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // 如果已經連接，直接返回
+      // 如果已经连接，直接返回
       if (this.socket?.connected) {
         resolve();
         return;
       }
 
-      // 如果正在連接中，等待連接完成
+      // 如果正在连接中，等待连接完成
       if (this.isConnecting) {
         const checkConnection = () => {
           if (this.socket?.connected) {
@@ -99,14 +99,14 @@ class WebSocketService {
         return;
       }
 
-      // 清理舊的連接
+      // 清理旧的连接
       if (this.socket) {
         this.socket.disconnect();
       }
 
       this.isConnecting = true;
-      // 在開發環境中，使用代理，所以連接到根路徑
-      // 在生產環境中，直接連接到 WebSocket URL
+      // 在开发环境中，使用代理，所以连接到根路径
+      // 在生产环境中，直接连接到 WebSocket URL
       const wsUrl = config.NODE_ENV === 'development' ? '/' : config.WS_URL;
       this.socket = io(wsUrl, {
         transports: ['websocket', 'polling'],
@@ -118,7 +118,7 @@ class WebSocketService {
         console.log('WebSocket connected:', this.socket?.id);
         this.isConnecting = false;
         
-        // 重新訂閱之前的 sessions
+        // 重新订阅之前的 sessions
         this.subscribers.forEach(sessionId => {
           this.socket?.emit('subscribe', sessionId);
         });
@@ -138,7 +138,7 @@ class WebSocketService {
         this.notifyListeners('disconnect');
       });
 
-      // 設定事件監聽器
+      // 设置事件监听器
       this.setupEventListeners();
     });
   }
@@ -146,7 +146,7 @@ class WebSocketService {
   private setupEventListeners(): void {
     if (!this.socket) return;
 
-    // 安全轉換時間戳的函數
+    // 安全转换时间戳的函数
     const safeTimestamp = (timestamp: any): Date => {
       try {
         if (!timestamp) return new Date();
@@ -159,11 +159,11 @@ class WebSocketService {
       }
     };
 
-    // 處理通用 message 事件
+    // 处理通用 message 事件
     this.socket.on('message', (data) => {
       console.log('=== WebSocket 接收 message 事件 ===', data);
       
-      // 檢查資料完整性
+      // 检查数据完整性
       if (!data || typeof data !== 'object') {
         console.warn('Invalid message data received:', data);
         return;
@@ -177,14 +177,14 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 message 資料:', messageData);
+      console.log('处理后的 message 数据:', messageData);
       
-      // 統一觸發 message 事件，不再根據 type 分發
+      // 统一触发 message 事件，不再根据 type 分发
       this.notifyListeners('message', messageData);
     });
 
-    // 註釋掉特定類型的事件處理，避免重複
-    // （因為後端同時發送 message 和特定類型事件，我們只需要處理 message）
+    // 注释掉特定类型的事件处理，避免重复
+    // （因为后端同时发送 message 和特定类型事件，我们只需要处理 message）
     /*
     this.socket.on('assistant', (data) => {
       console.log('=== WebSocket 接收 assistant 事件 ===', data);
@@ -202,7 +202,7 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 assistant 資料:', messageData);
+      console.log('处理后的 assistant 数据:', messageData);
       this.notifyListeners('assistant', messageData);
     });
     */
@@ -224,7 +224,7 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 user 資料:', messageData);
+      console.log('处理后的 user 数据:', messageData);
       this.notifyListeners('user', messageData);
     });
     */
@@ -246,12 +246,12 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 system 資料:', messageData);
+      console.log('处理后的 system 数据:', messageData);
       this.notifyListeners('system', messageData);
     });
     */
 
-    // output 事件可能需要單獨處理，因為它可能不會通過 message 事件發送
+    // output 事件可能需要单独处理，因为它可能不会通过 message 事件发送
     this.socket.on('output', (data) => {
       console.log('=== WebSocket 接收 output 事件 ===', data);
       
@@ -268,8 +268,8 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 output 資料:', messageData);
-      // 統一觸發 message 事件
+      console.log('处理后的 output 数据:', messageData);
+      // 统一触发 message 事件
       this.notifyListeners('message', messageData);
     });
 
@@ -290,7 +290,7 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 tool_use 資料:', messageData);
+      console.log('处理后的 tool_use 数据:', messageData);
       this.notifyListeners('tool_use', messageData);
     });
     */
@@ -312,7 +312,7 @@ class WebSocketService {
         metadata: data.metadata
       };
       
-      console.log('處理後的 thinking 資料:', messageData);
+      console.log('处理后的 thinking 数据:', messageData);
       this.notifyListeners('thinking', messageData);
     });
     */
@@ -343,7 +343,7 @@ class WebSocketService {
       this.notifyListeners('global_process_exit', data);
     });
 
-    // 處理錯誤事件
+    // 处理错误事件
     this.socket.on('error', (data) => {
       console.log('=== WebSocket 接收 error 事件 ===', data);
       
@@ -360,7 +360,7 @@ class WebSocketService {
         timestamp: safeTimestamp(data.timestamp)
       };
       
-      console.log('處理後的 error 資料:', errorData);
+      console.log('处理后的 error 数据:', errorData);
       this.notifyListeners('error', errorData);
     });
   }
@@ -432,6 +432,6 @@ class WebSocketService {
   }
 }
 
-// 單例模式
+// 单例模式
 export const websocketService = new WebSocketService();
 export default websocketService;

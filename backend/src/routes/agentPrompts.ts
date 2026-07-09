@@ -5,7 +5,7 @@ const router = Router();
 
 /**
  * GET /api/agent-prompts/config
- * 取得當前 Claude agents 路徑設定
+ * 取得当前 Claude agents 路径设置
  */
 router.get('/config', async (req: Request, res: Response) => {
   try {
@@ -24,7 +24,7 @@ router.get('/config', async (req: Request, res: Response) => {
 
 /**
  * PUT /api/agent-prompts/config
- * 設定 Claude agents 路徑
+ * 设置 Claude agents 路径
  */
 router.put('/config', async (req: Request, res: Response) => {
   try {
@@ -51,7 +51,7 @@ router.put('/config', async (req: Request, res: Response) => {
 
 /**
  * GET /api/agent-prompts
- * 列出所有 agent 檔案
+ * 列出所有 agent 文件
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -67,7 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 /**
  * GET /api/agent-prompts/:name
- * 取得單一 agent 的詳細內容
+ * 取得单一 agent 的详细内容
  */
 router.get('/:name', async (req: Request, res: Response) => {
   try {

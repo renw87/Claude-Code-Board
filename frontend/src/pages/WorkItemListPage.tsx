@@ -31,13 +31,13 @@ export const WorkItemListPage: React.FC = () => {
   const [editingWorkItem, setEditingWorkItem] = useState<WorkItem | null>(null);
 
   useEffect(() => {
-    // 初始載入
+    // 初始加载
     loadData();
     fetchStages();
   }, []);
 
   useEffect(() => {
-    // 當篩選條件改變時重新載入
+    // 当筛选条件改变时重新加载
     loadData();
   }, [statusFilter]);
 
@@ -57,36 +57,36 @@ export const WorkItemListPage: React.FC = () => {
       });
       await fetchStats();
       
-      // 顯示成功提示
+      // 显示成功提示
       const statusText: Record<string, string> = {
-        'planning': '已設為規劃中',
-        'in_progress': '已開始執行',
-        'completed': '已標記完成',
+        'planning': '已设为规划中',
+        'in_progress': '已开始运行',
+        'completed': '已标记完成',
         'cancelled': '已取消'
       };
-      toast.success(`Work Item ${statusText[status] || '狀態已更新'}`);
+      toast.success(`Work Item ${statusText[status] || '状态已更新'}`);
     } catch (err) {
       console.error('Failed to update work item status:', err);
-      toast.error('更新狀態失敗');
+      toast.error('更新状态失败');
     }
   };
 
   const handleDelete = async (workItemId: string) => {
-    if (window.confirm('確定要刪除這個 Work Item 嗎？相關的 Sessions 不會被刪除。')) {
+    if (window.confirm('确定要删除这个 Work Item 吗？相关的 Sessions 不会被删除。')) {
       try {
         await deleteWorkItem(workItemId);
         await fetchStats();
-        toast.success('Work Item 已刪除');
+        toast.success('Work Item 已删除');
       } catch (err) {
         console.error('Failed to delete work item:', err);
-        toast.error('刪除 Work Item 失敗');
+        toast.error('删除 Work Item 失败');
       }
     }
   };
 
   const handleWorkItemCreated = () => {
     loadData();
-    toast.success('Work Item 已建立');
+    toast.success('Work Item 已创建');
   };
 
   const handleEdit = (workItem: WorkItem) => {
@@ -101,14 +101,14 @@ export const WorkItemListPage: React.FC = () => {
     toast.success('Work Item 已更新');
   };
 
-  // 搜尋過濾和排序
+  // 搜索过滤和排序
   const filteredWorkItems = workItems
     .filter(item =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => {
-      // 當篩選為「全部」時，按狀態排序：規劃中 -> 進行中 -> 已完成 -> 已取消
+      // 当筛选为「全部」时，按状态排序：规划中 -> 进行中 -> 已完成 -> 已取消
       if (statusFilter === 'all') {
         const statusOrder = {
           'planning': 1,
@@ -118,14 +118,14 @@ export const WorkItemListPage: React.FC = () => {
         };
         return statusOrder[a.status] - statusOrder[b.status];
       }
-      // 其他情況按創建時間排序（最新的在前）
+      // 其他情况按创建时间排序（最新的在前）
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
   const statusTabs = [
     { value: 'all', label: '全部', count: stats?.total },
-    { value: 'planning', label: '規劃中', count: stats?.planning },
-    { value: 'in_progress', label: '進行中', count: stats?.in_progress },
+    { value: 'planning', label: '规划中', count: stats?.planning },
+    { value: 'in_progress', label: '进行中', count: stats?.in_progress },
     { value: 'completed', label: '已完成', count: stats?.completed },
     { value: 'cancelled', label: '已取消', count: stats?.cancelled }
   ];
@@ -142,7 +142,7 @@ export const WorkItemListPage: React.FC = () => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Work Items</h1>
             {stats && (
               <span className="px-3 py-1 bg-primary-50 text-primary-700 border border-primary-200 rounded-full text-sm font-medium">
-                總計 {stats.total}
+                总计 {stats.total}
               </span>
             )}
           </div>
@@ -160,7 +160,7 @@ export const WorkItemListPage: React.FC = () => {
               className="btn-primary flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
-              新增 Work Item
+              添加 Work Item
             </button>
           </div>
         </div>
@@ -209,7 +209,7 @@ export const WorkItemListPage: React.FC = () => {
           
           <div className="p-4">
             <SearchBar
-              placeholder="搜尋 Work Items..."
+              placeholder="搜索 Work Items..."
               onSearch={setSearchQuery}
               defaultValue={searchQuery}
               className="w-full"
@@ -228,10 +228,10 @@ export const WorkItemListPage: React.FC = () => {
               <Briefcase className="w-16 h-16 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchQuery ? '沒有找到符合條件的 Work Items' : '還沒有 Work Items'}
+              {searchQuery ? '没有找到符合条件的 Work Items' : '还没有 Work Items'}
             </h3>
             <p className="text-gray-500 mb-6">
-              Work Items 幫助您組織和追蹤相關的 Sessions
+              Work Items 帮助您组织和追踪相关的 Sessions
             </p>
             {!searchQuery && (
               <button
@@ -239,7 +239,7 @@ export const WorkItemListPage: React.FC = () => {
                 className="btn-primary inline-flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
-                創建第一個 Work Item
+                创建第一个 Work Item
               </button>
             )}
           </div>

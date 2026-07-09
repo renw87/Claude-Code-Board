@@ -26,11 +26,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = '選擇項目...',
+  placeholder = '选择项目...',
   disabled = false,
   loading = false,
   onCreateNew,
-  createNewPlaceholder = '建立新項目',
+  createNewPlaceholder = '创建新项目',
   className,
   maxHeight = 200,
 }) => {
@@ -41,7 +41,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 點擊外部關閉下拉選單
+  // 点击外部关闭下拉列表
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -55,12 +55,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 篩選選項
+  // 筛选选项
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 獲取已選項目的詳細資訊
+  // 获取已选项目的详细信息
   const selectedOptions = value.map(val => options.find(opt => opt.value === val)).filter(Boolean) as Option[];
 
   const handleSelect = (optionValue: string) => {
@@ -93,7 +93,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   return (
     <div ref={dropdownRef} className={cn('relative', className)}>
-      {/* 選擇器主體 */}
+      {/* 选择器主体 */}
       <div
         className={cn(
           'min-h-[38px] px-3 py-2 border rounded-lg cursor-pointer transition-colors',
@@ -103,7 +103,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         )}
         onClick={() => !disabled && setIsOpen(!isOpen)}
       >
-        {/* 已選項目 */}
+        {/* 已选项目 */}
         {selectedOptions.length > 0 ? (
           selectedOptions.map(option => (
             <span
@@ -125,33 +125,33 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           <span className="text-gray-400">{placeholder}</span>
         )}
 
-        {/* 下拉箭頭 */}
+        {/* 下拉箭头 */}
         <ChevronDown className={cn(
           'w-4 h-4 ml-auto text-gray-400 transition-transform',
           isOpen && 'transform rotate-180'
         )} />
       </div>
 
-      {/* 下拉選單 */}
+      {/* 下拉列表 */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
-          {/* 搜尋框 */}
+          {/* 搜索框 */}
           <div className="p-2 border-b border-gray-100">
             <input
               type="text"
               className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="搜尋..."
+              placeholder="搜索..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onClick={(e) => e.stopPropagation()}
             />
           </div>
 
-          {/* 選項列表 */}
+          {/* 选项列表 */}
           <div className="overflow-y-auto" style={{ maxHeight }}>
             {loading ? (
               <div className="px-3 py-8 text-center text-gray-500">
-                載入中...
+                加载中...
               </div>
             ) : filteredOptions.length > 0 ? (
               filteredOptions.map(option => {
@@ -165,7 +165,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                     )}
                     onClick={() => handleSelect(option.value)}
                   >
-                    {/* 勾選框 */}
+                    {/* 勾选框 */}
                     <div className={cn(
                       'w-4 h-4 border-2 rounded flex items-center justify-center',
                       isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
@@ -177,7 +177,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                       )}
                     </div>
 
-                    {/* 選項內容 */}
+                    {/* 选项内容 */}
                     <div className="flex items-center gap-2 flex-1">
                       {option.icon && <span className="text-sm">{option.icon}</span>}
                       <span 
@@ -192,11 +192,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               })
             ) : (
               <div className="px-3 py-4 text-center text-gray-500 text-sm">
-                沒有找到符合的項目
+                没有找到符合的项目
               </div>
             )}
 
-            {/* 建立新項目 */}
+            {/* 创建新项目 */}
             {onCreateNew && (
               <div className="border-t border-gray-100">
                 {isCreating ? (
@@ -217,7 +217,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                         onClick={handleCreateNew}
                         disabled={!newItemName.trim() || loading || isLoading}
                       >
-                        {isLoading ? '建立中...' : '建立'}
+                        {isLoading ? '创建中...' : '创建'}
                       </button>
                       <button
                         className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"

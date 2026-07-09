@@ -21,13 +21,13 @@ import { MessageAccumulator } from './MessageAccumulator';
 import { UnifiedStreamProcessor } from './UnifiedStreamProcessor';
 
 /**
- * ProcessManager - 使用 npx 執行 Claude Code
+ * ProcessManager - 使用 npx 运行 Claude Code
  * 
- * 主要特點：
- * 1. 使用 npx 執行最新版 Claude Code
- * 2. 使用 --output-format=stream-json 解析結構化輸出
- * 3. 避免 Windows spawn 問題
- * 4. 支援多資料夾多 session
+ * 主要特点：
+ * 1. 使用 npx 运行最新版 Claude Code
+ * 2. 使用 --output-format=stream-json 解析结构化输出
+ * 3. 避免 Windows spawn 问题
+ * 4. 支持多文件夹多 session
  */
 export class ProcessManager extends EventEmitter {
   private processInfo: Map<string, ProcessInfo> = new Map();
@@ -37,15 +37,15 @@ export class ProcessManager extends EventEmitter {
   private streamProcessors: Map<string, StreamProcessor> = new Map();
   private messageAccumulators: Map<string, MessageAccumulator> = new Map();
   private unifiedProcessors: Map<string, UnifiedStreamProcessor> = new Map();
-  private useStreamMode: boolean = true; // 切換串流模式
-  private useUnifiedProcessor: boolean = true; // 使用統一處理器
+  private useStreamMode: boolean = true; // 切换串流模式
+  private useUnifiedProcessor: boolean = true; // 使用统一处理器
   
   private config: ClaudeCodeConfig = {
     executablePath: 'npx',
-    defaultTimeout: 3600000, // 60 分鐘
+    defaultTimeout: 3600000, // 60 分钟
     maxConcurrentProcesses: 10,
     healthCheckInterval: 30000, // 30 秒
-    maxIdleTime: 3600000, // 1 小時
+    maxIdleTime: 3600000, // 1 小时
     maxMemoryUsage: 2048, // 2GB
     enableMetrics: true,
     logLevel: 'info'
@@ -62,7 +62,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    // 建立必要的目錄
+    // 创建必要的目录
     await this.ensureDirectories();
     
     logger.info('ProcessManager initialized successfully');
@@ -80,14 +80,14 @@ export class ProcessManager extends EventEmitter {
   }
 
   async startClaudeProcess(session: Session): Promise<number> {
-    // 驗證工作目錄
+    // 验证工作目录
     if (!fs.existsSync(session.workingDir)) {
       throw new Error(`Working directory does not exist: ${session.workingDir}`);
     }
 
     const virtualPid = Date.now();
     
-    // 建立進程資訊
+    // 创建进程信息
     const processInfo: ProcessInfo = {
       sessionId: session.sessionId,
       pid: virtualPid,
@@ -102,9 +102,9 @@ export class ProcessManager extends EventEmitter {
 
     this.processInfo.set(session.sessionId, processInfo);
     
-    // 觸發事件 - 立即返回
+    // 触发事件 - 立即返回
     this.emit('processStarted', { sessionId: session.sessionId, pid: virtualPid });
-    // 如果有初始任務，狀態應該是 processing
+    // 如果有初始任务，状态应该是 processing
     if (session.task) {
       this.emit('statusUpdate', { sessionId: session.sessionId, status: 'processing' });
     } else {
@@ -116,7 +116,7 @@ export class ProcessManager extends EventEmitter {
       virtualPid
     });
 
-    // 如果有初始任務，非同步執行（不等待）
+    // 如果有初始任务，异步运行（不等待）
     if (session.task) {
       setImmediate(async () => {
         try {
@@ -141,7 +141,7 @@ export class ProcessManager extends EventEmitter {
       throw new Error(`Session not found: ${sessionId}`);
     }
     
-    // 儲存用戶訊息
+    // 保存用户消息
     logger.info(`=== ProcessManager.sendMessage: Saving user message ===`);
     logger.info(`SessionId: ${sessionId}, Content: ${content?.slice(0, 100)}`);
     
@@ -157,7 +157,7 @@ export class ProcessManager extends EventEmitter {
       throw saveError;
     }
     
-    // 立即發送用戶訊息到 WebSocket
+    // 立即发送用户消息到 WebSocket
     logger.info(`Emitting user message immediately for session ${sessionId}:`, { content: content.slice(0, 100) });
     
     const messageData = {
@@ -169,11 +169,11 @@ export class ProcessManager extends EventEmitter {
     
     this.emit('message', messageData);
     
-    // 準備 Claude Code 命令
+    // 准备 Claude Code 命令
     let claudeCommand: string;
     let claudeSessionIdToResume: string | null = null;
     
-    // 準備參數 - 參考 vibe-kanban 的實現方式
+    // 准备参数 - 参考 vibe-kanban 的实现方式
     logger.info(`Session dangerouslySkipPermissions: ${session.dangerouslySkipPermissions}`);
     const baseFlags = ['-p'];
     if (session.dangerouslySkipPermissions) {
@@ -182,17 +182,17 @@ export class ProcessManager extends EventEmitter {
     }
     baseFlags.push('--verbose', '--output-format=stream-json');
     
-    // 1. 優先檢查當前 session 是否已有 Claude session ID（同個對話繼續）
+    // 1. 优先检查当前 session 是否已有 Claude session ID（同个对话继续）
     if (session.claudeSessionId) {
       logger.info(`Continuing same conversation with Claude session ID: ${session.claudeSessionId}`);
       claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')} --resume=${session.claudeSessionId}`;
     }
-    // 2. 檢查是否要延續最近的對話（使用 --continue）
+    // 2. 检查是否要延续最近的对话（使用 --continue）
     else if (session.continueChat) {
       logger.info(`Continuing most recent conversation using --continue`);
       claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')} --continue`;
     }
-    // 3. 全新對話
+    // 3. 全新对话
     else {
       logger.info(`Starting new conversation`);
       claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')}`;
@@ -207,29 +207,29 @@ export class ProcessManager extends EventEmitter {
       workingDir: session.workingDir
     });
     
-    // 更新狀態為忙碌
+    // 更新状态为忙碌
     const processInfo = this.processInfo.get(sessionId);
     if (processInfo) {
       processInfo.status = ProcessStatus.BUSY;
       processInfo.lastActivityTime = new Date();
     }
     
-    // 發送狀態更新事件
+    // 发送状态更新事件
     this.emit('statusUpdate', { sessionId, status: 'processing' });
     
     try {
       logger.info(`=== ProcessManager execution mode: useUnifiedProcessor=${this.useUnifiedProcessor}, useStreamMode=${this.useStreamMode} ===`);
       
       if (this.useUnifiedProcessor) {
-        // 使用統一處理器（推薦）
+        // 使用统一处理器（推荐）
         logger.info(`Using UnifiedStreamProcessor for session ${sessionId}`);
         await this.executeClaudeUnifiedCommand(sessionId, claudeCommand, content, session.workingDir);
       } else if (this.useStreamMode) {
-        // 使用舊的串流處理器（相容性）
+        // 使用旧的串流处理器（兼容性）
         logger.info(`Using legacy StreamProcessor for session ${sessionId}`);
         await this.executeClaudeStreamCommand(sessionId, claudeCommand, content, session.workingDir);
       } else {
-        // 使用原有的批次處理（除錯用）
+        // 使用原有的批量处理（调试用）
         logger.info(`Using legacy exec mode for session ${sessionId}`);
         await this.executeClaudeCommand(sessionId, claudeCommand, content, session.workingDir);
       }
@@ -240,7 +240,7 @@ export class ProcessManager extends EventEmitter {
         sessionId,
         command: claudeCommand.slice(0, 200)
       });
-      // 不要拋出錯誤，而是更新 session 狀態
+      // 不要抛出错误，而是更新 session 状态
       const sessionRepo = new SessionRepository();
       try {
         session.status = 'error' as any;
@@ -258,7 +258,7 @@ export class ProcessManager extends EventEmitter {
   }
   
   /**
-   * 使用統一處理器執行 Claude 命令 - 解決重複儲存問題
+   * 使用统一处理器运行 Claude 命令 - 解决重复保存问题
    */
   private async executeClaudeUnifiedCommand(
     sessionId: string,
@@ -266,45 +266,45 @@ export class ProcessManager extends EventEmitter {
     prompt: string,
     workingDir: string
   ): Promise<void> {
-    // 建立統一處理器
+    // 创建统一处理器
     const unifiedProcessor = new UnifiedStreamProcessor();
     this.unifiedProcessors.set(sessionId, unifiedProcessor);
     
-    // 設定統一事件處理
+    // 设置统一事件处理
     this.setupUnifiedEventHandlers(sessionId, unifiedProcessor);
     
     try {
-      // 解析命令和參數
+      // 解析命令和参数
       const [cmd, ...args] = command.split(' ');
       
-      // 使用統一處理器執行
+      // 使用统一处理器运行
       await unifiedProcessor.startProcess(sessionId, cmd, args, workingDir, prompt);
       
     } finally {
-      // 清理資源
+      // 清理资源
       unifiedProcessor.cleanup(sessionId);
       this.unifiedProcessors.delete(sessionId);
     }
   }
   
   /**
-   * 設定統一處理器事件處理
+   * 设置统一处理器事件处理
    */
   private setupUnifiedEventHandlers(
     sessionId: string,
     unifiedProcessor: UnifiedStreamProcessor
   ): void {
-    // 即時訊息 - 直接轉發給前端
+    // 即时消息 - 直接转发给前端
     unifiedProcessor.on('message', (message: ClaudeStreamMessage) => {
       this.emit('message', message);
     });
     
-    // 訊息開始
+    // 消息开始
     unifiedProcessor.on('messageStart', (data: any) => {
       logger.info(`Message started: ${data.messageId}`, { sessionId });
     });
     
-    // 訊息完成
+    // 消息完成
     unifiedProcessor.on('messageComplete', (data: any) => {
       logger.info(`Message completed: ${data.messageId}`, { sessionId });
     });
@@ -314,7 +314,7 @@ export class ProcessManager extends EventEmitter {
       await this.updateSessionClaudeId(data.sessionId, data.claudeSessionId);
     });
     
-    // 工具使用開始
+    // 工具使用开始
     unifiedProcessor.on('toolUseStart', (data: any) => {
       logger.info(`Tool use started: ${data.toolName}`, { sessionId });
     });
@@ -324,20 +324,20 @@ export class ProcessManager extends EventEmitter {
       logger.info(`Tool use completed: ${data.toolName}`, { sessionId });
     });
     
-    // 錯誤處理
+    // 错误处理
     unifiedProcessor.on('error', (error: any) => {
       logger.error('Unified processor error:', error);
       this.emit('error', error);
     });
     
-    // 進程開始
+    // 进程开始
     unifiedProcessor.on('processStarted', (data: any) => {
       this.emit('processStarted', data);
     });
     
-    // 進程結束
+    // 进程结束
     unifiedProcessor.on('processExit', async (data: any) => {
-      // 更新 session 狀態
+      // 更新 session 状态
       try {
         const session = await this.sessionRepository.findById(sessionId);
         if (session) {
@@ -353,13 +353,13 @@ export class ProcessManager extends EventEmitter {
       this.emit('statusUpdate', { sessionId, status: 'idle' });
       this.emit('processExit', data);
       
-      // 發送完成通知
+      // 发送完成通知
       const notificationService = getNotificationService();
       const session = await this.sessionRepository.findById(sessionId);
       if (session) {
         notificationService.notify({
           title: 'Claude Code Board',
-          message: `任務執行完成：${session.name}`,
+          message: `任务运行完成：${session.name}`,
           sound: true
         }).catch(err => {
           logger.warn('Failed to send notification:', err);
@@ -367,14 +367,14 @@ export class ProcessManager extends EventEmitter {
       }
     });
     
-    // 原始輸出
+    // 原始输出
     unifiedProcessor.on('output', (data: any) => {
       logger.debug('Raw output:', data);
     });
   }
   
   /**
-   * 使用串流處理器執行 Claude 命令
+   * 使用串流处理器运行 Claude 命令
    */
   private async executeClaudeStreamCommand(
     sessionId: string,
@@ -383,18 +383,18 @@ export class ProcessManager extends EventEmitter {
     workingDir: string
   ): Promise<void> {
     if (this.useUnifiedProcessor) {
-      // 使用統一處理器
+      // 使用统一处理器
       const unifiedProcessor = new UnifiedStreamProcessor();
       this.unifiedProcessors.set(sessionId, unifiedProcessor);
       
-      // 設定統一處理器事件處理
+      // 设置统一处理器事件处理
       this.setupUnifiedProcessorEventHandlers(sessionId, unifiedProcessor);
       
       try {
-        // 解析命令和參數
+        // 解析命令和参数
         const [cmd, ...args] = command.split(' ');
         
-        // 使用統一處理器執行
+        // 使用统一处理器运行
         await unifiedProcessor.startProcess(sessionId, cmd, args, workingDir, prompt);
         
       } catch (error) {
@@ -405,25 +405,25 @@ export class ProcessManager extends EventEmitter {
       return;
     }
     
-    // 建立串流處理器和訊息累積器（舊版後備）
+    // 创建串流处理器和消息累积器（旧版后备）
     const streamProcessor = new StreamProcessor();
     const messageAccumulator = new MessageAccumulator();
     
     this.streamProcessors.set(sessionId, streamProcessor);
     this.messageAccumulators.set(sessionId, messageAccumulator);
     
-    // 設定事件處理
+    // 设置事件处理
     this.setupStreamEventHandlers(sessionId, streamProcessor, messageAccumulator);
     
     try {
-      // 解析命令和參數
+      // 解析命令和参数
       const [cmd, ...args] = command.split(' ');
       
-      // 使用串流處理器執行
+      // 使用串流处理器运行
       await streamProcessor.startProcess(sessionId, cmd, args, workingDir, prompt);
       
     } finally {
-      // 清理資源
+      // 清理资源
       streamProcessor.cleanup(sessionId);
       this.streamProcessors.delete(sessionId);
       this.messageAccumulators.delete(sessionId);
@@ -432,26 +432,26 @@ export class ProcessManager extends EventEmitter {
   }
   
   /**
-   * 設定串流事件處理器
+   * 设置串流事件处理器
    */
   /**
-   * 設定統一處理器事件處理器
+   * 设置统一处理器事件处理器
    */
   private setupUnifiedProcessorEventHandlers(sessionId: string, processor: UnifiedStreamProcessor): void {
-    // 訊息事件
+    // 消息事件
     processor.on('message', (message: ClaudeStreamMessage) => {
-      // 轉發給前端
+      // 转发给前端
       this.emit('message', message);
     });
 
-    // 進程相關事件
+    // 进程相关事件
     processor.on('processStarted', (data) => {
       logger.info(`Unified processor started for session ${sessionId}`, data);
     });
 
     processor.on('processExit', (data) => {
       logger.info(`Unified processor exited for session ${sessionId}`, data);
-      // 清理資源
+      // 清理资源
       this.unifiedProcessors.delete(sessionId);
     });
 
@@ -466,63 +466,63 @@ export class ProcessManager extends EventEmitter {
     streamProcessor: StreamProcessor,
     messageAccumulator: MessageAccumulator
   ): void {
-    // 處理串流訊息
+    // 处理串流消息
     streamProcessor.on('message', async (message: ClaudeStreamMessage) => {
-      // 發送到前端
+      // 发送到前端
       this.emit('message', message);
       
-      // 交給累積器處理儲存（僅儲存，不重複發送）
+      // 交给累积器处理保存（仅保存，不重复发送）
       await messageAccumulator.handleStreamMessage(message);
     });
     
-    // 處理完整訊息（用於儲存）
+    // 处理完整消息（用于保存）
     streamProcessor.on('messageComplete', async (message: ClaudeStreamMessage) => {
-      // 只儲存，不發送到前端（避免重複）
+      // 只保存，不发送到前端（避免重复）
       await messageAccumulator.handleStreamMessage(message);
     });
     
-    // 處理 Claude session ID
+    // 处理 Claude session ID
     streamProcessor.on('sessionId', async (data: { sessionId: string; claudeSessionId: string }) => {
       await this.updateSessionClaudeId(data.sessionId, data.claudeSessionId);
     });
     
-    // 處理工具使用開始
+    // 处理工具使用开始
     streamProcessor.on('toolUseStart', (data: any) => {
       logger.info(`Tool use started: ${data.toolName}`, { sessionId, tool: data.toolName });
-      // 不再重複發送，StreamProcessor 會透過 'message' 事件處理
+      // 不再重复发送，StreamProcessor 会通过 'message' 事件处理
     });
     
-    // 處理工具使用完成
+    // 处理工具使用完成
     streamProcessor.on('toolUseComplete', (data: any) => {
       logger.info(`Tool use completed: ${data.toolName}`, { sessionId, duration: data.duration });
-      // 不再重複發送，StreamProcessor 會透過 'message' 事件處理
+      // 不再重复发送，StreamProcessor 会通过 'message' 事件处理
     });
     
-    // 處理思考開始
+    // 处理思考开始
     streamProcessor.on('thinkingStart', (data: any) => {
       logger.info('Claude started thinking', { sessionId });
-      // 不再重複發送，StreamProcessor 會透過 'message' 事件處理
+      // 不再重复发送，StreamProcessor 会通过 'message' 事件处理
     });
     
-    // 處理思考內容
+    // 处理思考内容
     streamProcessor.on('thinking', (message: ClaudeStreamMessage) => {
-      // 不再重複發送，StreamProcessor 會透過 'message' 事件處理
+      // 不再重复发送，StreamProcessor 会通过 'message' 事件处理
     });
     
-    // 處理錯誤
+    // 处理错误
     streamProcessor.on('error', (error: any) => {
       logger.error('Stream processor error:', error);
       this.emit('error', error);
     });
     
-    // 處理進程開始
+    // 处理进程开始
     streamProcessor.on('processStarted', (data: any) => {
       this.emit('processStarted', data);
     });
     
-    // 處理進程結束
+    // 处理进程结束
     streamProcessor.on('processExit', async (data: any) => {
-      // 更新 session 狀態
+      // 更新 session 状态
       try {
         const session = await this.sessionRepository.findById(sessionId);
         if (session) {
@@ -538,13 +538,13 @@ export class ProcessManager extends EventEmitter {
       this.emit('statusUpdate', { sessionId, status: 'idle' });
       this.emit('processExit', data);
       
-      // 發送完成通知
+      // 发送完成通知
       const notificationService = getNotificationService();
       const session = await this.sessionRepository.findById(sessionId);
       if (session) {
         notificationService.notify({
           title: 'Claude Code Board',
-          message: `任務執行完成：${session.name}`,
+          message: `任务运行完成：${session.name}`,
           sound: true
         }).catch(err => {
           logger.warn('Failed to send notification:', err);
@@ -552,9 +552,9 @@ export class ProcessManager extends EventEmitter {
       }
     });
     
-    // 訊息累積器事件
+    // 消息累积器事件
     messageAccumulator.on('realtimeMessage', (message: ClaudeStreamMessage) => {
-      // 即時訊息已經在上面的 message 事件中處理
+      // 即时消息已经在上面的 message 事件中处理
     });
     
     messageAccumulator.on('messageSaved', (data: any) => {
@@ -582,10 +582,10 @@ export class ProcessManager extends EventEmitter {
       
       const startTime = Date.now();
       
-      // 建立進程資訊
+      // 创建进程信息
       const processInfo: ProcessInfo = {
         sessionId,
-        pid: 0, // 將在執行後更新
+        pid: 0, // 将在运行后更新
         status: ProcessStatus.RUNNING,
         startTime: new Date(),
         lastActivityTime: new Date(),
@@ -597,15 +597,15 @@ export class ProcessManager extends EventEmitter {
       
       this.processInfo.set(sessionId, processInfo);
       
-      // 標記是否已中斷
+      // 标记是否已中断
       let isInterrupted = false;
       
-      // 使用 exec 執行命令，透過 stdin 傳入 prompt
+      // 使用 exec 运行命令，通过 stdin 传入 prompt
       const childProcess = exec(command, execOptions, async (error, stdout, stderr) => {
         logger.info(stdout);
         const executionTime = Date.now() - startTime;
         
-        // 檢查是否已被中斷（進程資訊已被移除）
+        // 检查是否已被中断（进程信息已被移除）
         if (!this.processInfo.has(sessionId)) {
           isInterrupted = true;
           logger.info(`Process was interrupted, skipping post-processing for session ${sessionId}`);
@@ -615,16 +615,16 @@ export class ProcessManager extends EventEmitter {
         
         logger.info(`Claude Code execution completed in ${executionTime}ms`, { sessionId });
         
-        // 執行完成後移除進程資訊
+        // 运行完成后移除进程信息
         this.processInfo.delete(sessionId);
         
-        // 更新 session 狀態回 IDLE 並清除錯誤訊息
+        // 更新 session 状态回 IDLE 并清调试误消息
         try {
           const sessionRepo = new SessionRepository();
           const session = await sessionRepo.findById(sessionId);
           if (session) {
             session.status = SessionStatus.IDLE;
-            session.error = null; // 清除錯誤訊息
+            session.error = null; // 清调试误消息
             session.updatedAt = new Date();
             await sessionRepo.update(session);
             logger.info(`Session status updated back to IDLE`);
@@ -633,11 +633,11 @@ export class ProcessManager extends EventEmitter {
           logger.error(`Failed to update session status:`, updateError);
         }
         
-        // 發送完成狀態更新
+        // 发送完成状态更新
         this.emit('statusUpdate', { sessionId, status: 'idle' });
         this.emit('processExit', { sessionId, code: 0 });
         
-        // 發送桌面通知
+        // 发送桌面通知
         if (!error) {
           const notificationService = getNotificationService();
           const sessionRepo = new SessionRepository();
@@ -645,7 +645,7 @@ export class ProcessManager extends EventEmitter {
             if (session) {
               notificationService.notify({
                 title: 'Claude Code Board',
-                message: `任務執行完成：${session.name}`,
+                message: `任务运行完成：${session.name}`,
                 sound: true
               }).catch(err => {
                 logger.warn('Failed to send notification:', err);
@@ -657,52 +657,52 @@ export class ProcessManager extends EventEmitter {
         }
         
         if (error) {
-          // 收集詳細的錯誤資訊
+          // 收集详细的错误信息
           const errorDetails = {
             message: error.message,
             code: error.code,
             signal: error.signal,
             killed: error.killed,
             cmd: error.cmd || command,
-            stdout: stdout?.slice(0, 2000), // 截取前 2000 字元
-            stderr: stderr || '無 stderr 輸出',
+            stdout: stdout?.slice(0, 2000), // 截取前 2000 字符
+            stderr: stderr || '无 stderr 输出',
             workingDir,
             executionTime: `${executionTime}ms`,
             timestamp: new Date().toISOString()
           };
           
-          // 詳細記錄錯誤
+          // 详细记录错误
           logger.error(`Claude Code execution error:`, errorDetails);
           
-          // 分析錯誤類型
-          let friendlyErrorMessage = 'Claude 執行失敗';
+          // 分析错误类型
+          let friendlyErrorMessage = 'Claude 运行失败';
           let errorType = 'UNKNOWN_ERROR';
           
           if ((error as any).code === 'ENOENT') {
-            friendlyErrorMessage = 'Claude Code 未找到，請確認是否已安裝';
+            friendlyErrorMessage = 'Claude Code 未找到，请确认是否已安装';
             errorType = 'CLAUDE_NOT_FOUND';
           } else if ((error as any).code === 'ETIMEDOUT' || error.killed) {
-            friendlyErrorMessage = `執行逾時 (${this.config.defaultTimeout / 1000}秒)`;
+            friendlyErrorMessage = `运行逾时 (${this.config.defaultTimeout / 1000}秒)`;
             errorType = 'TIMEOUT';
           } else if (stderr?.includes('permission')) {
-            friendlyErrorMessage = '權限不足，請檢查工作目錄權限';
+            friendlyErrorMessage = '权限不足，请检查工作目录权限';
             errorType = 'PERMISSION_DENIED';
           } else if (stderr?.includes('npm ERR!')) {
-            friendlyErrorMessage = 'npm 執行錯誤，請檢查網路連線或 npm 設定';
+            friendlyErrorMessage = 'npm 运行错误，请检查网络连接或 npm 设置';
             errorType = 'NPM_ERROR';
-            // 記錄完整的 npm 錯誤
+            // 记录完整的 npm 错误
             logger.error('NPM Error Details:', { stderr });
           } else if (stderr?.includes('Invalid') || stderr?.includes('invalid')) {
-            friendlyErrorMessage = `參數錯誤: ${stderr.split('\n')[0]}`;
+            friendlyErrorMessage = `参数错误: ${stderr.split('\n')[0]}`;
             errorType = 'INVALID_ARGUMENTS';
           } else if (error.message?.includes('Command failed')) {
-            // 嘗試從 stderr 提取更有意義的錯誤
+            // 尝试从 stderr 提取更有意义的错误
             const stderrFirstLine = stderr?.split('\n')[0];
             friendlyErrorMessage = stderrFirstLine || error.message;
             errorType = 'COMMAND_FAILED';
           }
           
-          // 構建結構化的錯誤資訊
+          // 构建结构化的错误信息
           const structuredError = {
             sessionId,
             error: friendlyErrorMessage,
@@ -718,13 +718,13 @@ export class ProcessManager extends EventEmitter {
           
           this.emit('error', structuredError);
           
-          // 發送錯誤通知
+          // 发送错误通知
           const notificationService = getNotificationService();
           const errorSessionRepo = new SessionRepository();
           errorSessionRepo.findById(sessionId).then(session => {
             if (session) {
               notificationService.notify({
-                title: 'Claude Code Board - 錯誤',
+                title: 'Claude Code Board - 错误',
                 message: `${session.name}: ${friendlyErrorMessage}`,
                 sound: true
               }).catch(err => {
@@ -735,7 +735,7 @@ export class ProcessManager extends EventEmitter {
             logger.error('Failed to get session for error notification:', err);
           });
           
-          // 更新 session 狀態為錯誤，包含詳細錯誤資訊
+          // 更新 session 状态为错误，包含详细错误信息
           const updateSessionRepo = new SessionRepository();
           updateSessionRepo.findById(sessionId).then(session => {
             if (session) {
@@ -753,25 +753,25 @@ export class ProcessManager extends EventEmitter {
             logger.error('Failed to update session status:', err);
           });
           
-          // 發送錯誤狀態更新
+          // 发送错误状态更新
           this.emit('statusUpdate', { sessionId, status: 'error' });
           this.emit('processExit', { sessionId, code: error.code || 1, signal: error.signal || null });
           
-          // 清理進程資訊
+          // 清理进程信息
           this.processInfo.delete(sessionId);
           
-          // 不要 reject，而是 resolve 以防止未處理的 Promise rejection
+          // 不要 reject，而是 resolve 以防止未处理的 Promise rejection
           resolve();
           return;
         }
         
-        // 處理 stream-json 格式的輸出
+        // 处理 stream-json 格式的输出
         if (stdout && stdout.trim()) {
           await this.processStreamJsonOutput(sessionId, stdout);
         }
         
         if (stderr && stderr.trim()) {
-          // 記錄完整的 stderr 輸出以便偵錯
+          // 记录完整的 stderr 输出以便调试
           logger.warn(`Claude Code stderr output:`, {
             sessionId,
             stderr: stderr,
@@ -784,12 +784,12 @@ export class ProcessManager extends EventEmitter {
         resolve();
       });
       
-      // 更新進程 PID
+      // 更新进程 PID
       if (childProcess.pid && processInfo) {
         processInfo.pid = childProcess.pid;
       }
       
-      // 將 prompt 寫入 stdin
+      // 将 prompt 写入 stdin
       if (childProcess.stdin) {
         childProcess.stdin.write(prompt);
         childProcess.stdin.end();
@@ -807,12 +807,12 @@ export class ProcessManager extends EventEmitter {
       try {
         const json = JSON.parse(line);
         
-        // 提取 session ID 並儲存到資料庫
+        // 提取 session ID 并保存到数据库
         if (json.session_id && !claudeSessionId) {
           claudeSessionId = json.session_id;
           logger.info(`Claude session ID: ${claudeSessionId}`);
           
-          // 更新資料庫中的 claude_session_id
+          // 更新数据库中的 claude_session_id
           if (claudeSessionId) {
             try {
               await this.sessionRepository.updateClaudeSessionId(sessionId, claudeSessionId);
@@ -823,7 +823,7 @@ export class ProcessManager extends EventEmitter {
           }
         }
         
-        // 處理不同類型的訊息
+        // 处理不同类型的消息
         logger.info(`Processing message type: ${json.type}`, { json });
         
         switch (json.type) {
@@ -855,7 +855,7 @@ export class ProcessManager extends EventEmitter {
             break;
             
           case 'user':
-            // 用戶訊息已在 sendMessage 方法中立即發送，避免重複發送
+            // 用户消息已在 sendMessage 方法中立即发送，避免重复发送
             if (json.message?.content) {
               const content = this.extractTextContent(json.message.content);
               logger.info(`User message already sent immediately, skipping stream duplicate: ${content?.slice(0, 100)}`);
@@ -878,14 +878,14 @@ export class ProcessManager extends EventEmitter {
             break;
             
           case 'result':
-            // 忽略 result 類型（如 vibe-kanban）
+            // 忽略 result 类型（如 vibe-kanban）
             break;
             
           default:
             logger.debug(`Unhandled message type: ${json.type}`);
         }
       } catch (parseError) {
-        // 如果不是 JSON，當作普通文字處理
+        // 如果不是 JSON，当作普通文本处理
         if (line.trim()) {
           await this.messageRepository.save({
             sessionId,
@@ -903,7 +903,7 @@ export class ProcessManager extends EventEmitter {
       }
     }
     
-    // 儲存 Claude session ID 以供後續使用
+    // 保存 Claude session ID 以供后续使用
     if (claudeSessionId) {
       await this.updateSessionClaudeId(sessionId, claudeSessionId);
     }
@@ -1017,7 +1017,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   async interruptProcess(sessionId: string): Promise<void> {
-    // 檢查是否有統一處理器
+    // 检查是否有统一处理器
     const unifiedProcessor = this.unifiedProcessors.get(sessionId);
     if (unifiedProcessor) {
       unifiedProcessor.interrupt();
@@ -1025,13 +1025,13 @@ export class ProcessManager extends EventEmitter {
       this.unifiedProcessors.delete(sessionId);
     }
     
-    // 檢查是否有串流處理器（相容性）
+    // 检查是否有串流处理器（兼容性）
     const streamProcessor = this.streamProcessors.get(sessionId);
     if (streamProcessor) {
       streamProcessor.interrupt();
       this.streamProcessors.delete(sessionId);
       
-      // 清理訊息累積器
+      // 清理消息累积器
       const messageAccumulator = this.messageAccumulators.get(sessionId);
       if (messageAccumulator) {
         messageAccumulator.cleanup(sessionId);
@@ -1045,16 +1045,16 @@ export class ProcessManager extends EventEmitter {
       throw new Error(`Process info not found for session ${sessionId}`);
     }
     
-    // 如果有 PID，嘗試終止進程
+    // 如果有 PID，尝试终止进程
     if (processInfo.pid && processInfo.pid > 0) {
       try {
         // 在 Windows 上使用 taskkill，其他平台使用 kill
         if (process.platform === 'win32') {
-          // 使用 /T 參數終止進程樹（包含所有子進程）
+          // 使用 /T 参数终止进程树（包含所有子进程）
           exec(`taskkill /F /T /PID ${processInfo.pid}`, (error) => {
             if (error) {
               logger.warn(`Failed to kill process ${processInfo.pid}:`, error);
-              // 如果失敗，嘗試使用進程名稱
+              // 如果失败，尝试使用进程名称
               exec(`taskkill /F /IM node.exe /FI "PID eq ${processInfo.pid}"`, (killError) => {
                 if (killError) {
                   logger.error(`Failed to kill process by name:`, killError);
@@ -1065,13 +1065,13 @@ export class ProcessManager extends EventEmitter {
             }
           });
         } else {
-          // 先嘗試 SIGTERM，然後 SIGKILL
+          // 先尝试 SIGTERM，然后 SIGKILL
           process.kill(processInfo.pid, 'SIGTERM');
           setTimeout(() => {
             try {
               process.kill(processInfo.pid, 'SIGKILL');
             } catch (e) {
-              // 進程可能已經結束
+              // 进程可能已经结束
             }
           }, 1000);
         }
@@ -1080,19 +1080,19 @@ export class ProcessManager extends EventEmitter {
       }
     }
     
-    // 從 Map 中移除進程資訊
+    // 从 Map 中移除进程信息
     this.processInfo.delete(sessionId);
     
-    // 發送中斷事件和狀態更新
+    // 发送中断事件和状态更新
     this.emit('processInterrupted', { sessionId });
     this.emit('statusUpdate', { sessionId, status: 'idle' });
     
-    // 儲存中斷訊息
+    // 保存中断消息
     try {
       await this.messageRepository.save({
         sessionId,
         type: 'assistant',
-        content: '⚠️ 執行已被使用者中斷'
+        content: '⚠️ 运行已被用户中断'
       });
     } catch (error) {
       logger.error('Failed to save interrupt message:', error);
@@ -1102,7 +1102,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   getProcess(sessionId: string): any {
-    // 使用 npx 模式時，我們不維護長期運行的進程
+    // 使用 npx 模式时，我们不维护长期运行的进程
     return undefined;
   }
 
@@ -1205,7 +1205,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   /**
-   * 設定處理器模式
+   * 设置处理器模式
    */
   setProcessorMode(mode: 'unified' | 'stream' | 'legacy'): void {
     switch (mode) {
@@ -1228,7 +1228,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   /**
-   * 獲取當前處理器模式
+   * 获取当预处理器模式
    */
   getProcessorMode(): string {
     if (this.useUnifiedProcessor) {
@@ -1241,7 +1241,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   /**
-   * 獲取處理器統計資訊
+   * 获取处理器统计信息
    */
   getProcessorStats(): any {
     return {

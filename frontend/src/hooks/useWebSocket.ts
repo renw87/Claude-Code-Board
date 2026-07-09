@@ -6,7 +6,7 @@ export const useWebSocket = () => {
   const [connectionError, setConnectionError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // 避免重複連接
+    // 避免重复连接
     if (websocketService.isConnected()) {
       setIsConnected(true);
       return;
@@ -25,7 +25,7 @@ export const useWebSocket = () => {
 
     connect();
 
-    // 監聽連線狀態變化
+    // 监听连接状态变化
     const handleConnect = () => {
       setIsConnected(true);
       setConnectionError(null);
@@ -82,7 +82,7 @@ export const useWebSocket = () => {
   };
 };
 
-// 專門用於監聽 Session 訊息的 Hook
+// 专门用于监听 Session 消息的 Hook
 export const useSessionMessages = (sessionId: string | null) => {
   const [messages, setMessages] = useState<WebSocketMessage[]>([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -95,11 +95,11 @@ export const useSessionMessages = (sessionId: string | null) => {
       return;
     }
 
-    // 訂閱 session
+    // 订阅 session
     subscribe(sessionId);
     setIsSubscribed(true);
 
-    // 監聽訊息
+    // 监听消息
     const handleMessage = (data: WebSocketMessage) => {
       if (data.sessionId === sessionId) {
         console.log('useSessionMessages: Received message', data.type, data);
@@ -145,7 +145,7 @@ export const useSessionMessages = (sessionId: string | null) => {
       }
     };
 
-    // 恢復所有事件監聽，重複過濾在 ChatInterface 中處理
+    // 恢复所有事件监听，重复过滤在 ChatInterface 中处理
     addEventListener('message', handleMessage);
     addEventListener('assistant', handleAssistant);
     addEventListener('user', handleUser);
@@ -180,7 +180,7 @@ export const useSessionMessages = (sessionId: string | null) => {
   };
 };
 
-// 用於監聽系統狀態的 Hook
+// 用于监听系统状态的 Hook
 export const useSystemStatus = () => {
   const [processCount, setProcessCount] = useState(0);
   const { addEventListener, removeEventListener } = useWebSocket();

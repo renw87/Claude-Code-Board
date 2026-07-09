@@ -27,13 +27,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
   const { logout } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
-  // 從 localStorage 讀取側邊欄狀態
+  // 从 localStorage 读取侧边栏状态
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
     return saved ? JSON.parse(saved) : false;
   });
 
-  // 切換側邊欄狀態並保存到 localStorage
+  // 切换侧边栏状态并保存到 localStorage
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
       "transition-[width] duration-300 ease-in-out",
       isCollapsed ? "w-20" : "w-72"
     )}>
-      {/* 懸浮卡片 */}
+      {/* 悬浮卡片 */}
       <div className={cn(
         "glass-extreme rounded-2xl flex flex-col border border-white/70 backdrop-blur-2xl bg-white/30 h-full",
         "transition-[margin,background-color,border-color] duration-300 ease-in-out !shadow-none",
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
             )}
           </div>
 
-          {/* 收合/展開按鈕 */}
+          {/* 收合/展开按钮 */}
           <button
             onClick={toggleSidebar}
             className={cn(
@@ -98,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
             )}
           </button>
 
-          {/* 裝飾性分隔線 */}
+          {/* 装饰性分隔线 */}
           <div className={cn(
             "w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent",
             isCollapsed ? "mt-2" : "mt-4"
@@ -189,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
           )}
 
           {isCollapsed ? (
-            <Tooltip content="工作流程階段" side="right">
+            <Tooltip content="工作流程阶段" side="right">
               <Link
                 to="/workflow-stages"
                 className={cn(
@@ -214,13 +214,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
             >
               <div className="flex items-center space-x-3">
                 <Workflow className="w-5 h-5 text-current transition-transform group-hover:scale-110" />
-                <span className="font-medium">工作流程階段</span>
+                <span className="font-medium">工作流程阶段</span>
               </div>
             </Link>
           )}
 
           {isCollapsed ? (
-            <Tooltip content="Agent 提示詞" side="right">
+            <Tooltip content="Agent 提示词" side="right">
               <Link
                 to="/agent-prompts"
                 className={cn(
@@ -245,25 +245,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
             >
               <div className="flex items-center space-x-3">
                 <FileText className="w-5 h-5 text-current transition-transform group-hover:scale-110" />
-                <span className="font-medium">Agent 提示詞</span>
+                <span className="font-medium">Agent 提示词</span>
               </div>
             </Link>
           )}
       </nav>
 
-        {/* 底部操作區 */}
+        {/* 底部操作区 */}
         <div className={cn(
           "space-y-2 mt-2 transition-[padding] duration-300 ease-in-out",
           isCollapsed ? "p-2" : "p-4"
         )}>
-          {/* 裝飾性分隔線 */}
+          {/* 装饰性分隔线 */}
           <div className={cn(
             "w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent",
             isCollapsed ? "mb-2" : "mb-3"
           )}></div>
           {isCollapsed ? (
             <>
-              <Tooltip content="建立 Session" side="right">
+              <Tooltip content="创建 Session" side="right">
                 <button
                   onClick={onCreateSession}
                   className="w-full flex items-center justify-center p-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-green-400/30 backdrop-blur-sm group mx-1"
@@ -272,7 +272,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
                 </button>
               </Tooltip>
 
-              <Tooltip content="設定" side="right">
+              <Tooltip content="设置" side="right">
                 <button
                   onClick={() => setIsSettingsOpen(true)}
                   className="w-full flex items-center justify-center p-2.5 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-white/40 backdrop-blur-sm group mx-1"
@@ -281,7 +281,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
                 </button>
               </Tooltip>
 
-              <Tooltip content="登出" side="right">
+              <Tooltip content="注销" side="right">
                 <button
                   onClick={logout}
                   className="w-full flex items-center justify-center p-2.5 bg-red-50/80 text-red-600 rounded-lg hover:bg-red-100/80 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-red-200/50 backdrop-blur-sm group mx-1"
@@ -297,7 +297,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
                 className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-green-400/30 backdrop-blur-sm group font-medium"
               >
                 <Plus className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                建立 Session
+                创建 Session
               </button>
 
               <button
@@ -305,7 +305,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
                 className="w-full flex items-center justify-center px-4 py-3 bg-white/20 text-gray-700 rounded-xl hover:bg-white/30 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-white/40 backdrop-blur-sm group font-medium"
               >
                 <Settings className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                設定
+                设置
               </button>
 
               <button
@@ -313,7 +313,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
                 className="w-full flex items-center justify-center px-4 py-3 bg-red-50/80 text-red-600 rounded-xl hover:bg-red-100/80 shadow-soft-md hover:shadow-soft-lg transition-all duration-200 border border-red-200/50 backdrop-blur-sm group font-medium"
               >
                 <LogOut className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                登出
+                注销
               </button>
             </>
           )}
@@ -321,13 +321,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
           {loading && !isCollapsed && (
             <div className="mt-3 flex items-center justify-center text-xs text-gray-500">
               <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full mr-2"></div>
-              載入中...
+              加载中...
             </div>
           )}
         </div>
       </div>
 
-      {/* 設定模態窗口 */}
+      {/* 设置模态窗口 */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

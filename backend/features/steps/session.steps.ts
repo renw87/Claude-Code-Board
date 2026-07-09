@@ -6,10 +6,10 @@ import { SessionRepository } from '../../src/repositories/SessionRepository';
 import { MessageRepository } from '../../src/repositories/MessageRepository';
 import { expect } from 'chai';
 
-// 原子化的 Session 相關 Steps
+// 原子化的 Session 相关 Steps
 
-Given('系統中有 {int} 個運行中的 Sessions', async function(this: TestContext, count: number) {
-  // 建立指定數量的運行中 Sessions
+Given('系统中有 {int} 个运行中的 Sessions', async function(this: TestContext, count: number) {
+  // 创建指定数量的运行中 Sessions
   for (let i = 0; i < count; i++) {
     const session: Session = {
       sessionId: uuidv4(),
@@ -26,7 +26,7 @@ Given('系統中有 {int} 個運行中的 Sessions', async function(this: TestCo
   }
 });
 
-Given('存在一個運行中的 Session', async function(this: TestContext) {
+Given('存在一个运行中的 Session', async function(this: TestContext) {
   const session: Session = {
     sessionId: uuidv4(),
     name: 'Test Running Session',
@@ -42,7 +42,7 @@ Given('存在一個運行中的 Session', async function(this: TestContext) {
   this.currentSession = session;
 });
 
-Given('存在一個 {word} 的 Session', async function(this: TestContext, status: string) {
+Given('存在一个 {word} 的 Session', async function(this: TestContext, status: string) {
   const statusMap: { [key: string]: SessionStatus } = {
     'processing': SessionStatus.PROCESSING,
     'idle': SessionStatus.IDLE,
@@ -72,12 +72,12 @@ Given('存在一個 {word} 的 Session', async function(this: TestContext, statu
 });
 
 Given('Session {string} 不存在', async function(this: TestContext, sessionId: string) {
-  // 確保該 Session 不存在
+  // 确保该 Session 不存在
   this.sessions.delete(sessionId);
   this.testData.nonExistentSessionId = sessionId;
 });
 
-Given('存在一個已完成的 Session', async function(this: TestContext) {
+Given('存在一个已完成的 Session', async function(this: TestContext) {
   const session: Session = {
     sessionId: uuidv4(),
     name: 'Test Completed Session',
@@ -85,7 +85,7 @@ Given('存在一個已完成的 Session', async function(this: TestContext) {
     task: 'Completed task',
     status: SessionStatus.COMPLETED,
     continueChat: false,
-    createdAt: new Date(Date.now() - 3600000), // 1 小時前
+    createdAt: new Date(Date.now() - 3600000), // 1 小时前
     updatedAt: new Date(),
     completedAt: new Date()
   };
@@ -93,7 +93,7 @@ Given('存在一個已完成的 Session', async function(this: TestContext) {
   this.currentSession = session;
 });
 
-Given('存在一個已完成的 Session {string}', async function(this: TestContext, sessionId: string) {
+Given('存在一个已完成的 Session {string}', async function(this: TestContext, sessionId: string) {
   const sessionRepository = new SessionRepository();
   const session: Session = {
     sessionId: sessionId,
@@ -102,31 +102,31 @@ Given('存在一個已完成的 Session {string}', async function(this: TestCont
     task: 'Previous task',
     status: SessionStatus.COMPLETED,
     continueChat: false,
-    createdAt: new Date(Date.now() - 7200000), // 2 小時前
-    updatedAt: new Date(Date.now() - 3600000), // 1 小時前
+    createdAt: new Date(Date.now() - 7200000), // 2 小时前
+    updatedAt: new Date(Date.now() - 3600000), // 1 小时前
     completedAt: new Date(Date.now() - 3600000)
   };
   
-  // 保存到資料庫
+  // 保存到数据库
   await sessionRepository.save(session);
   this.sessions.set(sessionId, session);
   this.testData.previousSessionId = sessionId;
 });
 
-Given('該 Session 有對話歷史記錄', async function(this: TestContext) {
+Given('该 Session 有对话历史记录', async function(this: TestContext) {
   const messageRepository = new MessageRepository();
   const sessionId = this.testData.previousSessionId || this.currentSession?.sessionId;
   
   if (sessionId) {
-    // 儲存實際的對話歷史到資料庫
+    // 保存实际的对话历史到数据库
     const messages = [
-      { sessionId, role: 'user' as const, content: '請分析專案結構' },
-      { sessionId, role: 'assistant' as const, content: '我已經分析了專案結構...' },
-      { sessionId, role: 'user' as const, content: '優化程式碼' },
-      { sessionId, role: 'assistant' as const, content: '以下是優化建議...' }
+      { sessionId, role: 'user' as const, content: '请分析项目结构' },
+      { sessionId, role: 'assistant' as const, content: '我已经分析了项目结构...' },
+      { sessionId, role: 'user' as const, content: '优化代码' },
+      { sessionId, role: 'assistant' as const, content: '以下是优化建议...' }
     ];
     
-    // 保存每個訊息到資料庫
+    // 保存每个消息到数据库
     for (const message of messages) {
       await messageRepository.save(message);
     }
@@ -138,8 +138,8 @@ Given('該 Session 有對話歷史記錄', async function(this: TestContext) {
   }
 });
 
-// 新增的原子化 Steps
-Given('存在一個 Session', async function(this: TestContext) {
+// 添加的原子化 Steps
+Given('存在一个 Session', async function(this: TestContext) {
   const session: Session = {
     sessionId: uuidv4(),
     name: 'Test Session',
@@ -155,24 +155,24 @@ Given('存在一個 Session', async function(this: TestContext) {
   this.currentSession = session;
 });
 
-Given('Session 有對話歷史記錄', async function(this: TestContext) {
+Given('Session 有对话历史记录', async function(this: TestContext) {
   const sessionRepository = new SessionRepository();
   const messageRepository = new MessageRepository();
   const sessionId = this.currentSession?.sessionId;
   
   if (sessionId && this.currentSession) {
-    // 先確保 session 存在於資料庫中
+    // 先确保 session 存在于数据库中
     await sessionRepository.save(this.currentSession);
     
-    // 儲存實際的對話歷史到資料庫
+    // 保存实际的对话历史到数据库
     const messages = [
-      { sessionId, role: 'user' as const, content: '請分析專案結構' },
-      { sessionId, role: 'assistant' as const, content: '我已經分析了專案結構...' },
-      { sessionId, role: 'user' as const, content: '優化程式碼' },
-      { sessionId, role: 'assistant' as const, content: '以下是優化建議...' }
+      { sessionId, role: 'user' as const, content: '请分析项目结构' },
+      { sessionId, role: 'assistant' as const, content: '我已经分析了项目结构...' },
+      { sessionId, role: 'user' as const, content: '优化代码' },
+      { sessionId, role: 'assistant' as const, content: '以下是优化建议...' }
     ];
     
-    // 保存每個訊息到資料庫
+    // 保存每个消息到数据库
     for (const message of messages) {
       await messageRepository.save(message);
     }
@@ -184,7 +184,7 @@ Given('Session 有對話歷史記錄', async function(this: TestContext) {
   }
 });
 
-Given('Session 狀態為 {string}', async function(this: TestContext, status: string) {
+Given('Session 状态为 {string}', async function(this: TestContext, status: string) {
   if (this.currentSession) {
     const statusMap: { [key: string]: SessionStatus } = {
       'completed': SessionStatus.COMPLETED,
@@ -197,14 +197,14 @@ Given('Session 狀態為 {string}', async function(this: TestContext, status: st
   }
 });
 
-Given('Session 正在處理使用者的訊息', async function(this: TestContext) {
+Given('Session 正在处理用户的消息', async function(this: TestContext) {
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.PROCESSING;
     this.testData.processingMessage = true;
   }
 });
 
-Given('存在一個閒置狀態的 Session', async function(this: TestContext) {
+Given('存在一个闲置状态的 Session', async function(this: TestContext) {
   const session: Session = {
     sessionId: uuidv4(),
     name: 'Test Idle Session',
@@ -220,7 +220,7 @@ Given('存在一個閒置狀態的 Session', async function(this: TestContext) {
   this.currentSession = session;
 });
 
-Given('存在一個正在處理的 Session', async function(this: TestContext) {
+Given('存在一个正在处理的 Session', async function(this: TestContext) {
   const session: Session = {
     sessionId: uuidv4(),
     name: 'Test Processing Session',
@@ -236,7 +236,7 @@ Given('存在一個正在處理的 Session', async function(this: TestContext) {
   this.currentSession = session;
 });
 
-Given('Session 正在處理複雜任務', async function(this: TestContext) {
+Given('Session 正在处理复杂任务', async function(this: TestContext) {
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.PROCESSING;
     this.testData.complexTask = true;
@@ -244,10 +244,10 @@ Given('Session 正在處理複雜任務', async function(this: TestContext) {
 });
 
 
-Given('Session 已經有 {int} 筆對話記錄', async function(this: TestContext, count: number) {
+Given('Session 已经有 {int} 笔对话记录', async function(this: TestContext, count: number) {
   if (this.currentSession) {
     this.testData.conversationCount = count;
-    // 模擬對話記錄
+    // 仿真对话记录
     this.testData.conversations = Array.from({ length: count }, (_, i) => ({
       messageId: uuidv4(),
       role: i % 2 === 0 ? 'user' : 'assistant',
@@ -257,7 +257,7 @@ Given('Session 已經有 {int} 筆對話記錄', async function(this: TestContex
   }
 });
 
-Given('Session 剛被中斷', async function(this: TestContext) {
+Given('Session 刚被中断', async function(this: TestContext) {
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.IDLE;
     this.testData.wasInterrupted = true;
@@ -265,29 +265,29 @@ Given('Session 剛被中斷', async function(this: TestContext) {
   }
 });
 
-Given('Session 之前有錯誤訊息', async function(this: TestContext) {
+Given('Session 之前有错误消息', async function(this: TestContext) {
   if (this.currentSession) {
-    this.currentSession.error = '之前的錯誤訊息';
+    this.currentSession.error = '之前的错误消息';
     this.testData.hadError = true;
   }
 });
 
-Given('Session 有錯誤訊息', async function(this: TestContext) {
+Given('Session 有错误消息', async function(this: TestContext) {
   if (this.currentSession) {
-    this.currentSession.error = '錯誤訊息';
+    this.currentSession.error = '错误消息';
     this.testData.hasError = true;
   }
 });
 
-Given('Session 正在執行長時間任務', async function(this: TestContext) {
+Given('Session 正在首席执行官时间任务', async function(this: TestContext) {
   if (this.currentSession) {
     this.currentSession.status = SessionStatus.PROCESSING;
     this.testData.longRunningTask = true;
-    this.testData.taskStartTime = new Date(Date.now() - 30 * 60 * 1000); // 30分鐘前開始
+    this.testData.taskStartTime = new Date(Date.now() - 30 * 60 * 1000); // 30分钟前开始
   }
 });
 
-Given('存在一個 Session {string}', async function(this: TestContext, sessionId: string) {
+Given('存在一个 Session {string}', async function(this: TestContext, sessionId: string) {
   const session: Session = {
     sessionId: sessionId,
     name: 'Test Session',
@@ -303,8 +303,8 @@ Given('存在一個 Session {string}', async function(this: TestContext, session
   this.currentSession = session;
 });
 
-// 新增 reorder 相關的步驟定義
-Given('系統中有 {int} 個狀態為 {string} 的 Sessions', async function(this: TestContext, count: number, status: string) {
+// 添加 reorder 相关的步骤定义
+Given('系统中有 {int} 个状态为 {string} 的 Sessions', async function(this: TestContext, count: number, status: string) {
   const statusMap: { [key: string]: SessionStatus } = {
     'idle': SessionStatus.IDLE,
     'processing': SessionStatus.PROCESSING,
@@ -314,10 +314,10 @@ Given('系統中有 {int} 個狀態為 {string} 的 Sessions', async function(th
   
   const sessionStatus = statusMap[status] || SessionStatus.IDLE;
   
-  // 清空現有的 sessions
+  // 清空现有的 sessions
   this.sessions.clear();
   
-  // 建立指定數量和狀態的 Sessions
+  // 创建指定数量和状态的 Sessions
   for (let i = 0; i < count; i++) {
     const session: Session = {
       sessionId: `session-${i + 1}`,
@@ -326,9 +326,9 @@ Given('系統中有 {int} 個狀態為 {string} 的 Sessions', async function(th
       task: `Test task ${i + 1}`,
       status: sessionStatus,
       continueChat: false,
-      createdAt: new Date(Date.now() - (count - i) * 3600000), // 讓每個 session 有不同的建立時間
+      createdAt: new Date(Date.now() - (count - i) * 3600000), // 让每个 session 有不同的创建时间
       updatedAt: new Date(),
-      sortOrder: i  // 初始排序順序
+      sortOrder: i  // 初始排序顺序
     };
     
     if (status === 'completed') {
@@ -338,19 +338,19 @@ Given('系統中有 {int} 個狀態為 {string} 的 Sessions', async function(th
     this.sessions.set(session.sessionId, session);
   }
   
-  // 儲存原始順序以供比較
+  // 保存原始顺序以供比较
   this.testData.originalOrder = Array.from(this.sessions.keys());
 });
 
-When('使用者重新排序這些 Sessions：', async function(this: TestContext, dataTable: any) {
+When('用户重新排序这些 Sessions：', async function(this: TestContext, dataTable: any) {
   const data = dataTable.rowsHash();
   
   try {
-    // 在服務層進行測試，不直接呼叫 API
+    // 在服务层进行测试，不直接调用 API
     const status = data.status;
     const sessionIds = JSON.parse(data.sessionIds);
     
-    // 驗證參數
+    // 验证参数
     if (!status || !Array.isArray(sessionIds)) {
       throw { 
         statusCode: 400, 
@@ -359,8 +359,8 @@ When('使用者重新排序這些 Sessions：', async function(this: TestContext
       };
     }
     
-    // 模擬 reorderSessions 服務的行為
-    // 更新每個 session 的排序順序
+    // 仿真 reorderSessions 服务的行为
+    // 更新每个 session 的排序顺序
     for (let i = 0; i < sessionIds.length; i++) {
       const session = this.sessions.get(sessionIds[i]);
       if (session) {
@@ -372,7 +372,7 @@ When('使用者重新排序這些 Sessions：', async function(this: TestContext
     this.responseStatus = 200;
     this.responseBody = { success: true };
     
-    // 儲存新的排序以供驗證
+    // 保存新的排序以供验证
     this.testData.newOrder = sessionIds;
   } catch (error: any) {
     this.responseStatus = error.statusCode || 500;
@@ -383,15 +383,15 @@ When('使用者重新排序這些 Sessions：', async function(this: TestContext
   }
 });
 
-When('使用者發送重新排序請求但缺少 status 參數：', async function(this: TestContext, dataTable: any) {
+When('用户发送重新排序请求但缺少 status 参数：', async function(this: TestContext, dataTable: any) {
   const data = dataTable.rowsHash();
   
   try {
-    // 在服務層進行測試
+    // 在服务层进行测试
     const status = undefined; // 故意不包含 status
     const sessionIds = JSON.parse(data.sessionIds);
     
-    // 驗證參數
+    // 验证参数
     if (!status || !Array.isArray(sessionIds)) {
       throw { 
         statusCode: 400, 
@@ -400,7 +400,7 @@ When('使用者發送重新排序請求但缺少 status 參數：', async functi
       };
     }
     
-    // 不會執行到這裡，因為上面會拋出錯誤
+    // 不会运行到这里，因为上面会抛出错误
     this.responseStatus = 200;
     this.responseBody = { success: true };
   } catch (error: any) {
@@ -412,15 +412,15 @@ When('使用者發送重新排序請求但缺少 status 參數：', async functi
   }
 });
 
-When('使用者發送重新排序請求但 sessionIds 不是陣列：', async function(this: TestContext, dataTable: any) {
+When('用户发送重新排序请求但 sessionIds 不是数组：', async function(this: TestContext, dataTable: any) {
   const data = dataTable.rowsHash();
   
   try {
-    // 在服務層進行測試
+    // 在服务层进行测试
     const status = data.status;
-    const sessionIds = data.sessionIds; // 不解析 JSON，直接使用字串
+    const sessionIds = data.sessionIds; // 不解析 JSON，直接使用字符串
     
-    // 驗證參數
+    // 验证参数
     if (!status || !Array.isArray(sessionIds)) {
       throw { 
         statusCode: 400, 
@@ -429,7 +429,7 @@ When('使用者發送重新排序請求但 sessionIds 不是陣列：', async fu
       };
     }
     
-    // 不會執行到這裡，因為上面會拋出錯誤
+    // 不会运行到这里，因为上面会抛出错误
     this.responseStatus = 200;
     this.responseBody = { success: true };
   } catch (error: any) {
@@ -441,11 +441,11 @@ When('使用者發送重新排序請求但 sessionIds 不是陣列：', async fu
   }
 });
 
-When('使用者嘗試刪除一個不存在的 Session', async function(this: TestContext) {
+When('用户尝试删除一个不存在的 Session', async function(this: TestContext) {
   const nonExistentId = 'non-existent-session-id';
   
   try {
-    // 在服務層進行測試
+    // 在服务层进行测试
     const session = this.sessions.get(nonExistentId);
     
     if (!session) {
@@ -456,7 +456,7 @@ When('使用者嘗試刪除一個不存在的 Session', async function(this: Tes
       };
     }
     
-    // 不會執行到這裡
+    // 不会运行到这里
     this.sessions.delete(nonExistentId);
     this.responseStatus = 204;
     this.responseBody = {};
@@ -469,15 +469,15 @@ When('使用者嘗試刪除一個不存在的 Session', async function(this: Tes
   }
 });
 
-Then('Sessions 的順序應該被更新為新的排序', async function(this: TestContext) {
-  // 這裡只驗證 API 回應成功
-  // 實際的排序驗證需要查詢資料庫或通過另一個 API
+Then('Sessions 的顺序应该被更新为新的排序', async function(this: TestContext) {
+  // 这里只验证 API 回应成功
+  // 实际的排序验证需要查找数据库或通过另一个 API
   expect(this.responseStatus).to.equal(200);
   expect(this.responseBody.success).to.be.true;
   
-  // 如果有 WebSocket 事件，也可以驗證
+  // 如果有 WebSocket 事件，也可以验证
   if (this.testData.newOrder) {
-    // 模擬驗證新順序已被應用
+    // 仿真验证新顺序已被应用
     expect(this.testData.newOrder).to.be.an('array');
     expect(this.testData.newOrder.length).to.be.greaterThan(0);
   }

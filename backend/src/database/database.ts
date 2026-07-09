@@ -172,9 +172,9 @@ export class Database {
             const status = await migration.getStatus();
             
             if (status.hasTypeColumn && status.totalMessages > 0 && status.consistentData < status.totalMessages) {
-              console.log('執行 role → type 遷移...');
+              console.log('运行 role → type 迁移...');
               await migration.up();
-              console.log('role → type 遷移完成');
+              console.log('role → type 迁移完成');
             }
           } catch (migrationError) {
             console.error('Migration failed:', migrationError);
@@ -246,7 +246,7 @@ export class Database {
               { id: '2', icon: 'Code', label: 'Example', path: 'C:\\Users\\Example', sort_order: 2 },
               { id: '3', icon: 'Home', label: 'Desktop', path: 'C:\\Users\\User\\Desktop', sort_order: 3 },
               { id: '4', icon: 'Home', label: 'Documents', path: 'C:\\Users\\User\\Documents', sort_order: 4 },
-              { id: '5', icon: 'FolderOpen', label: '當前目錄', path: '.', sort_order: 5 },
+              { id: '5', icon: 'FolderOpen', label: '当前目录', path: '.', sort_order: 5 },
             ];
             
             for (const path of defaultPaths) {
@@ -463,11 +463,11 @@ export class Database {
           if (count && count.count === 0) {
             // Insert default templates
             const defaultTemplates = [
-              { id: '1', label: '繼續工作', template: '基於前一個對話的上下文，繼續進行相關工作。', sort_order: 1 },
-              { id: '2', label: '程式審查', template: '請審查此專案的程式碼品質、安全性和最佳實踐。請先閱讀 dev.md 和相關專案檔案。', sort_order: 2 },
-              { id: '3', label: '修復錯誤', template: '協助分析和修復專案中的錯誤。請先了解專案架構和現有程式碼。', sort_order: 3 },
-              { id: '4', label: '功能開發', template: '協助開發新功能，請先了解現有架構和設計模式。', sort_order: 4 },
-              { id: '5', label: '撰寫文件', template: '協助撰寫或更新專案文件，請先分析現有程式碼結構。', sort_order: 5 },
+              { id: '1', label: '继续工作', template: '基于前一个对话的上下文，继续进行相关工作。', sort_order: 1 },
+              { id: '2', label: '程序审查', template: '请审查此项目的代码品质、安全性和最佳实践。请先阅读 dev.md 和相关项目文件。', sort_order: 2 },
+              { id: '3', label: '修复错误', template: '协助分析和修复项目中的错误。请先了解项目架构和现有代码。', sort_order: 3 },
+              { id: '4', label: '功能开发', template: '协助开发新功能，请先了解现有架构和设计模式。', sort_order: 4 },
+              { id: '5', label: '撰写文档', template: '协助撰写或更新项目文档，请先分析现有代码结构。', sort_order: 5 },
             ];
 
             for (const t of defaultTemplates) {

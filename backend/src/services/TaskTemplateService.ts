@@ -21,12 +21,12 @@ export class TaskTemplateService {
   }
 
   async createTemplate(data: CreateTaskTemplateRequest): Promise<TaskTemplate> {
-    // 驗證必填欄位
+    // 验证必填字段
     if (!data.label || !data.template) {
       throw new Error('Label and template are required');
     }
 
-    // 驗證標籤長度
+    // 验证标签长度
     if (data.label.length > 100) {
       throw new Error('Label must be 100 characters or less');
     }
@@ -35,7 +35,7 @@ export class TaskTemplateService {
   }
 
   async updateTemplate(id: string, data: UpdateTaskTemplateRequest): Promise<TaskTemplate> {
-    // 驗證標籤長度
+    // 验证标签长度
     if (data.label && data.label.length > 100) {
       throw new Error('Label must be 100 characters or less');
     }
@@ -48,7 +48,7 @@ export class TaskTemplateService {
   }
 
   async reorderTemplates(orders: { id: string; sort_order: number }[]): Promise<void> {
-    // 驗證輸入
+    // 验证输入
     if (!Array.isArray(orders)) {
       throw new Error('Invalid input: orders must be an array');
     }

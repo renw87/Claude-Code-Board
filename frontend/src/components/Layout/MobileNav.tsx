@@ -26,10 +26,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onCreateSession }) => {
 
   return (
     <>
-      {/* 底部導航欄 */}
+      {/* 底部导航栏 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-30">
         <div className="flex items-center justify-center relative">
-          {/* 左側容器 */}
+          {/* 左侧容器 */}
           <div className="flex-1 flex justify-center">
             <Link
               to="/"
@@ -52,7 +52,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onCreateSession }) => {
             </Link>
           </div>
 
-          {/* 建立按鈕 - 浮動操作按鈕風格，絕對定位置中 */}
+          {/* 创建按钮 - 浮动操作按钮风格，绝对定位置中 */}
           <button
             onClick={onCreateSession}
             className="absolute left-1/2 transform -translate-x-1/2 -top-4 flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10"
@@ -60,23 +60,23 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onCreateSession }) => {
             <Plus className="w-6 h-6" />
           </button>
 
-          {/* 中間占位空間 */}
+          {/* 中间占位空间 */}
           <div className="w-14 h-14"></div>
 
-          {/* 右側容器 */}
+          {/* 右侧容器 */}
           <div className="flex-1 flex justify-center">
             <button 
               onClick={() => setIsSettingsOpen(true)}
               className="flex flex-col items-center justify-center p-2 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
             >
               <Settings className="w-6 h-6" />
-              <span className="text-xs mt-1">設定</span>
+              <span className="text-xs mt-1">设置</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 設定模態窗口 */}
+      {/* 设置模态窗口 */}
       <SettingsModal 
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

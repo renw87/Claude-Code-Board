@@ -25,10 +25,10 @@ class MockProcessManager extends ProcessManager {
   }
 }
 
-// 注入服務 (在實際實作中會使用依賴注入)
+// 注入服务 (在实际实作中会使用依赖注入)
 let sessionService: SessionService;
 
-When('使用者建立新 Session，設定如下：', async function(this: TestContext, dataTable: any) {
+When('用户创建新 Session，设置如下：', async function(this: TestContext, dataTable: any) {
   const data = dataTable.rowsHash();
   
   const request: CreateSessionRequest = {
@@ -41,7 +41,7 @@ When('使用者建立新 Session，設定如下：', async function(this: TestCo
   };
   
   try {
-    // 調用服務層
+    // 调用服务层
     if (!sessionService) {
       sessionService = new SessionService();
       // 注入 Mock ProcessManager
@@ -63,22 +63,22 @@ When('使用者建立新 Session，設定如下：', async function(this: TestCo
   }
 });
 
-Then('response 應包含 status {string}', async function(this: TestContext, status: string) {
+Then('response 应包含 status {string}', async function(this: TestContext, status: string) {
   expect(this.responseBody).to.have.property('status', status);
 });
 
-Then('response 應包含 dangerouslySkipPermissions {string}', async function(this: TestContext, value: string) {
+Then('response 应包含 dangerouslySkipPermissions {string}', async function(this: TestContext, value: string) {
   const expectedValue = value === 'true';
   expect(this.responseBody).to.have.property('dangerouslySkipPermissions', expectedValue);
 });
 
-Then('系統應該啟動一個新的 Claude Code 進程', async function(this: TestContext) {
-  // 驗證進程已啟動
+Then('系统应该启动一个新的 Claude Code 进程', async function(this: TestContext) {
+  // 验证进程已启动
   expect(this.currentSession).to.exist;
   expect(this.currentSession?.processId).to.be.a('number');
   expect(this.currentSession?.processId).to.be.greaterThan(0);
   
-  // 驗證進程存在於模擬進程列表中
+  // 验证进程存在于仿真进程列表中
   const processId = this.currentSession?.processId;
   if (processId) {
     expect(this.mockProcesses.has(processId.toString())).to.be.true;

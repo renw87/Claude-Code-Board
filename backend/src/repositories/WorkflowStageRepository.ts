@@ -6,8 +6,8 @@ export interface WorkflowStage {
   name: string;
   description?: string;
   system_prompt: string;
-  agent_ref?: string; // 參照的 Agent 檔名
-  temperature?: number; // 添加 temperature 屬性
+  agent_ref?: string; // 参照的 Agent 文件名
+  temperature?: number; // 添加 temperature 属性
   suggested_tasks?: string[];
   color: string;
   icon: string;

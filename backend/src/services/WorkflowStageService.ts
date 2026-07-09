@@ -44,7 +44,7 @@ export class WorkflowStageService {
     if (request.agent_ref) {
       const agentContent = await agentPromptService.getAgentContent(request.agent_ref);
       if (!agentContent) {
-        throw new ValidationError(`Agent "${request.agent_ref}" 檔案不存在或無法讀取`, 'AGENT_NOT_FOUND');
+        throw new ValidationError(`Agent "${request.agent_ref}" 文件不存在或无法读取`, 'AGENT_NOT_FOUND');
       }
     }
 
@@ -69,7 +69,7 @@ export class WorkflowStageService {
     if (request.agent_ref) {
       const agentContent = await agentPromptService.getAgentContent(request.agent_ref);
       if (!agentContent) {
-        throw new ValidationError(`Agent "${request.agent_ref}" 檔案不存在或無法讀取`, 'AGENT_NOT_FOUND');
+        throw new ValidationError(`Agent "${request.agent_ref}" 文件不存在或无法读取`, 'AGENT_NOT_FOUND');
       }
     }
 
@@ -91,31 +91,31 @@ export class WorkflowStageService {
   }
 
   async deleteStage(stageId: string): Promise<void> {
-    // 檢查 stage 是否存在
+    // 检查 stage 是否存在
     const stage = await this.repository.findById(stageId);
     if (!stage) {
       throw new ValidationError('Workflow stage not found', 'STAGE_NOT_FOUND');
     }
 
-    // 在刪除之前，先將所有使用此 stage 的 sessions 的 workflow_stage_id 設為 NULL
+    // 在删除之前，先将所有使用此 stage 的 sessions 的 workflow_stage_id 设为 NULL
     const { Database } = await import('../database/database');
     const db = Database.getInstance();
     
     try {
-      // 更新所有相關的 sessions
+      // 更新所有相关的 sessions
       await db.run(
         `UPDATE sessions SET workflow_stage_id = NULL WHERE workflow_stage_id = ?`,
         [stageId]
       );
       
-      // 現在可以安全地刪除 workflow stage
+      // 现在可以安全地删除 workflow stage
       const deleted = await this.repository.delete(stageId);
       if (!deleted) {
         throw new ValidationError('Failed to delete workflow stage', 'DELETE_FAILED');
       }
     } catch (error: any) {
       throw new ValidationError(
-        `刪除工作流程階段時發生錯誤: ${error.message}`,
+        `删除工作流程阶段时发生错误: ${error.message}`,
         'DELETE_ERROR'
       );
     }
@@ -134,8 +134,8 @@ export class WorkflowStageService {
   }
 
   /**
-   * 取得工作階段的有效提示詞
-   * 如果設定了 agent_ref，優先使用 Agent 提示詞；否則使用自訂提示詞
+   * 取得工作阶段的有效提示词
+   * 如果设置了 agent_ref，优先使用 Agent 提示词；否则使用自订提示词
    */
   async getEffectivePrompt(stageId: string): Promise<{
     content: string;
@@ -146,7 +146,7 @@ export class WorkflowStageService {
     
     if (stage.agent_ref) {
       try {
-        // 使用新的方法只取得提示詞內容（不包含 frontmatter）
+        // 使用新的方法只取得提示词内容（不包含 frontmatter）
         const promptContent = await agentPromptService.getAgentPromptOnly(stage.agent_ref);
         if (promptContent) {
           return {
@@ -156,12 +156,12 @@ export class WorkflowStageService {
           };
         }
       } catch (error) {
-        // Agent 讀取失敗，拋出錯誤（阻斷式處理）
-        throw new ValidationError(`Agent "${stage.agent_ref}" 檔案不存在或無法讀取`, 'AGENT_NOT_FOUND');
+        // Agent 读取失败，抛出错误（阻断式处理）
+        throw new ValidationError(`Agent "${stage.agent_ref}" 文件不存在或无法读取`, 'AGENT_NOT_FOUND');
       }
     }
     
-    // 使用自訂提示詞
+    // 使用自订提示词
     return {
       content: stage.system_prompt || '',
       source: 'custom'
@@ -169,7 +169,7 @@ export class WorkflowStageService {
   }
 
   /**
-   * 檢查 Agent 是否存在（用於前端驗證）
+   * 检查 Agent 是否存在（用于前端验证）
    */
   async checkAgentExists(agentName: string): Promise<boolean> {
     try {

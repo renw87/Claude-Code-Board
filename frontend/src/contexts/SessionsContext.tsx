@@ -37,7 +37,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   const { addEventListener, removeEventListener } = useWebSocket();
 
-  // 載入所有 sessions
+  // 加载所有 sessions
   const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
@@ -56,7 +56,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // 建立新 session
+  // 创建新 session
   const createSession = useCallback(async (request: CreateSessionRequest): Promise<Session> => {
     try {
       setError(null);
@@ -76,25 +76,25 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setError(null);
       const updatedSession = await sessionApi.completeSession(sessionId);
       
-      // 更新狀態並將 session 移到已完成列表的最前面
+      // 更新状态并将 session 移到已完成列表的最前面
       setSessions(prev => {
         const session = prev.find(s => s.sessionId === sessionId);
         if (!session) return prev;
         
-        // 取得已完成、錯誤、中斷的狀態列表
+        // 取得已完成、错误、中断的状态栏表
         const completedStatuses = [SessionStatus.COMPLETED, SessionStatus.ERROR, SessionStatus.INTERRUPTED];
         
-        // 合併：其他狀態 + 新完成的（在已完成組的最前面）+ 其他已完成的
+        // 合并：其他状态 + 新完成的（在已完成组的最前面）+ 其他已完成的
         const result: Session[] = [];
         let insertedCompleted = false;
         
         for (const s of prev) {
           if (s.sessionId === sessionId) {
-            continue; // 跳過原本的 session
+            continue; // 跳过原本的 session
           }
           
           if (!insertedCompleted && completedStatuses.includes(s.status)) {
-            // 在遇到第一個已完成類型時，先插入新完成的 session
+            // 在遇到第一个已完成类型时，先插入新完成的 session
             result.push(updatedSession);
             insertedCompleted = true;
           }
@@ -102,7 +102,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           result.push(s);
         }
         
-        // 如果沒有其他已完成的 sessions，將新完成的放在最後
+        // 如果没有其他已完成的 sessions，将新完成的放在最后
         if (!insertedCompleted) {
           result.push(updatedSession);
         }
@@ -118,7 +118,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // 中斷 session
+  // 中断 session
   const interruptSession = useCallback(async (sessionId: string) => {
     try {
       setError(null);
@@ -134,7 +134,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // 恢復 session
+  // 恢复 session
   const resumeSession = useCallback(async (sessionId: string) => {
     try {
       setError(null);
@@ -150,7 +150,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // 刪除 session
+  // 删除 session
   const deleteSession = useCallback(async (sessionId: string) => {
     try {
       setError(null);
@@ -163,20 +163,20 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // 重新排序特定狀態的 sessions
+  // 重新排序特定状态的 sessions
   const reorderSessionsByStatus = useCallback(async (status: SessionStatus, reorderedSessions: Session[]) => {
-    // 立即更新本地狀態
+    // 立即更新本地状态
     setSessions(prev => {
-      // 獲取其他狀態的 sessions
+      // 获取其他状态的 sessions
       const otherSessions = prev.filter(session => session.status !== status);
       
-      // 合併重新排序的 sessions 和其他狀態的 sessions
-      // 保持其他狀態的 sessions 在原來的相對位置
+      // 合并重新排序的 sessions 和其他状态的 sessions
+      // 保持其他状态的 sessions 在原来的相对位置
       const newSessions: Session[] = [];
       let reorderedIndex = 0;
       let otherIndex = 0;
       
-      // 遍歷原始 sessions，決定是使用重新排序的還是其他的
+      // 遍历原始 sessions，决定是使用重新排序的还是其他的
       for (const session of prev) {
         if (session.status === status) {
           // 使用重新排序的 session
@@ -185,7 +185,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             reorderedIndex++;
           }
         } else {
-          // 使用其他狀態的 session
+          // 使用其他状态的 session
           if (otherIndex < otherSessions.length) {
             newSessions.push(otherSessions[otherIndex]);
             otherIndex++;
@@ -196,18 +196,18 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return newSessions;
     });
 
-    // 發送 API 請求保存排序
+    // 发送 API 请求保存排序
     try {
       const sessionIds = reorderedSessions.map(s => s.sessionId);
       await sessionApi.reorderSessions(status, sessionIds);
     } catch (error) {
       console.error('Failed to save session order:', error);
-      // 可選：如果保存失敗，可以重新載入 sessions
+      // 可选：如果保存失败，可以重新加载 sessions
       // await loadSessions();
     }
   }, []);
 
-  // 更新單個 session 狀態
+  // 更新单个 session 状态
   const updateSessionStatus = useCallback((sessionId: string, status: SessionStatus) => {
     setSessions(prev => prev.map(session => 
       session.sessionId === sessionId 
@@ -215,17 +215,17 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             ...session, 
             status, 
             updatedAt: new Date(),
-            // 如果狀態不是 ERROR，清除錯誤訊息
+            // 如果状态不是 ERROR，清调试误消息
             error: status === SessionStatus.ERROR ? session.error : undefined
           }
         : session
     ));
   }, []);
 
-  // 監聽 WebSocket 狀態更新
+  // 监听 WebSocket 状态更新
   useEffect(() => {
     const handleStatusUpdate = (data: { sessionId: string; status: string }) => {
-      // 將小寫狀態轉換為大寫的 enum 值
+      // 将小写状态转换为大写的 enum 值
       const statusMap: Record<string, SessionStatus> = {
         'processing': SessionStatus.PROCESSING,
         'idle': SessionStatus.IDLE,
@@ -243,12 +243,12 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     const handleProcessExit = (data: { sessionId: string; code: number | null }) => {
-      // 只有在執行失敗時才更新狀態為 ERROR
-      // 正常執行完成時，狀態應該保持當前狀態（通常是 IDLE）
+      // 只有在运行失败时才更新状态为 ERROR
+      // 正常运行完成时，状态应该保持当前状态（通常是 IDLE）
       if (data.code !== 0) {
         updateSessionStatus(data.sessionId, SessionStatus.ERROR);
       }
-      // 注意：不再將 code === 0 的情況設為 COMPLETED
+      // 注意：不再将 code === 0 的情况设为 COMPLETED
     };
 
     const handleSessionUpdate = (data: { 
@@ -267,17 +267,17 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             updatedAt: data.updatedAt ? new Date(data.updatedAt) : session.updatedAt
           } : session
         );
-        console.log('=== Sessions 狀態已更新 ===');
+        console.log('=== Sessions 状态已更新 ===');
         return updated;
       });
     };
 
-    // 監聽房間事件（用於詳細頁面）
+    // 监听房间事件（用于详细页面）
     addEventListener('status_update', handleStatusUpdate);
     addEventListener('process_exit', handleProcessExit);
     addEventListener('session_updated', handleSessionUpdate);
     
-    // 同時監聽全域事件（用於列表頁面）
+    // 同时监听全域事件（用于列表页面）
     addEventListener('global_status_update', handleStatusUpdate);
     addEventListener('global_process_exit', handleProcessExit);
 
@@ -290,7 +290,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [addEventListener, removeEventListener, updateSessionStatus]);
 
-  // 初始化載入 - 使用 ref 避免重複請求
+  // 初始化加载 - 使用 ref 避免重复请求
   useEffect(() => {
     if (!initialLoadRef.current) {
       initialLoadRef.current = true;
@@ -298,7 +298,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [loadSessions]);
 
-  // 按狀態分組的 sessions
+  // 按状态分组的 sessions
   const sessionsByStatus = {
     idle: sessions.filter(s => s.status === SessionStatus.IDLE),
     completed: sessions.filter(s => s.status === SessionStatus.COMPLETED),

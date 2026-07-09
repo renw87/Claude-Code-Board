@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// 格式化日期時間
+// 格式化日期时间
 export function formatDateTime(date: Date | string | number): string {
   try {
     let validDate: Date;
@@ -17,13 +17,13 @@ export function formatDateTime(date: Date | string | number): string {
       validDate = new Date(date);
     }
     
-    // 檢查是否為有效日期
+    // 检查是否为有效日期
     if (isNaN(validDate.getTime())) {
       console.warn('Invalid date provided to formatDateTime:', date);
-      return '無效時間';
+      return '无效时间';
     }
     
-    return new Intl.DateTimeFormat('zh-TW', {
+    return new Intl.DateTimeFormat('zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -33,11 +33,11 @@ export function formatDateTime(date: Date | string | number): string {
     }).format(validDate);
   } catch (error) {
     console.warn('Error formatting date:', date, error);
-    return '無效時間';
+    return '无效时间';
   }
 }
 
-// 格式化相對時間
+// 格式化相对时间
 export function formatRelativeTime(date: Date | string | number): string {
   try {
     let validDate: Date;
@@ -48,10 +48,10 @@ export function formatRelativeTime(date: Date | string | number): string {
       validDate = new Date(date);
     }
     
-    // 檢查是否為有效日期
+    // 检查是否为有效日期
     if (isNaN(validDate.getTime())) {
       console.warn('Invalid date provided to formatRelativeTime:', date);
-      return '無效時間';
+      return '无效时间';
     }
     
     const now = new Date();
@@ -63,11 +63,11 @@ export function formatRelativeTime(date: Date | string | number): string {
     const days = Math.floor(hours / 24);
 
     if (seconds < 60) {
-      return '剛剛';
+      return '刚刚';
     } else if (minutes < 60) {
-      return `${minutes} 分鐘前`;
+      return `${minutes} 分钟前`;
     } else if (hours < 24) {
-      return `${hours} 小時前`;
+      return `${hours} 小时前`;
     } else if (days < 7) {
       return `${days} 天前`;
     } else {
@@ -75,11 +75,11 @@ export function formatRelativeTime(date: Date | string | number): string {
     }
   } catch (error) {
     console.warn('Error formatting relative time:', date, error);
-    return '無效時間';
+    return '无效时间';
   }
 }
 
-// 格式化持續時間
+// 格式化持续时间
 export function formatDuration(startTime: Date | string | number, endTime?: Date | string | number): string {
   try {
     let validStartTime: Date;
@@ -101,10 +101,10 @@ export function formatDuration(startTime: Date | string | number, endTime?: Date
       validEndTime = new Date();
     }
     
-    // 檢查是否為有效日期
+    // 检查是否为有效日期
     if (isNaN(validStartTime.getTime()) || isNaN(validEndTime.getTime())) {
       console.warn('Invalid date provided to formatDuration:', startTime, endTime);
-      return '無效持續時間';
+      return '无效持续时间';
     }
     
     const diff = validEndTime.getTime() - validStartTime.getTime();
@@ -122,11 +122,11 @@ export function formatDuration(startTime: Date | string | number, endTime?: Date
     }
   } catch (error) {
     console.warn('Error formatting duration:', startTime, endTime, error);
-    return '無效持續時間';
+    return '无效持续时间';
   }
 }
 
-// 獲取狀態顏色
+// 获取状态颜色
 export function getStatusColor(status: SessionStatus | ProcessStatus): string {
   switch (status) {
     case SessionStatus.PROCESSING:
@@ -153,15 +153,15 @@ export function getStatusColor(status: SessionStatus | ProcessStatus): string {
   }
 }
 
-// 獲取 Session 分類
-export type SessionCategory = '正在處理' | '閒置' | '已完成';
+// 获取 Session 分类
+export type SessionCategory = '正在处理' | '闲置' | '已完成';
 
 export function getSessionCategory(status: SessionStatus): SessionCategory {
   switch (status) {
     case SessionStatus.PROCESSING:
-      return '正在處理';
+      return '正在处理';
     case SessionStatus.IDLE:
-      return '閒置';
+      return '闲置';
     case SessionStatus.COMPLETED:
     case SessionStatus.ERROR:
     case SessionStatus.INTERRUPTED:
@@ -171,25 +171,25 @@ export function getSessionCategory(status: SessionStatus): SessionCategory {
   }
 }
 
-// 獲取狀態文字
+// 获取状态文本
 export function getStatusText(status: SessionStatus | ProcessStatus): string {
   switch (status) {
     case SessionStatus.PROCESSING:
-      return '正在處理';
+      return '正在处理';
     case SessionStatus.IDLE:
-      return '閒置';
+      return '闲置';
     case SessionStatus.COMPLETED:
       return '已完成';
     case SessionStatus.ERROR:
-      return '錯誤';
+      return '错误';
     case SessionStatus.INTERRUPTED:
-      return '已中斷';
+      return '已中断';
     case ProcessStatus.STARTING:
-      return '啟動中';
+      return '启动中';
     case ProcessStatus.RUNNING:
-      return '運行中';
+      return '运行中';
     case ProcessStatus.IDLE:
-      return '閒置';
+      return '闲置';
     case ProcessStatus.BUSY:
       return '忙碌';
     case ProcessStatus.STOPPING:
@@ -197,15 +197,15 @@ export function getStatusText(status: SessionStatus | ProcessStatus): string {
     case ProcessStatus.STOPPED:
       return '已停止';
     case ProcessStatus.ERROR:
-      return '錯誤';
+      return '错误';
     case ProcessStatus.CRASHED:
-      return '崩潰';
+      return '崩溃';
     default:
       return '未知';
   }
 }
 
-// 格式化檔案大小
+// 格式化文件大小
 export function formatFileSize(bytes: number): string {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
@@ -219,7 +219,7 @@ export function formatFileSize(bytes: number): string {
   return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-// 截斷文字
+// 截断文本
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) {
     return text;
@@ -227,17 +227,17 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength) + '...';
 }
 
-// 生成隨機 ID
+// 生成随机 ID
 export function generateId(): string {
   return Math.random().toString(36).substr(2, 9);
 }
 
-// 延遲函數
+// 延迟函数
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// 防抖函數
+// 防抖函数
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -249,7 +249,7 @@ export function debounce<T extends (...args: any[]) => any>(
   };
 }
 
-// 節流函數
+// 节流函数
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number

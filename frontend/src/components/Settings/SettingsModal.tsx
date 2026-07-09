@@ -36,7 +36,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const [editingPath, setEditingPath] = useState<CommonPath | null>(null);
 
-  // 當開啟 modal 時重新載入設定
+  // 当打开 modal 时重新加载设置
   useEffect(() => {
     if (isOpen) {
       reloadSettings();
@@ -62,7 +62,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleSaveNewPath = async () => {
     if (!newPathData.label.trim() || !newPathData.path.trim()) {
-      toast.error('標籤和路徑不能為空');
+      toast.error('标签和路径不能为空');
       return;
     }
     
@@ -117,11 +117,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden sm:mx-auto">
-        {/* 標題 */}
+        {/* 标题 */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <Settings className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">設定</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">设置</h2>
           </div>
           <button
             onClick={onClose}
@@ -131,7 +131,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        {/* Tab 導航 */}
+        {/* Tab 导航 */}
         <div className="flex border-b border-gray-200 px-4 sm:px-6">
           <button
             onClick={() => setActiveTab('paths')}
@@ -142,7 +142,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <FolderOpen className="w-4 h-4" />
-            <span>常用路徑</span>
+            <span>常用路径</span>
           </button>
           <button
             onClick={() => setActiveTab('templates')}
@@ -153,22 +153,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            <span>任務模板</span>
+            <span>任务模板</span>
           </button>
         </div>
 
-        {/* 內容 */}
+        {/* 内容 */}
         <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-220px)] sm:max-h-[calc(90vh-260px)]">
           {activeTab === 'paths' && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">常用路徑</h3>
+                <h3 className="text-lg font-medium text-gray-900">常用路径</h3>
                 <div className="flex space-x-2">
                   <button
                     onClick={handleResetToDefault}
                     className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    重置預設
+                    重置默认
                   </button>
                   <button
                     onClick={addNewPath}
@@ -176,48 +176,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="flex items-center space-x-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>新增</span>
+                    <span>添加</span>
                   </button>
                 </div>
               </div>
 
               <div className="space-y-3">
-                {/* 新增路徑的編輯表單 */}
+                {/* 添加路径的编辑表单 */}
                 {isAddingNew && (
                   <div className="border border-green-300 rounded-lg p-3 sm:p-4 bg-green-50">
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            標籤
+                            标签
                           </label>
                           <input
                             type="text"
                             value={newPathData.label}
                             onChange={(e) => setNewPathData(prev => ({ ...prev, label: e.target.value }))}
                             className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            placeholder="路徑標籤"
+                            placeholder="路径标签"
                             autoFocus
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            圖示
+                            图标
                           </label>
                           <select
                             value={newPathData.icon}
                             onChange={(e) => setNewPathData(prev => ({ ...prev, icon: e.target.value as any }))}
                             className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                           >
-                            <option value="FolderOpen">📁 資料夾</option>
-                            <option value="Code">💻 程式碼</option>
-                            <option value="Home">🏠 家目錄</option>
+                            <option value="FolderOpen">📁 文件夹</option>
+                            <option value="Code">💻 代码</option>
+                            <option value="Home">🏠 家目录</option>
                           </select>
                         </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          路徑
+                          路径
                         </label>
                         <input
                           type="text"
@@ -238,14 +238,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           onClick={handleSaveNewPath}
                           className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                         >
-                          新增
+                          添加
                         </button>
                       </div>
                     </div>
                   </div>
                 )}
                 
-                {/* 現有路徑列表 */}
+                {/* 现有路径列表 */}
                 {commonPaths.map((path) => (
                   <PathEditor
                     key={path.id}
@@ -253,7 +253,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     isEditing={editingPath?.id === path.id}
                     onEdit={(p) => {
                       setEditingPath(p);
-                      setIsAddingNew(false); // 編輯現有路徑時關閉新增表單
+                      setIsAddingNew(false); // 编辑现有路径时关闭添加表单
                     }}
                     onUpdate={updatePath}
                     onDelete={deletePath}
@@ -264,12 +264,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {commonPaths.length === 0 && !isAddingNew && (
                 <div className="text-center py-8 text-gray-500">
                   <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>尚無常用路徑</p>
+                  <p>尚无常用路径</p>
                   <button
                     onClick={addNewPath}
                     className="mt-2 text-blue-600 hover:text-blue-700"
                   >
-                    新增第一個路徑
+                    添加第一个路径
                   </button>
                 </div>
               )}
@@ -279,16 +279,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'templates' && <TaskTemplateSettings />}
         </div>
 
-        {/* 底部按鈕 */}
+        {/* 底部按钮 */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50">
           <div className="text-xs sm:text-sm text-gray-500">
-            設定會自動同步到資料庫
+            设置会自动同步到数据库
           </div>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            關閉
+            关闭
           </button>
         </div>
       </div>
@@ -297,7 +297,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 };
 
-// 路徑編輯器組件
+// 路径编辑器组件
 interface PathEditorProps {
   path: CommonPath;
   isEditing: boolean;
@@ -321,7 +321,7 @@ const PathEditor: React.FC<PathEditorProps> = ({
   });
 
   useEffect(() => {
-    // 每次 path 改變或進入編輯模式時，重新設定 editData
+    // 每次 path 改变或进入编辑模式时，重新设置 editData
     setEditData({
       id: path.id,
       label: path.label,
@@ -333,7 +333,7 @@ const PathEditor: React.FC<PathEditorProps> = ({
   const handleSave = () => {
     console.log('Saving editData:', editData);
     if (!editData.label.trim() || !editData.path.trim()) {
-      toast.error('標籤和路徑不能為空');
+      toast.error('标签和路径不能为空');
       return;
     }
     onUpdate(editData);
@@ -353,7 +353,7 @@ const PathEditor: React.FC<PathEditorProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                標籤
+                标签
               </label>
               <input
                 type="text"
@@ -368,27 +368,27 @@ const PathEditor: React.FC<PathEditorProps> = ({
                   });
                 }}
                 className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="路徑標籤"
+                placeholder="路径标签"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                圖示
+                图标
               </label>
               <select
                 value={editData.icon}
                 onChange={(e) => setEditData(prev => ({ ...prev, icon: e.target.value as any }))}
                 className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="FolderOpen">📁 資料夾</option>
-                <option value="Code">💻 程式碼</option>
-                <option value="Home">🏠 家目錄</option>
+                <option value="FolderOpen">📁 文件夹</option>
+                <option value="Code">💻 代码</option>
+                <option value="Home">🏠 家目录</option>
               </select>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              路徑
+              路径
             </label>
             <input
               type="text"
@@ -412,7 +412,7 @@ const PathEditor: React.FC<PathEditorProps> = ({
               onClick={handleSave}
               className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              儲存
+              保存
             </button>
           </div>
         </div>
@@ -433,14 +433,14 @@ const PathEditor: React.FC<PathEditorProps> = ({
         <button
           onClick={() => onEdit(path)}
           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          title="編輯"
+          title="编辑"
         >
           <Settings className="w-4 h-4" />
         </button>
         <button
           onClick={() => onDelete(path.id)}
           className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          title="刪除"
+          title="删除"
         >
           <Trash2 className="w-4 h-4" />
         </button>

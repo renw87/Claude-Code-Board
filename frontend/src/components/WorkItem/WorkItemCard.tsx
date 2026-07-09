@@ -31,14 +31,14 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // 不要在點擊選單區域時導航
+    // 不要在点击菜单区域时导航
     if ((e.target as HTMLElement).closest('.menu-area')) {
       return;
     }
     navigate(`/work-items/${workItem.work_item_id}`);
   };
 
-  // 點擊外部關閉選單
+  // 点击外部关闭菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -56,8 +56,8 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
   }, [menuOpen]);
 
   const statusConfig = {
-    planning: { icon: Clock, color: 'text-gray-500', bg: 'bg-gray-100', label: '規劃中' },
-    in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-100', label: '進行中' },
+    planning: { icon: Clock, color: 'text-gray-500', bg: 'bg-gray-100', label: '规划中' },
+    in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-100', label: '进行中' },
     completed: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-100', label: '已完成' },
     cancelled: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-100', label: '已取消' }
   };
@@ -66,7 +66,7 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
   const status = statusConfig[workItem.status];
   const StatusIcon = status.icon;
 
-  // 計算進度
+  // 计算进度
   const progress = workItem.progress || 0;
   const sessionCount = workItem.session_count || 0;
   const completedSessionCount = workItem.completed_session_count || 0;
@@ -117,7 +117,7 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      編輯
+                      编辑
                     </button>
                   )}
                   
@@ -130,7 +130,7 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      開始執行
+                      开始运行
                     </button>
                   )}
                   
@@ -143,7 +143,7 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      標記完成
+                      标记完成
                     </button>
                   )}
                   
@@ -171,7 +171,7 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
-                        刪除
+                        删除
                       </button>
                     </>
                   )}
@@ -221,13 +221,13 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             <span>
-              創建於 {formatDistanceToNow(new Date(workItem.created_at), { locale: zhTW, addSuffix: true })}
+              创建于 {formatDistanceToNow(new Date(workItem.created_at), { locale: zhTW, addSuffix: true })}
             </span>
           </div>
           
           {workItem.completed_at && (
             <span className="text-green-600">
-              完成於 {formatDistanceToNow(new Date(workItem.completed_at), { locale: zhTW, addSuffix: true })}
+              完成于 {formatDistanceToNow(new Date(workItem.completed_at), { locale: zhTW, addSuffix: true })}
             </span>
           )}
         </div>

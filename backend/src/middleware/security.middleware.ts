@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { logger } from '../utils/logger';
 import { getEnvConfig } from '../config/env.config';
 
-// JWT 認證中間件
+// JWT 认证中间件
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -32,7 +32,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   });
 };
 
-// 工作目錄存取限制
+// 工作目录访问限制
 export const validateWorkingDirectory = (req: Request, res: Response, next: NextFunction) => {
   const { workingDir } = req.body;
   
@@ -56,14 +56,14 @@ export const validateWorkingDirectory = (req: Request, res: Response, next: Next
   next();
 };
 
-// 命令注入防護
+// 命令注入防护
 export const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
   const dangerousChars = [';', '|', '&', '$', '`', '(', ')', '{', '}', '[', ']', '<', '>', '\\'];
   
   const sanitizeString = (str: string): string => {
     if (typeof str !== 'string') return str;
     
-    // 轉義危險字元
+    // 转义危险字符
     let sanitized = str;
     dangerousChars.forEach(char => {
       sanitized = sanitized.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
@@ -72,7 +72,7 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
     return sanitized;
   };
 
-  // 遞迴處理物件
+  // 递归处理对象
   const sanitizeObject = (obj: any): any => {
     if (typeof obj === 'string') {
       return sanitizeString(obj);
@@ -100,17 +100,17 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
-// XSS 防護
+// XSS 防护
 export const xssProtection = (req: Request, res: Response, next: NextFunction) => {
   const xssPattern = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
   
   const cleanXSS = (str: string): string => {
     if (typeof str !== 'string') return str;
     
-    // 移除 script 標籤
+    // 移除 script 标签
     let cleaned = str.replace(xssPattern, '');
     
-    // 轉義 HTML 特殊字元
+    // 转义 HTML 特殊字符
     cleaned = cleaned
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -148,25 +148,25 @@ export const xssProtection = (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
-// Session 隔離檢查
+// Session 隔离检查
 export const checkSessionAccess = (req: Request, res: Response, next: NextFunction) => {
   const { sessionId } = req.params;
   const user = (req as any).user;
   
-  // 模擬檢查：假設 user.id 和 session owner 需要匹配
-  // 在實際實作中，需要查詢資料庫確認 session 所有者
+  // 仿真检查：假设 user.id 和 session owner 需要匹配
+  // 在实际实作中，需要查找数据库确认 session 所有者
   if (sessionId && user) {
-    // 這裡應該查詢資料庫確認 session 所有者
-    // 暫時跳過實際檢查，因為我們沒有用戶系統
+    // 这里应该查找数据库确认 session 所有者
+    // 暂时跳过实际检查，因为我们没有用户系统
   }
   
   next();
 };
 
-// 敏感資訊過濾
+// 敏感信息过滤
 export const redactSensitiveInfo = (content: string): string => {
   const sensitivePatterns = [
-    /\b[A-Za-z0-9]{32,}\b/g,  // API 金鑰模式
+    /\b[A-Za-z0-9]{32,}\b/g,  // API 密钥模式
     /password\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
     /token\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
     /api_key\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
@@ -183,8 +183,8 @@ export const redactSensitiveInfo = (content: string): string => {
 
 // Rate limiting
 export const apiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 分鐘
-  max: 1000, // 每分鐘最多 1000 次請求
+  windowMs: 1 * 60 * 1000, // 1 分钟
+  max: 1000, // 每分钟最多 1000 次请求
   message: {
     error_code: 'RATE_LIMIT_EXCEEDED',
     error_message: 'Too many requests, please try again later'
@@ -204,7 +204,7 @@ export const apiLimiter = rateLimit({
   }
 });
 
-// 安全標頭設定
+// 安全标头设置
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -223,7 +223,7 @@ export const securityHeaders = helmet({
   }
 });
 
-// 稽核日誌記錄
+// 稽核日志记录
 export const auditLog = (req: Request, res: Response, next: NextFunction) => {
   const auditData = {
     timestamp: new Date().toISOString(),
@@ -236,7 +236,7 @@ export const auditLog = (req: Request, res: Response, next: NextFunction) => {
 
   logger.info('API Request', auditData);
   
-  // 記錄回應時間
+  // 记录回应时间
   const startTime = Date.now();
   
   res.on('finish', () => {

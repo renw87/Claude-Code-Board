@@ -4,12 +4,12 @@ import { TestContext } from './world';
 import { SessionStatus } from '../../src/types/session.types';
 import { v4 as uuidv4 } from 'uuid';
 
-// 資料持久化相關的 Steps
+// 数据持久化相关的 Steps
 
 // Given Steps
 
-Given('資料庫連線正常', async function(this: TestContext) {
-  // 模擬資料庫連線
+Given('数据库连接正常', async function(this: TestContext) {
+  // 仿真数据库连接
   this.testData.database = {
     connected: true,
     type: 'sqlite',
@@ -22,8 +22,8 @@ Given('資料庫連線正常', async function(this: TestContext) {
   };
 });
 
-Given('資料庫中存在一個已完成的 Session', async function(this: TestContext) {
-  // 模擬已完成的 Session
+Given('数据库中存在一个已完成的 Session', async function(this: TestContext) {
+  // 仿真已完成的 Session
   const sessionId = uuidv4();
   const completedSession = {
     sessionId: sessionId,
@@ -32,8 +32,8 @@ Given('資料庫中存在一個已完成的 Session', async function(this: TestC
     task: 'Test task completed',
     status: SessionStatus.COMPLETED,
     continueChat: false,
-    createdAt: new Date(Date.now() - 3600000), // 1小時前
-    completedAt: new Date(Date.now() - 1800000), // 30分鐘前
+    createdAt: new Date(Date.now() - 3600000), // 1小时前
+    completedAt: new Date(Date.now() - 1800000), // 30分钟前
     updatedAt: new Date(Date.now() - 1800000),
     processId: 1234
   };
@@ -41,14 +41,14 @@ Given('資料庫中存在一個已完成的 Session', async function(this: TestC
   this.sessions.set(sessionId, completedSession);
   this.currentSession = completedSession;
   
-  // 模擬資料庫中的記錄
+  // 仿真数据库中的记录
   this.testData.database.tables.sessions.records = 1;
   this.testData.persistedSessions = new Map();
   this.testData.persistedSessions.set(sessionId, { ...completedSession });
 });
 
-Given('系統設定每 6 小時自動備份', async function(this: TestContext) {
-  // 模擬備份設定
+Given('系统设置每 6 小时自动备份', async function(this: TestContext) {
+  // 仿真备份设置
   this.testData.backupConfig = {
     enabled: true,
     interval: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
@@ -58,8 +58,8 @@ Given('系統設定每 6 小時自動備份', async function(this: TestContext) 
   };
 });
 
-Given('資料庫 schema 需要更新', async function(this: TestContext) {
-  // 模擬需要遷移的情況
+Given('数据库 schema 需要更新', async function(this: TestContext) {
+  // 仿真需要迁移的情况
   this.testData.migration = {
     current_version: '1.0.0',
     target_version: '1.1.0',
@@ -70,8 +70,8 @@ Given('資料庫 schema 需要更新', async function(this: TestContext) {
   };
 });
 
-Given('Session 有超過 1000 筆對話記錄', async function(this: TestContext) {
-  // 模擬大量對話記錄
+Given('Session 有超过 1000 笔对话记录', async function(this: TestContext) {
+  // 仿真大量对话记录
   const sessionId = uuidv4();
   this.currentSession = {
     sessionId: sessionId,
@@ -84,7 +84,7 @@ Given('Session 有超過 1000 筆對話記錄', async function(this: TestContext
     updatedAt: new Date()
   };
   
-  // 模擬 1500 筆對話記錄
+  // 仿真 1500 笔对话记录
   this.testData.messageCount = 1500;
   this.testData.paginationConfig = {
     pageSize: 50,
@@ -93,8 +93,8 @@ Given('Session 有超過 1000 筆對話記錄', async function(this: TestContext
   };
 });
 
-Given('Claude Code 產生超過 1MB 的回應', async function(this: TestContext) {
-  // 模擬大型回應內容
+Given('Claude Code 产生超过 1MB 的回应', async function(this: TestContext) {
+  // 仿真大型回应内容
   const largeContent = 'A'.repeat(1024 * 1024 + 100); // 1MB + 100 bytes
   
   this.testData.largeMessage = {
@@ -107,8 +107,8 @@ Given('Claude Code 產生超過 1MB 的回應', async function(this: TestContext
   };
 });
 
-Given('使用者選擇匯出特定 Session', async function(this: TestContext) {
-  // 模擬匯出請求
+Given('用户选择导出特定 Session', async function(this: TestContext) {
+  // 仿真导出请求
   const sessionId = uuidv4();
   this.testData.exportRequest = {
     sessionId: sessionId,
@@ -117,24 +117,24 @@ Given('使用者選擇匯出特定 Session', async function(this: TestContext) {
     requestTime: new Date()
   };
   
-  // 模擬該 Session 的對話記錄
+  // 仿真该 Session 的对话记录
   this.testData.sessionMessages = [
-    { messageId: uuidv4(), role: 'user', content: '請分析這個專案', timestamp: new Date(Date.now() - 3600000) },
-    { messageId: uuidv4(), role: 'assistant', content: '我來幫您分析...', timestamp: new Date(Date.now() - 3500000) },
-    { messageId: uuidv4(), role: 'user', content: '謝謝', timestamp: new Date(Date.now() - 3400000) }
+    { messageId: uuidv4(), role: 'user', content: '请分析这个项目', timestamp: new Date(Date.now() - 3600000) },
+    { messageId: uuidv4(), role: 'assistant', content: '我来帮您分析...', timestamp: new Date(Date.now() - 3500000) },
+    { messageId: uuidv4(), role: 'user', content: '谢谢', timestamp: new Date(Date.now() - 3400000) }
   ];
 });
 
 // When Steps
 
-When('建立新的 Session', async function(this: TestContext) {
-  // 模擬建立新 Session
+When('创建新的 Session', async function(this: TestContext) {
+  // 仿真创建新 Session
   const sessionId = uuidv4();
   const newSession = {
     sessionId: sessionId,
-    name: '新的測試 Session',
+    name: '新的测试 Session',
     workingDir: '/test/project',
-    task: '測試任務',
+    task: '测试任务',
     status: SessionStatus.IDLE,
     continueChat: false,
     createdAt: new Date(),
@@ -145,7 +145,7 @@ When('建立新的 Session', async function(this: TestContext) {
   this.currentSession = newSession;
   this.sessions.set(sessionId, newSession);
   
-  // 模擬持久化操作
+  // 仿真持久化操作
   this.testData.persistenceOperation = {
     action: 'create',
     table: 'sessions',
@@ -155,15 +155,15 @@ When('建立新的 Session', async function(this: TestContext) {
   };
 });
 
-When('Session 狀態變更', async function(this: TestContext) {
+When('Session 状态变更', async function(this: TestContext) {
   if (this.currentSession) {
-    // 記錄狀態變更歷史
+    // 记录状态变更历史
     const oldStatus = this.currentSession.status;
     this.currentSession.status = SessionStatus.COMPLETED;
     this.currentSession.completedAt = new Date();
     this.currentSession.updatedAt = new Date();
     
-    // 模擬狀態變更歷史記錄
+    // 仿真状态变更历史记录
     this.testData.statusHistory = this.testData.statusHistory || [];
     this.testData.statusHistory.push({
       sessionId: this.currentSession.sessionId,
@@ -173,7 +173,7 @@ When('Session 狀態變更', async function(this: TestContext) {
       reason: 'user_completed'
     });
     
-    // 模擬資料庫更新
+    // 仿真数据库更新
     this.testData.persistenceOperation = {
       action: 'update',
       table: 'sessions',
@@ -184,13 +184,13 @@ When('Session 狀態變更', async function(this: TestContext) {
   }
 });
 
-When('使用者發送訊息或收到回應', async function(this: TestContext) {
-  // 模擬訊息交換
+When('用户发送消息或收到回应', async function(this: TestContext) {
+  // 仿真消息交换
   const userMessage = {
     messageId: uuidv4(),
     sessionId: this.currentSession?.sessionId,
     role: 'user',
-    content: '請協助分析程式碼',
+    content: '请协助分析代码',
     timestamp: new Date()
   };
   
@@ -198,13 +198,13 @@ When('使用者發送訊息或收到回應', async function(this: TestContext) {
     messageId: uuidv4(),
     sessionId: this.currentSession?.sessionId,
     role: 'assistant', 
-    content: '我來幫您分析這段程式碼...',
+    content: '我来帮您分析这段代码...',
     timestamp: new Date(Date.now() + 1000)
   };
   
   this.testData.messageExchange = [userMessage, assistantMessage];
   
-  // 模擬訊息持久化
+  // 仿真消息持久化
   this.testData.persistenceOperations = [
     {
       action: 'create',
@@ -223,11 +223,11 @@ When('使用者發送訊息或收到回應', async function(this: TestContext) {
   ];
 });
 
-When('系統儲存該訊息', async function(this: TestContext) {
+When('系统保存该消息', async function(this: TestContext) {
   if (this.testData.largeMessage) {
-    // 模擬壓縮和儲存
+    // 仿真压缩和保存
     const originalSize = this.testData.largeMessage.contentSize;
-    const compressedSize = Math.floor(originalSize * 0.1); // 假設壓縮比 90%
+    const compressedSize = Math.floor(originalSize * 0.1); // 假设压缩比 90%
     
     this.testData.compressionResult = {
       originalSize: originalSize,
@@ -236,7 +236,7 @@ When('系統儲存該訊息', async function(this: TestContext) {
       algorithm: 'gzip'
     };
     
-    // 模擬儲存到資料庫
+    // 仿真保存到数据库
     this.testData.persistenceOperation = {
       action: 'create',
       table: 'messages',
@@ -253,12 +253,12 @@ When('系統儲存該訊息', async function(this: TestContext) {
   }
 });
 
-When('使用者執行軟刪除該 Session', async function(this: TestContext) {
+When('用户运行软删除该 Session', async function(this: TestContext) {
   if (this.currentSession) {
-    // 軟刪除：設定 deletedAt 時間戳記
+    // 软删除：设置 deletedAt 时间戳记
     this.currentSession.deletedAt = new Date();
     
-    // 模擬軟刪除操作
+    // 仿真软删除操作
     this.testData.persistenceOperation = {
       action: 'soft_delete',
       table: 'sessions',
@@ -272,7 +272,7 @@ When('使用者執行軟刪除該 Session', async function(this: TestContext) {
   }
 });
 
-When(/^(user|assistant)發送訊息 "(.*)"$/, async function(this: TestContext, role: string, content: string) {
+When(/^(user|assistant)发送消息 "(.*)"$/, async function(this: TestContext, role: string, content: string) {
   if (this.currentSession) {
     const message = {
       messageId: uuidv4(),
@@ -282,7 +282,7 @@ When(/^(user|assistant)發送訊息 "(.*)"$/, async function(this: TestContext, 
       timestamp: new Date()
     };
     
-    // 模擬儲存訊息
+    // 仿真保存消息
     this.testData.persistenceOperation = {
       action: 'create',
       table: 'messages',
@@ -291,7 +291,7 @@ When(/^(user|assistant)發送訊息 "(.*)"$/, async function(this: TestContext, 
       timestamp: new Date()
     };
     
-    // 記錄訊息以供後續驗證
+    // 记录消息以供后续验证
     if (!this.testData.persistenceOperations) {
       this.testData.persistenceOperations = [];
     }
@@ -299,13 +299,13 @@ When(/^(user|assistant)發送訊息 "(.*)"$/, async function(this: TestContext, 
   }
 });
 
-When('Session 狀態變更為 {string}', async function(this: TestContext, newStatus: string) {
+When('Session 状态变更为 {string}', async function(this: TestContext, newStatus: string) {
   if (this.currentSession) {
     const oldStatus = this.currentSession.status;
     this.currentSession.status = newStatus as any;
     this.currentSession.updatedAt = new Date();
     
-    // 模擬狀態變更操作
+    // 仿真状态变更操作
     this.testData.persistenceOperation = {
       action: 'update',
       table: 'sessions',
@@ -318,7 +318,7 @@ When('Session 狀態變更為 {string}', async function(this: TestContext, newSt
       timestamp: new Date()
     };
     
-    // 記錄狀態變更歷史
+    // 记录状态变更历史
     if (!this.testData.statusHistory) {
       this.testData.statusHistory = [];
     }
@@ -331,15 +331,15 @@ When('Session 狀態變更為 {string}', async function(this: TestContext, newSt
   }
 });
 
-When('備份時間到達', async function(this: TestContext) {
+When('备份时间到达', async function(this: TestContext) {
   const now = new Date();
   const config = this.testData.backupConfig;
   
-  // 檢查是否需要備份
+  // 检查是否需要备份
   const timeSinceLastBackup = now.getTime() - config.lastBackup.getTime();
   
   if (timeSinceLastBackup >= config.interval) {
-    // 執行備份
+    // 运行备份
     const backupId = uuidv4();
     this.testData.backupOperation = {
       backupId: backupId,
@@ -355,14 +355,14 @@ When('備份時間到達', async function(this: TestContext) {
       }
     };
     
-    // 更新最後備份時間
+    // 更新最后备份时间
     config.lastBackup = now;
   }
 });
 
-When('系統啟動時偵測到新的遷移檔案', async function(this: TestContext) {
+When('系统启动时侦测到新的迁移文件', async function(this: TestContext) {
   if (this.testData.migration) {
-    // 執行遷移
+    // 运行迁移
     this.testData.migrationResults = [];
     
     for (const migration of this.testData.migration.pending_migrations) {
@@ -375,15 +375,15 @@ When('系統啟動時偵測到新的遷移檔案', async function(this: TestCont
       });
     }
     
-    // 更新資料庫版本
+    // 更新数据库版本
     this.testData.migration.current_version = this.testData.migration.target_version;
   }
 });
 
-When('載入對話歷史', async function(this: TestContext) {
+When('加载对话历史', async function(this: TestContext) {
   const config = this.testData.paginationConfig;
   
-  // 模擬分頁載入
+  // 仿真分页加载
   const startIndex = (config.currentPage - 1) * config.pageSize;
   const endIndex = Math.min(startIndex + config.pageSize, this.testData.messageCount);
   
@@ -399,13 +399,13 @@ When('載入對話歷史', async function(this: TestContext) {
       sessionId: this.currentSession?.sessionId,
       role: i % 2 === 0 ? 'user' : 'assistant',
       content: `Message ${startIndex + i + 1}`,
-      timestamp: new Date(Date.now() - (startIndex + i) * 60000) // 最新的訊息時間戳記較大
+      timestamp: new Date(Date.now() - (startIndex + i) * 60000) // 最新的消息时间戳记较大
     }))
   };
 });
 
-When('系統執行每日維護任務', async function(this: TestContext) {
-  // 模擬資料完整性檢查
+When('系统运行每日维护任务', async function(this: TestContext) {
+  // 仿真数据完整性检查
   this.testData.integrityCheck = {
     executedAt: new Date(),
     results: {
@@ -433,10 +433,10 @@ When('系統執行每日維護任務', async function(this: TestContext) {
   };
 });
 
-When('執行匯出操作', async function(this: TestContext) {
+When('运行导出操作', async function(this: TestContext) {
   const request = this.testData.exportRequest;
   
-  // 模擬匯出操作
+  // 仿真导出操作
   this.testData.exportResult = {
     sessionId: request.sessionId,
     format: request.format,
@@ -451,21 +451,21 @@ When('執行匯出操作', async function(this: TestContext) {
 
 // Then Steps
 
-Then('Session 資訊應該儲存到資料庫', async function(this: TestContext) {
+Then('Session 信息应该保存到数据库', async function(this: TestContext) {
   expect(this.testData.persistenceOperation).to.exist;
   expect(this.testData.persistenceOperation.action).to.equal('create');
   expect(this.testData.persistenceOperation.table).to.equal('sessions');
   expect(this.testData.persistenceOperation.executed).to.be.true;
 });
 
-Then('儲存的資料應包含：', async function(this: TestContext, dataTable: any) {
+Then('保存的数据应包含：', async function(this: TestContext, dataTable: any) {
   const expectedFields = dataTable.raw();
   const storedData = this.testData.persistenceOperation.data;
   
   expectedFields.forEach(([field, description]: string[]) => {
     expect(storedData).to.have.property(field.trim());
     
-    // 驗證特定欄位的型別或值
+    // 验证特定字段的类型或值
     switch (field.trim()) {
       case 'sessionId':
         expect(storedData.sessionId).to.be.a('string');
@@ -480,19 +480,19 @@ Then('儲存的資料應包含：', async function(this: TestContext, dataTable:
   });
 });
 
-Then('資料庫中的狀態應該同步更新', async function(this: TestContext) {
+Then('数据库中的状态应该同步更新', async function(this: TestContext) {
   expect(this.testData.persistenceOperation).to.exist;
   expect(this.testData.persistenceOperation.action).to.equal('update');
   expect(this.testData.persistenceOperation.data.status).to.exist;
 });
 
-Then('updatedAt 欄位應該更新為當前時間', async function(this: TestContext) {
+Then('updatedAt 字段应该更新为当前时间', async function(this: TestContext) {
   const storedData = this.testData.persistenceOperation.data;
   const timeDiff = Date.now() - storedData.updatedAt.getTime();
-  expect(timeDiff).to.be.lessThan(1000); // 小於1秒差異
+  expect(timeDiff).to.be.lessThan(1000); // 小于1秒差异
 });
 
-Then('應該記錄狀態變更歷史', async function(this: TestContext) {
+Then('应该记录状态变更历史', async function(this: TestContext) {
   expect(this.testData.statusHistory).to.exist;
   expect(this.testData.statusHistory).to.be.an('array');
   expect(this.testData.statusHistory.length).to.be.greaterThan(0);
@@ -503,13 +503,13 @@ Then('應該記錄狀態變更歷史', async function(this: TestContext) {
   expect(lastHistory).to.have.property('timestamp');
 });
 
-Then('訊息應該儲存到資料庫', async function(this: TestContext) {
+Then('消息应该保存到数据库', async function(this: TestContext) {
   expect(this.testData.persistenceOperations).to.exist;
   expect(this.testData.persistenceOperations).to.be.an('array');
-  expect(this.testData.persistenceOperations.length).to.be.at.least(1); // 至少有一個訊息
+  expect(this.testData.persistenceOperations.length).to.be.at.least(1); // 至少有一个消息
 });
 
-Then('儲存的訊息應包含：', async function(this: TestContext, dataTable: any) {
+Then('保存的消息应包含：', async function(this: TestContext, dataTable: any) {
   const expectedFields = dataTable.raw();
   const messageOperations = this.testData.persistenceOperations;
   
@@ -533,21 +533,21 @@ Then('儲存的訊息應包含：', async function(this: TestContext, dataTable:
   });
 });
 
-Then('訊息內容應該被壓縮儲存', async function(this: TestContext) {
+Then('消息内容应该被压缩保存', async function(this: TestContext) {
   expect(this.testData.compressionResult).to.exist;
   expect(this.testData.compressionResult.compressedSize).to.be.lessThan(this.testData.compressionResult.originalSize);
   expect(this.testData.persistenceOperation.data.compressed).to.be.true;
 });
 
-Then('資料庫應記錄內容已壓縮', async function(this: TestContext) {
+Then('数据库应记录内容已压缩', async function(this: TestContext) {
   const storedData = this.testData.persistenceOperation.data;
   expect(storedData.compressed).to.be.true;
   expect(storedData.originalSize).to.be.a('number');
   expect(storedData.compressedSize).to.be.a('number');
 });
 
-Then('讀取時應自動解壓縮', async function(this: TestContext) {
-  // 模擬讀取和解壓縮
+Then('读取时应自动解压缩', async function(this: TestContext) {
+  // 仿真读取和解压缩
   this.testData.decompressionResult = {
     success: true,
     originalSize: this.testData.compressionResult.originalSize,
@@ -557,17 +557,17 @@ Then('讀取時應自動解壓縮', async function(this: TestContext) {
   expect(this.testData.decompressionResult.success).to.be.true;
 });
 
-Then('Session 不應從資料庫物理刪除', async function(this: TestContext) {
+Then('Session 不应从数据库物理删除', async function(this: TestContext) {
   expect(this.testData.persistenceOperation.action).to.equal('soft_delete');
   expect(this.testData.persistenceOperation.action).to.not.equal('delete');
 });
 
-Then('應該設定 deletedAt 時間戳記', async function(this: TestContext) {
+Then('应该设置 deletedAt 时间戳记', async function(this: TestContext) {
   expect(this.testData.persistenceOperation.data.deletedAt).to.be.instanceOf(Date);
 });
 
-Then('查詢時預設不顯示已刪除的 Sessions', async function(this: TestContext) {
-  // 模擬查詢邏輯
+Then('查找时默认不显示已删除的 Sessions', async function(this: TestContext) {
+  // 仿真查找逻辑
   this.testData.queryFilter = {
     excludeDeleted: true,
     condition: 'deletedAt IS NULL'
@@ -576,12 +576,12 @@ Then('查詢時預設不顯示已刪除的 Sessions', async function(this: TestC
   expect(this.testData.queryFilter.excludeDeleted).to.be.true;
 });
 
-Then('系統應該建立資料庫備份', async function(this: TestContext) {
+Then('系统应该创建数据库备份', async function(this: TestContext) {
   expect(this.testData.backupOperation).to.exist;
   expect(this.testData.backupOperation.status).to.equal('completed');
 });
 
-Then('備份應包含所有 Sessions 和對話記錄', async function(this: TestContext) {
+Then('备份应包含所有 Sessions 和对话记录', async function(this: TestContext) {
   const backup = this.testData.backupOperation;
   expect(backup.tables_backed_up).to.include('sessions');
   expect(backup.tables_backed_up).to.include('messages');
@@ -589,36 +589,36 @@ Then('備份應包含所有 Sessions 和對話記錄', async function(this: Test
   expect(backup.record_counts.messages).to.be.greaterThan(0);
 });
 
-Then('保留最近 7 天的備份', async function(this: TestContext) {
-  // 模擬備份保留策略
+Then('保留最近 7 天的备份', async function(this: TestContext) {
+  // 仿真备份保留策略
   this.testData.backupRetention = {
     retentionDays: 7,
-    currentBackups: 14, // 假設有14個備份
-    toDelete: 7 // 需要刪除7個舊備份
+    currentBackups: 14, // 假设有14个备份
+    toDelete: 7 // 需要删除7个旧备份
   };
   
   expect(this.testData.backupRetention.retentionDays).to.equal(7);
 });
 
-Then('自動清理超過 7 天的舊備份', async function(this: TestContext) {
+Then('自动清理超过 7 天的旧备份', async function(this: TestContext) {
   const retention = this.testData.backupRetention;
   expect(retention.toDelete).to.be.greaterThan(0);
 });
 
-Then('系統應該自動執行資料庫遷移', async function(this: TestContext) {
+Then('系统应该自动运行数据库迁移', async function(this: TestContext) {
   expect(this.testData.migrationResults).to.exist;
   expect(this.testData.migrationResults).to.be.an('array');
   expect(this.testData.migrationResults.length).to.equal(2);
 });
 
-Then('保持向後相容性', async function(this: TestContext) {
-  // 確認遷移成功且向後相容
+Then('保持向后兼容性', async function(this: TestContext) {
+  // 确认迁移成功且向后兼容
   this.testData.migrationResults.forEach((result: any) => {
     expect(result.status).to.equal('success');
   });
 });
 
-Then('記錄遷移執行結果', async function(this: TestContext) {
+Then('记录迁移运行结果', async function(this: TestContext) {
   this.testData.migrationResults.forEach((result: any) => {
     expect(result).to.have.property('id');
     expect(result).to.have.property('status');
@@ -627,38 +627,38 @@ Then('記錄遷移執行結果', async function(this: TestContext) {
   });
 });
 
-Then('系統應該分批載入資料', async function(this: TestContext) {
+Then('系统应该分批加载数据', async function(this: TestContext) {
   expect(this.testData.paginatedMessages).to.exist;
   expect(this.testData.paginatedMessages.pageSize).to.equal(50);
 });
 
-Then('優先載入最近的對話', async function(this: TestContext) {
+Then('优先加载最近的对话', async function(this: TestContext) {
   const messages = this.testData.paginatedMessages.messages;
   expect(messages).to.be.an('array');
   expect(messages.length).to.be.lessThanOrEqual(50);
   
-  // 驗證時間順序（最新的在前）
+  // 验证时间顺序（最新的在前）
   for (let i = 1; i < messages.length; i++) {
     expect(messages[i-1].timestamp.getTime()).to.be.greaterThan(messages[i].timestamp.getTime());
   }
 });
 
-Then('支援無限滾動載入更多歷史', async function(this: TestContext) {
+Then('支持无限滚动加载更多历史', async function(this: TestContext) {
   const pagination = this.testData.paginatedMessages;
   expect(pagination.hasNext).to.be.a('boolean');
   expect(pagination.hasPrev).to.be.a('boolean');
   expect(pagination.totalPages).to.be.greaterThan(1);
 });
 
-Then('應該檢查資料完整性：', async function(this: TestContext, dataTable: any) {
-  const expectedChecks = dataTable.raw().slice(1); // 跳過標題行
+Then('应该检查数据完整性：', async function(this: TestContext, dataTable: any) {
+  const expectedChecks = dataTable.raw().slice(1); // 跳过标题行
   const results = this.testData.integrityCheck.results;
   
-  // 建立檢查項目對應表
+  // 创建检查项目对应表
   const checkMapping: { [key: string]: string } = {
-    '孤立訊息': 'orphaned_messages',
-    '狀態不一致': 'inconsistent_status',
-    '損壞的資料': 'corrupted_data'
+    '孤立消息': 'orphaned_messages',
+    '状态不一致': 'inconsistent_status',
+    '损坏的数据': 'corrupted_data'
   };
   
   expectedChecks.forEach(([checkType, description]: string[]) => {
@@ -669,33 +669,33 @@ Then('應該檢查資料完整性：', async function(this: TestContext, dataTab
   });
 });
 
-Then('自動修復可修復的問題', async function(this: TestContext) {
+Then('自动修复可修复的问题', async function(this: TestContext) {
   const summary = this.testData.integrityCheck.summary;
   expect(summary.fixed_issues).to.be.greaterThan(0);
   expect(summary.fixed_issues).to.equal(summary.total_issues - summary.unfixable_issues);
 });
 
-Then('記錄無法修復的問題', async function(this: TestContext) {
+Then('记录无法修复的问题', async function(this: TestContext) {
   const summary = this.testData.integrityCheck.summary;
   expect(summary.unfixable_issues).to.be.a('number');
 });
 
-Then('系統應該生成包含完整對話的檔案', async function(this: TestContext) {
+Then('系统应该生成包含完整对话的文件', async function(this: TestContext) {
   expect(this.testData.exportResult).to.exist;
   expect(this.testData.exportResult.status).to.equal('completed');
   expect(this.testData.exportResult.messageCount).to.be.greaterThan(0);
 });
 
-Then('支援匯出格式：', async function(this: TestContext, dataTable: any) {
+Then('支持导出格式：', async function(this: TestContext, dataTable: any) {
   const supportedFormats = dataTable.raw();
   const exportResult = this.testData.exportResult;
   
-  // 驗證當前匯出格式是支援的格式之一
+  // 验证当前导出格式是支持的格式之一
   const formatNames = supportedFormats.map(([format, description]: string[]) => format.trim().toLowerCase());
   expect(formatNames).to.include(exportResult.format.toLowerCase());
 });
 
-Then('包含所有相關的中繼資料', async function(this: TestContext) {
+Then('包含所有相关的中继数据', async function(this: TestContext) {
   const exportResult = this.testData.exportResult;
   expect(exportResult.generatedAt).to.be.instanceOf(Date);
   expect(exportResult.fileSize).to.be.a('string');
@@ -703,9 +703,9 @@ Then('包含所有相關的中繼資料', async function(this: TestContext) {
   expect(exportResult.expiresAt).to.be.instanceOf(Date);
 });
 
-// 新增的匯出相關步驟
-When('使用者選擇匯出格式為 {string}', async function(this: TestContext, format: string) {
-  // 模擬使用者選擇匯出格式
+// 添加的导出相关步骤
+When('用户选择导出格式为 {string}', async function(this: TestContext, format: string) {
+  // 仿真用户选择导出格式
   this.testData.exportRequest = {
     sessionId: this.currentSession?.sessionId || 'test-session-id',
     format: format.toLowerCase(),
@@ -713,8 +713,8 @@ When('使用者選擇匯出格式為 {string}', async function(this: TestContext
   };
 });
 
-Then('系統應該生成 {word} 格式的檔案', async function(this: TestContext, format: string) {
-  // 模擬生成特定格式的檔案
+Then('系统应该生成 {word} 格式的文件', async function(this: TestContext, format: string) {
+  // 仿真生成特定格式的文件
   this.testData.exportResult = {
     sessionId: this.currentSession?.sessionId || 'test-session-id',
     format: format.toLowerCase(),
@@ -730,11 +730,11 @@ Then('系統應該生成 {word} 格式的檔案', async function(this: TestConte
   expect(this.testData.exportResult.status).to.equal('completed');
 });
 
-Then('檔案應包含完整對話內容', async function(this: TestContext) {
+Then('文件应包含完整对话内容', async function(this: TestContext) {
   expect(this.testData.exportResult).to.exist;
   expect(this.testData.exportResult.messageCount).to.be.greaterThan(0);
   
-  // 模擬檔案內容驗證
+  // 仿真文件内容验证
   this.testData.exportedContent = {
     hasMessages: true,
     messageCount: this.testData.exportResult.messageCount,
@@ -745,8 +745,8 @@ Then('檔案應包含完整對話內容', async function(this: TestContext) {
   expect(this.testData.exportedContent.hasMessages).to.be.true;
 });
 
-Then('檔案應包含所有相關的中繼資料', async function(this: TestContext) {
-  // 模擬中繼資料驗證
+Then('文件应包含所有相关的中继数据', async function(this: TestContext) {
+  // 仿真中继数据验证
   this.testData.exportedMetadata = {
     sessionId: this.currentSession?.sessionId,
     sessionName: this.currentSession?.name,

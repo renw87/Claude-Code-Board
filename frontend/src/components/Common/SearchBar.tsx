@@ -13,7 +13,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = '搜尋...',
+  placeholder = '搜索...',
   onSearch,
   defaultValue = '',
   className = '',
@@ -24,7 +24,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [searchQuery, setSearchQuery] = useState(defaultValue);
   const debouncedQuery = useDebounce(searchQuery, debounceDelay);
 
-  // 當 debounced 值改變時觸發搜尋
+  // 当 debounced 值改变时触发搜索
   useEffect(() => {
     onSearch(debouncedQuery);
   }, [debouncedQuery, onSearch]);
@@ -57,7 +57,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <button
             onClick={handleClear}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            title="清除搜尋"
+            title="清除搜索"
           >
             <X className="w-4 h-4" />
           </button>

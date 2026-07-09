@@ -17,13 +17,13 @@ export interface ConfigStatus {
 }
 
 export const agentPromptService = {
-  // 取得配置狀態
+  // 取得配置状态
   async getConfig(): Promise<ConfigStatus> {
     const response = await axiosInstance.get<ConfigStatus>('/agent-prompts/config');
     return response.data;
   },
 
-  // 設定路徑
+  // 设置路径
   async setConfig(path: string): Promise<void> {
     await axiosInstance.put('/agent-prompts/config', { path });
   },
@@ -34,7 +34,7 @@ export const agentPromptService = {
     return response.data;
   },
 
-  // 取得單一 Agent 內容
+  // 取得单一 Agent 内容
   async getAgentContent(agentName: string): Promise<AgentDetail | null> {
     try {
       const response = await axiosInstance.get<AgentDetail>(`/agent-prompts/${agentName}`);

@@ -21,7 +21,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // 載入所有專案
+  // 加载所有项目
   useEffect(() => {
     loadProjects();
   }, []);
@@ -33,52 +33,52 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
       setProjects(allProjects);
     } catch (error) {
       console.error('Failed to load projects:', error);
-      toast.error('載入專案失敗');
+      toast.error('加载项目失败');
     } finally {
       setLoading(false);
     }
   };
 
-  // 處理專案變更
+  // 处理项目变更
   const handleProjectsChange = async (newProjectIds: string[]) => {
     try {
       setSaving(true);
       await projectApi.updateSessionProjects(sessionId, newProjectIds);
       onProjectsChange(newProjectIds);
-      toast.success('專案已更新');
+      toast.success('项目已更新');
     } catch (error) {
       console.error('Failed to update projects:', error);
-      toast.error('更新專案失敗');
+      toast.error('更新项目失败');
     } finally {
       setSaving(false);
     }
   };
 
-  // 建立新專案
+  // 创建新项目
   const handleCreateProject = async (name: string) => {
     try {
       const newProject = await projectApi.createProject({
         name,
-        color: '#' + Math.floor(Math.random()*16777215).toString(16), // 隨機顏色
+        color: '#' + Math.floor(Math.random()*16777215).toString(16), // 随机颜色
         icon: '📁',
       });
       
-      // 重新載入專案列表
+      // 重新加载项目列表
       await loadProjects();
       
-      // 自動選擇新建立的專案
+      // 自动选择新创建的项目
       const newProjectIds = [...selectedProjects, newProject.project_id];
       await handleProjectsChange(newProjectIds);
       
-      toast.success('專案已建立');
+      toast.success('项目已创建');
     } catch (error) {
       console.error('Failed to create project:', error);
-      toast.error('建立專案失敗');
+      toast.error('创建项目失败');
       throw error;
     }
   };
 
-  // 轉換專案為選項格式
+  // 转换项目为选项格式
   const options = projects.map(project => ({
     value: project.project_id,
     label: project.name,
@@ -89,17 +89,17 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        專案
+        项目
       </label>
       <MultiSelect
         options={options}
         value={selectedProjects}
         onChange={handleProjectsChange}
-        placeholder="選擇專案..."
+        placeholder="选择项目..."
         disabled={saving}
         loading={loading}
         onCreateNew={handleCreateProject}
-        createNewPlaceholder="建立新專案"
+        createNewPlaceholder="创建新项目"
       />
     </div>
   );

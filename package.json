@@ -1,7 +1,7 @@
 {
   "name": "claude-code-board",
   "version": "1.0.0",
-  "description": "Claude Code Session Manager - 多開管理與監控系統",
+  "description": "Claude Code Session Manager - 多开管理与监控系统",
   "main": "backend/dist/server.js",
   "scripts": {
     "test": "cucumber-js",

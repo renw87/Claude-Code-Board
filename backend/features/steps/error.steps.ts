@@ -3,49 +3,49 @@ import { expect } from 'chai';
 import { TestContext } from './world';
 import { v4 as uuidv4 } from 'uuid';
 
-// 錯誤處理相關的 Steps
+// 错误处理相关的 Steps
 
 // Given Steps
 
-Given('Claude Code 執行檔路徑設定錯誤', async function(this: TestContext) {
-  // 模擬錯誤的執行檔路徑
+Given('Claude Code 运行档路径设置错误', async function(this: TestContext) {
+  // 仿真错误的运行档路径
   this.testData.claudeCodePath = '/nonexistent/path/to/claude';
 });
 
-Given('Claude Code 因授權問題無法啟動', async function(this: TestContext) {
-  // 模擬授權問題
+Given('Claude Code 因授权问题无法启动', async function(this: TestContext) {
+  // 仿真授权问题
   this.testData.processStartError = {
     code: 'EACCES',
     message: 'Permission denied'
   };
 });
 
-Given('資料庫服務暫時不可用', async function(this: TestContext) {
-  // 模擬資料庫連線錯誤
+Given('数据库服务暂时不可用', async function(this: TestContext) {
+  // 仿真数据库连接错误
   this.testData.databaseError = {
     code: 'DATABASE_ERROR',
     message: 'Database service temporarily unavailable'
   };
 });
 
-Given('WebSocket 服務未啟動', async function(this: TestContext) {
-  // 模擬 WebSocket 服務未啟動
+Given('WebSocket 服务未启动', async function(this: TestContext) {
+  // 仿真 WebSocket 服务未启动
   this.testData.websocketServerStatus = {
     running: false,
     error: 'WebSocket service not started'
   };
 });
 
-Given('系統可用記憶體低於 100MB', async function(this: TestContext) {
-  // 模擬記憶體不足
+Given('系统可用内存低于 100MB', async function(this: TestContext) {
+  // 仿真内存不足
   this.testData.systemMemory = {
     available: 90 * 1024 * 1024, // 90MB
     threshold: 100 * 1024 * 1024 // 100MB
   };
 });
 
-Given('Session 的對話歷史檔案損壞', async function(this: TestContext) {
-  // 模擬歷史檔案損壞
+Given('Session 的对话历史文件损坏', async function(this: TestContext) {
+  // 仿真历史文件损坏
   this.testData.corruptSession = {
     sessionId: uuidv4(),
     historyFile: '/path/to/corrupt/history.json',
@@ -53,8 +53,8 @@ Given('Session 的對話歷史檔案損壞', async function(this: TestContext) {
   };
 });
 
-Given('系統設定每秒最多處理 {int} 個請求', async function(this: TestContext, maxRequests: number) {
-  // 設定速率限制
+Given('系统设置每秒最多处理 {int} 个请求', async function(this: TestContext, maxRequests: number) {
+  // 设置速率限制
   this.testData.rateLimitConfig = {
     maxRequests: maxRequests,
     timeWindow: 1000, // 1 second
@@ -63,8 +63,8 @@ Given('系統設定每秒最多處理 {int} 個請求', async function(this: Tes
   };
 });
 
-Given('系統遇到未預期的內部錯誤', async function(this: TestContext) {
-  // 模擬未預期錯誤
+Given('系统遇到未预期的内部错误', async function(this: TestContext) {
+  // 仿真未预期错误
   this.testData.internalError = {
     type: 'UnexpectedError',
     message: 'Something went wrong unexpectedly',
@@ -74,19 +74,19 @@ Given('系統遇到未預期的內部錯誤', async function(this: TestContext) 
 
 // When Steps
 
-When('使用者發送缺少必要欄位的請求：{word}', async function(this: TestContext, missingField: string) {
+When('用户发送缺少必要字段的请求：{word}', async function(this: TestContext, missingField: string) {
   try {
-    // 模擬缺少必要欄位的請求
+    // 仿真缺少必要字段的请求
     const invalidRequest: any = {
-      name: '測試專案',
+      name: '测试项目',
       workingDir: '/test/path',
-      task: '分析程式碼'
+      task: '分析代码'
     };
     
-    // 移除指定的欄位
+    // 移除指定的字段
     delete invalidRequest[missingField];
     
-    // 驗證請求
+    // 验证请求
     validateCreateRequest.call(this, invalidRequest, missingField);
     
     this.responseStatus = 201;
@@ -101,9 +101,9 @@ When('使用者發送缺少必要欄位的請求：{word}', async function(this:
   }
 });
 
-When('使用者嘗試建立新 Session', async function(this: TestContext) {
+When('用户尝试创建新 Session', async function(this: TestContext) {
   try {
-    // 檢查記憶體狀態
+    // 检查内存状态
     if (this.testData.systemMemory && this.testData.systemMemory.available < this.testData.systemMemory.threshold) {
       throw {
         statusCode: 507,
@@ -112,7 +112,7 @@ When('使用者嘗試建立新 Session', async function(this: TestContext) {
       };
     }
     
-    // 檢查 Claude Code 執行檔
+    // 检查 Claude Code 运行档
     if (this.testData.claudeCodePath === '/nonexistent/path/to/claude') {
       throw {
         statusCode: 500,
@@ -132,11 +132,11 @@ When('使用者嘗試建立新 Session', async function(this: TestContext) {
   }
 });
 
-When('使用者建立 Session 並指定不存在的工作目錄', async function(this: TestContext) {
+When('用户创建 Session 并指定不存在的工作目录', async function(this: TestContext) {
   try {
     const invalidWorkingDir = '/nonexistent/working/directory';
     
-    // 模擬檢查工作目錄存在性
+    // 仿真检查工作目录存在性
     throw {
       statusCode: 400,
       code: 'INVALID_WORKING_DIR',
@@ -151,8 +151,8 @@ When('使用者建立 Session 並指定不存在的工作目錄', async function
   }
 });
 
-When('系統嘗試啟動 Claude Code 進程', async function(this: TestContext) {
-  // 模擬進程啟動失敗
+When('系统尝试启动 Claude Code 进程', async function(this: TestContext) {
+  // 仿真进程启动失败
   if (this.testData.processStartError) {
     this.testData.sessionWithError = {
       sessionId: uuidv4(),
@@ -163,9 +163,9 @@ When('系統嘗試啟動 Claude Code 進程', async function(this: TestContext) 
   }
 });
 
-When('使用者查詢 Sessions', async function(this: TestContext) {
+When('用户查找 Sessions', async function(this: TestContext) {
   try {
-    // 檢查資料庫狀態
+    // 检查数据库状态
     if (this.testData.databaseError) {
       throw {
         statusCode: 503,
@@ -185,8 +185,8 @@ When('使用者查詢 Sessions', async function(this: TestContext) {
   }
 });
 
-When('客戶端嘗試連接未啟動的 WebSocket 服務', async function(this: TestContext) {
-  // 檢查 WebSocket 服務狀態
+When('客户端尝试连接未启动的 WebSocket 服务', async function(this: TestContext) {
+  // 检查 WebSocket 服务状态
   if (!this.testData.websocketServerStatus.running) {
     this.testData.websocketConnectionResult = {
       success: false,
@@ -199,9 +199,9 @@ When('客戶端嘗試連接未啟動的 WebSocket 服務', async function(this: 
   }
 });
 
-When('使用者嘗試延續該 Session', async function(this: TestContext) {
+When('用户尝试延续该 Session', async function(this: TestContext) {
   try {
-    // 檢查歷史檔案完整性
+    // 检查历史文件完整性
     if (this.testData.corruptSession) {
       throw {
         statusCode: 500,
@@ -221,14 +221,14 @@ When('使用者嘗試延續該 Session', async function(this: TestContext) {
   }
 });
 
-When('同一客戶端在 1 秒內發送第 {int} 個請求', async function(this: TestContext, requestNumber: number) {
+When('同一客户端在 1 秒内发送第 {int} 个请求', async function(this: TestContext, requestNumber: number) {
   try {
     const config = this.testData.rateLimitConfig;
     
-    // 模擬已經發送了第 101 個請求
+    // 仿真已经发送了第 101 个请求
     config.currentRequests = requestNumber;
     
-    // 檢查速率限制
+    // 检查速率限制
     if (config.currentRequests > config.maxRequests) {
       const retryAfter = 1; // 1 second
       throw {
@@ -256,9 +256,9 @@ When('同一客戶端在 1 秒內發送第 {int} 個請求', async function(this
   }
 });
 
-When('錯誤發生', async function(this: TestContext) {
+When('错误发生', async function(this: TestContext) {
   try {
-    // 模擬內部錯誤
+    // 仿真内部错误
     if (this.testData.internalError) {
       throw {
         statusCode: 500,
@@ -274,7 +274,7 @@ When('錯誤發生', async function(this: TestContext) {
       error_message: error.message
     };
     
-    // 記錄錯誤但不暴露給客戶端
+    // 记录错误但不暴露给客户端
     this.testData.errorLog = {
       timestamp: new Date(),
       error: error.originalError,
@@ -285,31 +285,31 @@ When('錯誤發生', async function(this: TestContext) {
 
 // Then Steps
 
-Then('error_message 應包含 {string}', async function(this: TestContext, expectedMessage: string) {
+Then('error_message 应包含 {string}', async function(this: TestContext, expectedMessage: string) {
   expect(this.responseBody.error_message).to.include(expectedMessage.replace(/"/g, ''));
 });
 
-Then('response 應包含詳細的驗證錯誤資訊', async function(this: TestContext) {
+Then('response 应包含详细的验证错误信息', async function(this: TestContext) {
   expect(this.responseBody.validation_errors).to.exist;
   expect(this.responseBody.validation_errors).to.be.an('array');
   expect(this.responseBody.validation_errors.length).to.be.greaterThan(0);
 });
 
-Then('Session 錯誤狀態應更新為 {string}', async function(this: TestContext, expectedStatus: string) {
+Then('Session 错误状态应更新为 {string}', async function(this: TestContext, expectedStatus: string) {
   if (this.testData.sessionWithError) {
     expect(this.testData.sessionWithError.status).to.equal(expectedStatus);
   }
 });
 
-Then('錯誤詳情應包含進程輸出', async function(this: TestContext) {
+Then('错误详情应包含进程输出', async function(this: TestContext) {
   if (this.testData.sessionWithError) {
     expect(this.testData.sessionWithError.processOutput).to.be.a('string');
     expect(this.testData.sessionWithError.processOutput.length).to.be.greaterThan(0);
   }
 });
 
-Then('WebSocket 應推送進程錯誤通知', async function(this: TestContext) {
-  // 模擬錯誤通知推送
+Then('WebSocket 应推送进程错误通知', async function(this: TestContext) {
+  // 仿真错误通知推送
   this.testData.websocketErrorNotification = {
     type: 'error',
     sessionId: this.testData.sessionWithError?.sessionId,
@@ -319,8 +319,8 @@ Then('WebSocket 應推送進程錯誤通知', async function(this: TestContext) 
   expect(this.testData.websocketErrorNotification.type).to.equal('error');
 });
 
-Then('系統應該嘗試重新連線', async function(this: TestContext) {
-  // 模擬重新連線嘗試
+Then('系统应该尝试重新连接', async function(this: TestContext) {
+  // 仿真重新连接尝试
   this.testData.reconnectionAttempt = {
     attempted: true,
     timestamp: new Date(),
@@ -331,17 +331,17 @@ Then('系統應該嘗試重新連線', async function(this: TestContext) {
   expect(this.testData.reconnectionAttempt.attempted).to.be.true;
 });
 
-Then('連線應該被拒絕', async function(this: TestContext) {
+Then('连接应该被拒绝', async function(this: TestContext) {
   expect(this.testData.websocketConnectionResult.success).to.be.false;
 });
 
-Then('客戶端應收到適當的錯誤訊息', async function(this: TestContext) {
+Then('客户端应收到适当的错误消息', async function(this: TestContext) {
   expect(this.testData.websocketConnectionResult.error).to.be.a('string');
   expect(this.testData.websocketConnectionResult.error.length).to.be.greaterThan(0);
 });
 
-Then('系統應記錄連線失敗事件', async function(this: TestContext) {
-  // 模擬事件記錄
+Then('系统应记录连接失败事件', async function(this: TestContext) {
+  // 仿真事件记录
   this.testData.connectionFailureLog = {
     timestamp: new Date(),
     event: 'websocket_connection_failed',
@@ -355,13 +355,13 @@ Then('系統應記錄連線失敗事件', async function(this: TestContext) {
   expect(this.testData.connectionFailureLog.event).to.equal('websocket_connection_failed');
 });
 
-Then('系統應提供選項讓使用者選擇是否忽略歷史記錄', async function(this: TestContext) {
-  // 模擬提供恢復選項
+Then('系统应提供选项让用户选择是否忽略历史记录', async function(this: TestContext) {
+  // 仿真提供恢复选项
   this.testData.recoveryOptions = {
     available: true,
     options: [
-      { id: 'ignore_history', label: '忽略歷史記錄並繼續', action: 'ignore' },
-      { id: 'restore_backup', label: '嘗試從備份恢復', action: 'restore' }
+      { id: 'ignore_history', label: '忽略历史记录并继续', action: 'ignore' },
+      { id: 'restore_backup', label: '尝试从备份恢复', action: 'restore' }
     ]
   };
   
@@ -369,30 +369,30 @@ Then('系統應提供選項讓使用者選擇是否忽略歷史記錄', async fu
   expect(this.testData.recoveryOptions.options).to.have.length.greaterThan(0);
 });
 
-Then('response 應包含 Retry-After header', async function(this: TestContext) {
+Then('response 应包含 Retry-After header', async function(this: TestContext) {
   expect(this.responseHeaders).to.exist;
   expect(this.responseHeaders['Retry-After']).to.exist;
   expect(parseInt(this.responseHeaders['Retry-After'])).to.be.a('number');
 });
 
-Then('系統應記錄完整的錯誤堆疊', async function(this: TestContext) {
+Then('系统应记录完整的错误堆栈', async function(this: TestContext) {
   expect(this.testData.errorLog).to.exist;
   expect(this.testData.errorLog.error).to.exist;
   expect(this.testData.errorLog.stack).to.be.a('string');
 });
 
-Then('不應向客戶端暴露敏感資訊', async function(this: TestContext) {
-  // 確保回應中不包含敏感資訊
+Then('不应向客户端暴露敏感信息', async function(this: TestContext) {
+  // 确保回应中不包含敏感信息
   const responseString = JSON.stringify(this.responseBody);
   
-  // 檢查不應該暴露的敏感資訊
+  // 检查不应该暴露的敏感信息
   expect(responseString).to.not.include('stack');
   expect(responseString).to.not.include('file.js');
   expect(responseString).to.not.include('function1');
   expect(responseString).to.not.include('UnexpectedError');
 });
 
-// 輔助函數 - 將 private 移除，因為這是在模組層級
+// 辅助函数 - 将 private 移除，因为这是在模块层级
 function validateCreateRequest(this: TestContext, request: any, missingField: string): void {
   const validationErrors = [];
   

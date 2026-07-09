@@ -108,10 +108,10 @@ export class TaskTemplateRepository {
   }
 
   async resetToDefault(): Promise<TaskTemplate[]> {
-    // 刪除所有非預設模板
+    // 删除所有非默认模板
     await this.db.run('DELETE FROM task_templates WHERE is_default = 0');
 
-    // 重置預設模板為啟用狀態
+    // 重置默认模板为激活状态
     await this.db.run('UPDATE task_templates SET is_active = 1 WHERE is_default = 1');
 
     const templates = await this.db.all<TaskTemplate>(

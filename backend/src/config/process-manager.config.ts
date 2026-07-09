@@ -2,38 +2,38 @@ import { getEnvConfig } from './env.config';
 
 export interface ProcessManagerConfig {
   /**
-   * 是否啟用效能優化
+   * 是否激活性能优化
    */
   enableOptimizations: boolean;
   
   /**
-   * 進程啟動延遲（毫秒）
-   * 某些系統可能需要更長的啟動時間
+   * 进程启动延迟（毫秒）
+   * 某些系统可能需要更长的启动时间
    */
   startupDelay: number;
   
   /**
-   * 訊息處理超時（毫秒）
-   * 如果 Claude 在此時間內沒有回應，視為超時
+   * 消息处理超时（毫秒）
+   * 如果 Claude 在此时间内没有回应，视为超时
    */
   messageTimeout: number;
 }
 
-// 預設配置
+// 默认配置
 export const defaultProcessManagerConfig: ProcessManagerConfig = {
   enableOptimizations: getEnvConfig().process.enableOptimizations,
   startupDelay: getEnvConfig().process.startupDelay,
   messageTimeout: getEnvConfig().process.messageTimeout
 };
 
-// 根據環境選擇最佳配置
+// 根据环境选择最佳配置
 export function getOptimalConfig(): ProcessManagerConfig {
-  // Windows 用戶可能需要更長的啟動時間
+  // Windows 用户可能需要更长的启动时间
   if (process.platform === 'win32') {
     return {
       ...defaultProcessManagerConfig,
       startupDelay: 1000,
-      messageTimeout: 180000 // Windows 給予 3 分鐘
+      messageTimeout: 180000 // Windows 给予 3 分钟
     };
   }
   

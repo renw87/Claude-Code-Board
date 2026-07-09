@@ -8,22 +8,22 @@ export const useNotifications = () => {
 
   const getStatusMessage = useCallback((status: string): string => {
     const statusMap: Record<string, { message: string; icon: string }> = {
-      'processing': { message: '開始處理', icon: '🔄' },
-      'idle': { message: '處理完成', icon: '✅' },
+      'processing': { message: '开始处理', icon: '🔄' },
+      'idle': { message: '处理完成', icon: '✅' },
       'completed': { message: '已完成', icon: '🎉' },
-      'error': { message: '發生錯誤', icon: '❌' },
-      'interrupted': { message: '已中斷', icon: '⚠️' }
+      'error': { message: '发生错误', icon: '❌' },
+      'interrupted': { message: '已中断', icon: '⚠️' }
     };
 
     const statusInfo = statusMap[status.toLowerCase()];
-    if (!statusInfo) return `狀態更新: ${status}`;
+    if (!statusInfo) return `状态更新: ${status}`;
 
     return `${statusInfo.icon} Session ${statusInfo.message}`;
   }, []);
 
   useEffect(() => {
     const handleGlobalStatusUpdate = (data: { sessionId: string; status: string }) => {
-      // 將小寫狀態轉換為大寫的 enum 值
+      // 将小写状态转换为大写的 enum 值
       const statusMap: Record<string, SessionStatus> = {
         'processing': SessionStatus.PROCESSING,
         'idle': SessionStatus.IDLE,
@@ -35,13 +35,13 @@ export const useNotifications = () => {
       const mappedStatus = statusMap[data.status.toLowerCase()];
       if (!mappedStatus) return;
 
-      // 只在重要狀態變更時顯示通知
+      // 只在重要状态变更时显示通知
       if (mappedStatus === SessionStatus.IDLE || 
           mappedStatus === SessionStatus.ERROR ||
           mappedStatus === SessionStatus.COMPLETED) {
         const message = getStatusMessage(data.status);
         
-        // 根據狀態類型顯示不同的通知
+        // 根据状态类型显示不同的通知
         if (mappedStatus === SessionStatus.ERROR) {
           toast.error(message);
         } else {
@@ -55,11 +55,11 @@ export const useNotifications = () => {
 
     const handleGlobalProcessExit = (data: { sessionId: string; code: number | null }) => {
       if (data.code !== 0) {
-        toast.error(`❌ Session 執行失敗 (代碼: ${data.code || '未知'})`);
+        toast.error(`❌ Session 运行失败 (代码: ${data.code || '未知'})`);
       }
     };
 
-    // 監聽全域事件
+    // 监听全域事件
     addEventListener('global_status_update', handleGlobalStatusUpdate);
     addEventListener('global_process_exit', handleGlobalProcessExit);
 

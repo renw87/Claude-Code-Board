@@ -29,17 +29,17 @@ export interface ProcessMessage {
   metadata?: any;
 }
 
-// Claude 特定的訊息類型
+// Claude 特定的消息类型
 export interface ClaudeStreamMessage {
   sessionId: string;
   type: 'assistant' | 'user' | 'system' | 'tool_use' | 'thinking' | 'error' | 'result';
   content: string;
   timestamp: Date;
   metadata?: {
-    // 訊息識別
+    // 消息识别
     messageId?: string;
     
-    // 工具使用相關
+    // 工具使用相关
     toolName?: string;
     toolInput?: any;
     toolOutput?: any;
@@ -47,28 +47,28 @@ export interface ClaudeStreamMessage {
     toolId?: string;
     isError?: boolean;
     
-    // 思考過程
+    // 思考过程
     isThinking?: boolean;
     thinkingDepth?: number;
     
-    // 檔案操作
+    // 文件操作
     fileOperation?: 'read' | 'write' | 'edit' | 'delete' | 'list' | 'search';
     filePath?: string;
     fileContent?: string;
     lineNumbers?: { start: number; end: number };
     
-    // 串流相關
+    // 串流相关
     isPartial?: boolean;
     sequenceId?: string;
     isComplete?: boolean;
     isStreaming?: boolean;
     
-    // 原始 JSON 資料
+    // 原始 JSON 数据
     raw?: any;
   };
 }
 
-// 工具使用記錄
+// 工具使用记录
 export interface ToolUsageRecord {
   toolName: string;
   timestamp: Date;

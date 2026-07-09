@@ -1,15 +1,15 @@
 import { Session, SessionStatus } from '../types/session.types';
 
 export type SortType = 
-  | 'created_desc'  // 最新創建優先
-  | 'created_asc'   // 最舊創建優先
-  | 'updated_desc'  // 最近更新優先
-  | 'updated_asc'   // 最久未更新優先
-  | 'name_asc'      // 名稱 A-Z
-  | 'name_desc'     // 名稱 Z-A
-  | 'status'        // 狀態分組（進行中優先）
-  | 'messages_desc' // 訊息數量多優先
-  | 'messages_asc'; // 訊息數量少優先
+  | 'created_desc'  // 最新创建优先
+  | 'created_asc'   // 最旧创建优先
+  | 'updated_desc'  // 最近更新优先
+  | 'updated_asc'   // 最久未更新优先
+  | 'name_asc'      // 名称 A-Z
+  | 'name_desc'     // 名称 Z-A
+  | 'status'        // 状态分组（进行中优先）
+  | 'messages_desc' // 消息数量多优先
+  | 'messages_asc'; // 消息数量少优先
 
 export const sortSessions = (sessions: Session[], sortType: SortType): Session[] => {
   const sorted = [...sessions];
@@ -37,16 +37,16 @@ export const sortSessions = (sessions: Session[], sortType: SortType): Session[]
       
     case 'name_asc':
       return sorted.sort((a, b) => 
-        a.name.localeCompare(b.name, 'zh-TW')
+        a.name.localeCompare(b.name, 'zh-CN')
       );
       
     case 'name_desc':
       return sorted.sort((a, b) => 
-        b.name.localeCompare(a.name, 'zh-TW')
+        b.name.localeCompare(a.name, 'zh-CN')
       );
       
     case 'status':
-      // 狀態優先級：processing > idle > completed > error > interrupted
+      // 状态优先级：processing > idle > completed > error > interrupted
       const statusPriority: Record<SessionStatus, number> = {
         [SessionStatus.PROCESSING]: 1,
         [SessionStatus.IDLE]: 2,
@@ -63,7 +63,7 @@ export const sortSessions = (sessions: Session[], sortType: SortType): Session[]
           return priorityA - priorityB;
         }
         
-        // 如果狀態相同，按更新時間排序
+        // 如果状态相同，按更新时间排序
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       });
       
@@ -84,11 +84,11 @@ export const sortSessions = (sessions: Session[], sortType: SortType): Session[]
 
 export const getSortOptions = () => [
   { value: 'updated_desc', label: '最近更新' },
-  { value: 'created_desc', label: '最新創建' },
-  { value: 'created_asc', label: '最舊創建' },
-  { value: 'name_asc', label: '名稱 A-Z' },
-  { value: 'name_desc', label: '名稱 Z-A' },
-  { value: 'status', label: '狀態優先' },
-  { value: 'messages_desc', label: '訊息數多' },
-  { value: 'messages_asc', label: '訊息數少' }
+  { value: 'created_desc', label: '最新创建' },
+  { value: 'created_asc', label: '最旧创建' },
+  { value: 'name_asc', label: '名称 A-Z' },
+  { value: 'name_desc', label: '名称 Z-A' },
+  { value: 'status', label: '状态优先' },
+  { value: 'messages_desc', label: '消息数多' },
+  { value: 'messages_asc', label: '消息数少' }
 ];

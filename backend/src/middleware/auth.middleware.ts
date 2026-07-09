@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { getEnvConfig } from '../config/env.config';
 
-// 擴展 Request 介面以包含 user 屬性
+// 扩展 Request 接口以包含 user 属性
 declare global {
   namespace Express {
     interface Request {
@@ -13,21 +13,21 @@ declare global {
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
-    // 從 header 中獲取 token
+    // 从 header 中获取 token
     const token = req.headers.authorization?.replace('Bearer ', '');
     
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: '未提供認證 token'
+        message: '未提供认证 token'
       });
     }
 
-    // 驗證 token
+    // 验证 token
     const jwtSecret = getEnvConfig().auth.jwtSecret;
     const decoded = jwt.verify(token, jwtSecret);
     
-    // 將解碼後的用戶資訊附加到 request 物件
+    // 将解码后的用户信息附加到 request 对象
     req.user = decoded;
     
     next();
@@ -35,13 +35,13 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
         success: false,
-        message: 'Token 已過期，請重新登入'
+        message: 'Token 已过期，请重新登录'
       });
     }
     
     return res.status(401).json({
       success: false,
-      message: 'Token 無效'
+      message: 'Token 无效'
     });
   }
 };

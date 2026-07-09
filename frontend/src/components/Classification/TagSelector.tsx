@@ -23,7 +23,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // 載入標籤
+  // 加载标签
   useEffect(() => {
     loadTags();
   }, [tagType]);
@@ -35,67 +35,67 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
       setTags(allTags);
     } catch (error) {
       console.error('Failed to load tags:', error);
-      toast.error('載入標籤失敗');
+      toast.error('加载标签失败');
     } finally {
       setLoading(false);
     }
   };
 
-  // 處理標籤變更
+  // 处理标签变更
   const handleTagsChange = async (newTagIds: string[]) => {
     try {
       setSaving(true);
       await tagApi.updateSessionTags(sessionId, newTagIds);
       onTagsChange(newTagIds);
-      toast.success('標籤已更新');
+      toast.success('标签已更新');
     } catch (error) {
       console.error('Failed to update tags:', error);
-      toast.error('更新標籤失敗');
+      toast.error('更新标签失败');
     } finally {
       setSaving(false);
     }
   };
 
-  // 建立新標籤
+  // 创建新标签
   const handleCreateTag = async (name: string) => {
     try {
       const newTag = await tagApi.createTag({
         name,
         type: tagType,
-        color: '#' + Math.floor(Math.random()*16777215).toString(16), // 隨機顏色
+        color: '#' + Math.floor(Math.random()*16777215).toString(16), // 随机颜色
       });
       
-      // 重新載入標籤列表
+      // 重新加载标签列表
       await loadTags();
       
-      // 自動選擇新建立的標籤
+      // 自动选择新创建的标签
       const newTagIds = [...selectedTags, newTag.tag_id];
       await handleTagsChange(newTagIds);
       
-      toast.success('標籤已建立');
+      toast.success('标签已创建');
     } catch (error) {
       console.error('Failed to create tag:', error);
-      toast.error('建立標籤失敗');
+      toast.error('创建标签失败');
       throw error;
     }
   };
 
-  // 轉換標籤為選項格式
+  // 转换标签为选项格式
   const options = tags.map(tag => ({
     value: tag.tag_id,
     label: tag.name,
     color: tag.color,
   }));
 
-  // 根據標籤類型顯示不同的標題
+  // 根据标签类型显示不同的标题
   const getLabel = () => {
     switch (tagType) {
       case 'topic':
-        return '主題';
+        return '主题';
       case 'department':
-        return '部門';
+        return '部门';
       default:
-        return '標籤';
+        return '标签';
     }
   };
 
@@ -108,11 +108,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         options={options}
         value={selectedTags}
         onChange={handleTagsChange}
-        placeholder={`選擇${getLabel()}...`}
+        placeholder={`选择${getLabel()}...`}
         disabled={saving}
         loading={loading}
         onCreateNew={handleCreateTag}
-        createNewPlaceholder={`建立新${getLabel()}`}
+        createNewPlaceholder={`创建新${getLabel()}`}
       />
     </div>
   );

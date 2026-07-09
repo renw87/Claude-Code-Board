@@ -27,7 +27,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 當 workItem 變更時，更新表單資料
+  // 当 workItem 变更时，更新表单数据
   useEffect(() => {
     if (workItem) {
       setFormData({
@@ -44,7 +44,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
     if (!workItem) return;
     
     if (!formData.title?.trim()) {
-      setError('標題是必填的');
+      setError('标题是必填的');
       return;
     }
 
@@ -58,7 +58,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
         onClose();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '更新失敗');
+      setError(err instanceof Error ? err.message : '更新失败');
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
-                  編輯 Work Item
+                  编辑 Work Item
                 </h3>
                 <button
                   type="button"
@@ -129,7 +129,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
                 {/* Title */}
                 <div>
                   <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                    標題 *
+                    标题 *
                   </label>
                   <input
                     type="text"
@@ -160,7 +160,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
                 {/* Workspace Path */}
                 <div>
                   <label htmlFor="workspace_path" className="block text-sm font-medium text-gray-700 mb-1">
-                    工作區路徑
+                    工作区路径
                   </label>
                   <div className="relative">
                     <input
@@ -175,17 +175,17 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
                     <FolderOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
-                    設定此 Work Item 的預設工作目錄，創建 Session 時會自動填入
+                    设置此 Work Item 的默认工作目录，创建 Session 时会自动填入
                   </p>
                 </div>
 
                 {/* Status Info */}
                 <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">目前狀態：</span>
+                    <span className="text-gray-600">目前状态：</span>
                     <span className="font-medium">
-                      {workItem.status === 'planning' && '規劃中'}
-                      {workItem.status === 'in_progress' && '進行中'}
+                      {workItem.status === 'planning' && '规划中'}
+                      {workItem.status === 'in_progress' && '进行中'}
                       {workItem.status === 'completed' && '已完成'}
                       {workItem.status === 'cancelled' && '已取消'}
                     </span>
@@ -202,7 +202,7 @@ export const EditWorkItemDialog: React.FC<EditWorkItemDialogProps> = ({
                 className="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Save className="w-4 h-4 mr-2" />
-                儲存變更
+                保存变更
               </button>
               <button
                 type="button"

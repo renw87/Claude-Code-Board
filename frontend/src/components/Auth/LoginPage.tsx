@@ -31,35 +31,35 @@ export const LoginPage: React.FC = () => {
     setShowPassword(prev => !prev);
   }, []);
 
-  // 驗證使用者名稱
+  // 验证用户名
   const validateUsername = useCallback((value: string) => {
     if (!value) {
-      setUsernameError('請輸入帳號');
+      setUsernameError('请输入帐号');
       return false;
     }
     if (value.length < 3) {
-      setUsernameError('帳號至少需要 3 個字元');
+      setUsernameError('帐号至少需要 3 个字符');
       return false;
     }
     if (value.length > 20) {
-      setUsernameError('帳號不能超過 20 個字元');
+      setUsernameError('帐号不能超过 20 个字符');
       return false;
     }
     setUsernameError('');
     return true;
   }, []);
 
-  // 驗證密碼
+  // 验证密码
   const validatePassword = useCallback((value: string) => {
     if (!value) {
-      setPasswordError('請輸入密碼');
+      setPasswordError('请输入密码');
       return false;
     }
     setPasswordError('');
     return true;
   }, []);
 
-  // 處理使用者名稱變更
+  // 处理用户名变更
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUsername(value);
@@ -68,7 +68,7 @@ export const LoginPage: React.FC = () => {
     }
   }, [usernameError, validateUsername]);
 
-  // 處理密碼變更
+  // 处理密码变更
   const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
@@ -81,7 +81,7 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    // 驗證所有欄位
+    // 验证所有字段
     const isUsernameValid = validateUsername(username);
     const isPasswordValid = validatePassword(password);
     
@@ -98,25 +98,25 @@ export const LoginPage: React.FC = () => {
       });
 
       if (response.data.success) {
-        // 儲存 token 到 localStorage
+        // 保存 token 到 localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('tokenExpiry', String(Date.now() + response.data.expiresIn));
         
-        // 如果勾選記住我，儲存使用者名稱
+        // 如果勾选记住我，保存用户名
         if (rememberMe) {
           localStorage.setItem('rememberedUsername', username);
         } else {
           localStorage.removeItem('rememberedUsername');
         }
         
-        // 通知 AuthContext 更新認證狀態
+        // 通知 AuthContext 更新认证状态
         await checkAuth();
         
-        toast.success('登入成功！');
+        toast.success('登录成功！');
         navigate('/sessions');
       }
     } catch (error) {
-      const message = getErrorMessage(error, '登入失敗，請稍後再試');
+      const message = getErrorMessage(error, '登录失败，请稍后再试');
       setError(message);
       toast.error(message);
     } finally {
@@ -124,7 +124,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  // 載入記住的使用者名稱
+  // 加载记住的用户名
   useEffect(() => {
     const rememberedUsername = localStorage.getItem('rememberedUsername');
     if (rememberedUsername) {
@@ -135,19 +135,19 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* 背景裝飾元素 - 優化動畫效能 */}
+      {/* 背景装饰元素 - 优化动画性能 */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
           className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]"
           style={{ 
             willChange: 'transform',
-            transform: 'translate3d(0, 0, 0)' // 啟用硬體加速
+            transform: 'translate3d(0, 0, 0)' // 激活硬件加速
           }}
         />
       </div>
       
       <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* 登入卡片 - 改善視覺效果和微交互 */}
+        {/* 登录卡片 - 改善视觉效果和微交互 */}
         <div 
           className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 p-8 transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] animate-fade-in"
         >
@@ -166,7 +166,7 @@ export const LoginPage: React.FC = () => {
               Claude Code Board
             </h2>
             <p className="mt-3 text-center text-sm text-gray-700">
-              請登入以管理您的 Sessions
+              请登录以管理您的 Sessions
             </p>
           </div>
           
@@ -179,7 +179,7 @@ export const LoginPage: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                  帳號
+                  帐号
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
@@ -198,10 +198,10 @@ export const LoginPage: React.FC = () => {
                     className={`block w-full pl-12 pr-4 py-3 border ${
                       usernameError ? 'border-red-300 bg-red-50/30' : 'border-gray-200'
                     } rounded-xl text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:bg-white/70 focus:bg-white/80`}
-                    placeholder="輸入您的帳號"
+                    placeholder="输入您的帐号"
                     aria-invalid={!!usernameError}
                     aria-describedby={usernameError ? "username-error" : error ? "login-error" : undefined}
-                    aria-label="帳號"
+                    aria-label="帐号"
                   />
                 </div>
                 {usernameError && (
@@ -214,7 +214,7 @@ export const LoginPage: React.FC = () => {
               
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  密碼
+                  密码
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
@@ -232,16 +232,16 @@ export const LoginPage: React.FC = () => {
                     className={`block w-full pl-12 pr-12 py-3 border ${
                       passwordError ? 'border-red-300 bg-red-50/30' : 'border-gray-200'
                     } rounded-xl text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:bg-white/70 focus:bg-white/80`}
-                    placeholder="輸入您的密碼"
+                    placeholder="输入您的密码"
                     aria-invalid={!!passwordError}
                     aria-describedby={passwordError ? "password-error" : error ? "login-error" : undefined}
-                    aria-label="密碼"
+                    aria-label="密码"
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center z-10 text-gray-400 hover:text-blue-500 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500/20 rounded-lg h-[44px] w-[44px] -mr-3 justify-end"
-                    aria-label={showPassword ? "隱藏密碼" : "顯示密碼"}
+                    aria-label={showPassword ? "隐藏密码" : "显示密码"}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -269,12 +269,12 @@ export const LoginPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-4 focus:ring-blue-500/20 border-gray-300 rounded cursor-pointer"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 cursor-pointer select-none">
-                    記住我
+                    记住我
                   </label>
                 </div>
                 
                 <a href="#" className="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:ring-4 focus:ring-blue-500/20 rounded px-2 py-1 -mx-2 -my-1">
-                  忘記密碼？
+                  忘记密码？
                 </a>
               </div>
             </div>
@@ -306,7 +306,7 @@ export const LoginPage: React.FC = () => {
                     ? 'bg-gray-400 cursor-not-allowed scale-95' 
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20'
                 }`}
-                aria-label={loading ? "登入中，請稍候" : "登入帳號"}
+                aria-label={loading ? "登录中，请稍候" : "登录帐号"}
               >
                 {loading ? (
                   <span className="flex items-center">
@@ -314,11 +314,11 @@ export const LoginPage: React.FC = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    登入中...
+                    登录中...
                   </span>
                 ) : (
                   <span className="flex items-center">
-                    登入
+                    登录
                     <ArrowRight className="ml-2 -mr-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
                 )}

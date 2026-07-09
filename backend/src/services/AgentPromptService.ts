@@ -22,7 +22,7 @@ export class AgentPromptService {
   }
 
   /**
-   * 初始化服務，從資料庫讀取 Claude agents 路徑設定
+   * 初始化服务，从数据库读取 Claude agents 路径设置
    */
   async initialize(): Promise<void> {
     try {
@@ -42,7 +42,7 @@ export class AgentPromptService {
   }
 
   /**
-   * 取得或設定 Claude agents 路徑
+   * 取得或设置 Claude agents 路径
    */
   async getClaudePath(): Promise<string | null> {
     const result = await this.db.get<{ value: string }>(
@@ -52,19 +52,19 @@ export class AgentPromptService {
   }
 
   async setClaudePath(newPath: string): Promise<void> {
-    // 驗證路徑安全性
+    // 验证路径安全性
     if (newPath.includes('..')) {
       throw new Error('Invalid path: Path traversal not allowed');
     }
 
-    // 檢查路徑是否存在
+    // 检查路径是否存在
     try {
       await fs.access(newPath);
     } catch {
       throw new Error('Path does not exist or is not accessible');
     }
 
-    // 更新資料庫
+    // 更新数据库
     await this.db.run(
       `INSERT INTO system_config (key, value) VALUES ('claude_agents_path', ?)
        ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = CURRENT_TIMESTAMP`,
@@ -76,7 +76,7 @@ export class AgentPromptService {
   }
 
   /**
-   * 列出所有 agent 檔案
+   * 列出所有 agent 文件
    */
   async listAgents(): Promise<AgentListItem[]> {
     if (!this.claudePath) {
@@ -86,10 +86,10 @@ export class AgentPromptService {
     try {
       const files = await fs.readdir(this.claudePath);
       
-      // 過濾出 .md 檔案
+      // 过滤出 .md 文件
       const mdFiles = files.filter(file => file.endsWith('.md'));
       
-      // 轉換為 AgentListItem 格式
+      // 转换为 AgentListItem 格式
       return mdFiles.map(fileName => ({
         name: fileName.replace('.md', ''),
         fileName
@@ -101,14 +101,14 @@ export class AgentPromptService {
   }
 
   /**
-   * 取得單一 agent 的詳細內容
+   * 取得单一 agent 的详细内容
    */
   async getAgentContent(agentName: string): Promise<AgentDetail | null> {
     if (!this.claudePath) {
       throw new Error('Claude agents path not configured');
     }
 
-    // 驗證 agent 名稱安全性
+    // 验证 agent 名称安全性
     if (agentName.includes('..') || agentName.includes('/') || agentName.includes('\\')) {
       throw new Error('Invalid agent name');
     }
@@ -117,7 +117,7 @@ export class AgentPromptService {
       const filePath = path.join(this.claudePath, `${agentName}.md`);
       const content = await fs.readFile(filePath, 'utf-8');
       
-      // 解析 YAML frontmatter（如果有的話）
+      // 解析 YAML frontmatter（如果有的话）
       const parsedContent = this.parseMarkdownWithFrontmatter(content);
       
       return {
@@ -134,14 +134,14 @@ export class AgentPromptService {
   }
 
   /**
-   * 取得 agent 的純提示詞內容（不包含 frontmatter）
+   * 取得 agent 的纯提示词内容（不包含 frontmatter）
    */
   async getAgentPromptOnly(agentName: string): Promise<string | null> {
     if (!this.claudePath) {
       throw new Error('Claude agents path not configured');
     }
 
-    // 驗證 agent 名稱安全性
+    // 验证 agent 名称安全性
     if (agentName.includes('..') || agentName.includes('/') || agentName.includes('\\')) {
       throw new Error('Invalid agent name');
     }
@@ -150,7 +150,7 @@ export class AgentPromptService {
       const filePath = path.join(this.claudePath, `${agentName}.md`);
       const content = await fs.readFile(filePath, 'utf-8');
       
-      // 解析並返回只有 body 部分（移除 frontmatter）
+      // 解析并返回只有 body 部分（移除 frontmatter）
       const parsedContent = this.parseMarkdownWithFrontmatter(content);
       return parsedContent.body.trim();
     } catch (error) {
@@ -160,7 +160,7 @@ export class AgentPromptService {
   }
 
   /**
-   * 解析 Markdown 檔案的 YAML frontmatter
+   * 解析 Markdown 文件的 YAML frontmatter
    */
   private parseMarkdownWithFrontmatter(content: string): {
     description?: string;
@@ -188,10 +188,10 @@ export class AgentPromptService {
     // 解析 description（可能是多行）
     const descriptionMatch = frontmatterText.match(/description:\s*([\s\S]+?)(?=\n\w+:|$)/);
     if (descriptionMatch) {
-      // 處理多行 description，移除過多的轉義字符
+      // 处理多行 description，移除过多的转义字符
       let description = descriptionMatch[1]
-        .replace(/\\n/g, '\n')  // 替換 \n 為真正的換行
-        .replace(/\\\\/g, '\\')  // 替換 \\ 為 \\
+        .replace(/\\n/g, '\n')  // 替换 \n 为真正的换行
+        .replace(/\\\\/g, '\\')  // 替换 \\ 为 \\
         .trim();
       frontmatter.description = description;
     }
@@ -217,12 +217,12 @@ export class AgentPromptService {
   }
 
   /**
-   * 檢查服務是否已設定
+   * 检查服务是否已设置
    */
   isConfigured(): boolean {
     return !!this.claudePath;
   }
 }
 
-// 建立單例
+// 创建单例
 export const agentPromptService = new AgentPromptService();

@@ -9,13 +9,13 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Token 驗證快取
+// Token 验证缓存
 interface TokenCache {
   isValid: boolean;
   timestamp: number;
 }
 
-const TOKEN_CACHE_DURATION = 5 * 60 * 1000; // 5分鐘快取
+const TOKEN_CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // 檢查 token 是否過期
+    // 检查 token 是否过期
     if (Date.now() > parseInt(tokenExpiry)) {
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiry');
@@ -52,11 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // 檢查快取
+    // 检查缓存
     const now = Date.now();
     if (tokenCacheRef.current && 
         now - tokenCacheRef.current.timestamp < TOKEN_CACHE_DURATION) {
-      // 使用快取結果，避免重複 API 請求
+      // 使用缓存结果，避免重复 API 请求
       const isValid = tokenCacheRef.current.isValid;
       setIsAuthenticated(isValid);
       setLoading(false);
@@ -64,10 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // 驗證 token 是否有效
+      // 验证 token 是否有效
       const response = await axiosInstance.get('/auth/verify');
       if (response.data.success) {
-        // 更新快取
+        // 更新缓存
         tokenCacheRef.current = {
           isValid: true,
           timestamp: now
@@ -77,10 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
     } catch (error) {
-      // Token 無效
+      // Token 无效
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiry');
-      // 清除快取
+      // 清除缓存
       tokenCacheRef.current = {
         isValid: false,
         timestamp: now
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('tokenExpiry');
-    // 清除 token 快取
+    // 清除 token 缓存
     tokenCacheRef.current = null;
     setIsAuthenticated(false);
     navigate('/login');
@@ -105,13 +105,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  // 設定 axios 攔截器來處理 401 錯誤
+  // 设置 axios 拦截器来处理 401 错误
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // 清除 token 快取
+          // 清除 token 缓存
           tokenCacheRef.current = null;
           logout();
         }

@@ -150,7 +150,7 @@ export class CommonPathRepository {
         { id: '2', icon: 'Code' as const, label: 'Example', path: 'C:\\Users\\Example', sort_order: 2 },
         { id: '3', icon: 'Home' as const, label: 'Desktop', path: 'C:\\Users\\User\\Desktop', sort_order: 3 },
         { id: '4', icon: 'Home' as const, label: 'Documents', path: 'C:\\Users\\User\\Documents', sort_order: 4 },
-        { id: '5', icon: 'FolderOpen' as const, label: '當前目錄', path: '.', sort_order: 5 },
+        { id: '5', icon: 'FolderOpen' as const, label: '当前目录', path: '.', sort_order: 5 },
       ];
       
       const now = new Date().toISOString();

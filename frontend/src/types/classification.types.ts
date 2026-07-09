@@ -1,4 +1,4 @@
-// 專案相關類型
+// 项目相关类型
 export interface Project {
   project_id: string;
   name: string;
@@ -10,7 +10,7 @@ export interface Project {
   updated_at: string;
 }
 
-// 標籤相關類型
+// 标签相关类型
 export interface Tag {
   tag_id: string;
   name: string;
@@ -21,7 +21,7 @@ export interface Tag {
   updated_at: string;
 }
 
-// 建立專案請求
+// 创建项目请求
 export interface CreateProjectRequest {
   name: string;
   description?: string;
@@ -29,14 +29,14 @@ export interface CreateProjectRequest {
   icon?: string;
 }
 
-// 建立標籤請求
+// 创建标签请求
 export interface CreateTagRequest {
   name: string;
   color?: string;
   type?: 'general' | 'topic' | 'department';
 }
 
-// 更新專案請求
+// 更新项目请求
 export interface UpdateProjectRequest {
   name?: string;
   description?: string;
@@ -45,14 +45,14 @@ export interface UpdateProjectRequest {
   status?: 'active' | 'completed' | 'archived';
 }
 
-// 更新標籤請求
+// 更新标签请求
 export interface UpdateTagRequest {
   name?: string;
   color?: string;
   type?: 'general' | 'topic' | 'department';
 }
 
-// 專案統計
+// 项目统计
 export interface ProjectStats {
   session_count: number;
   status: string;

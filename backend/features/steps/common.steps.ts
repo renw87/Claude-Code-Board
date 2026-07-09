@@ -3,38 +3,38 @@ import { expect } from 'chai';
 import { TestContext } from './world';
 import { SessionStatus } from '../../src/types/session.types';
 
-Given('系統已經啟動', async function(this: TestContext) {
-  // 確認系統已啟動
-  // 在實際實作中，這裡會檢查服務是否運行
+Given('系统已经启动', async function(this: TestContext) {
+  // 确认系统已启动
+  // 在实际实作中，这里会检查服务是否运行
   this.baseUrl = 'http://localhost:3000';
 });
 
-Given('Claude Code 可執行檔存在', async function(this: TestContext) {
-  // 驗證 Claude Code 執行檔存在
-  // 在實際實作中，這裡會檢查檔案系統
+Given('Claude Code 可运行档存在', async function(this: TestContext) {
+  // 验证 Claude Code 运行档存在
+  // 在实际实作中，这里会检查文件系统
   this.testData.claudeCodePath = '/usr/local/bin/claude';
 });
 
-Then('API 應回傳 status code {int}', async function(this: TestContext, statusCode: number) {
+Then('API 应回传 status code {int}', async function(this: TestContext, statusCode: number) {
   expect(this.responseStatus).to.equal(statusCode);
 });
 
-// 更具體的正則表達式，避免與其他步驟衝突
-Then(/^response 應包含 (\w+)$/, async function(this: TestContext, field: string) {
-  // 只匹配簡單的屬性名稱，不包含空格或其他特殊字符
+// 更具体的正则表达式，避免与其他步骤冲突
+Then(/^response 应包含 (\w+)$/, async function(this: TestContext, field: string) {
+  // 只匹配简单的属性名称，不包含空格或其他特殊字符
   expect(this.responseBody).to.have.property(field);
 });
 
-Then('response 應包含 error_code {string}', async function(this: TestContext, errorCode: string) {
+Then('response 应包含 error_code {string}', async function(this: TestContext, errorCode: string) {
   expect(this.responseBody).to.have.property('error_code', errorCode);
 });
 
-Then('error_message 為 {string}', async function(this: TestContext, errorMessage: string) {
+Then('error_message 为 {string}', async function(this: TestContext, errorMessage: string) {
   expect(this.responseBody).to.have.property('error_message', errorMessage);
 });
 
-Given('系統中有 {int} 個不同狀態的 Sessions', async function(this: TestContext, count: number) {
-  // 建立不同狀態的 Sessions
+Given('系统中有 {int} 个不同状态的 Sessions', async function(this: TestContext, count: number) {
+  // 创建不同状态的 Sessions
   this.testData.multipleSessions = [];
   const statuses = [SessionStatus.IDLE, SessionStatus.PROCESSING, SessionStatus.COMPLETED];
   
@@ -51,15 +51,15 @@ Given('系統中有 {int} 個不同狀態的 Sessions', async function(this: Tes
       error: null
     };
     this.testData.multipleSessions.push(session);
-    // 同時存到 sessions Map 中供查詢使用
+    // 同时存到 sessions Map 中供查找使用
     this.sessions.set(session.sessionId, session);
   }
   
   expect(this.testData.multipleSessions).to.have.lengthOf(count);
 });
 
-Then('Claude Code 進程應收到中斷信號並被終止', async function(this: TestContext) {
-  // 驗證進程收到中斷信號並被終止
+Then('Claude Code 进程应收到中断信号并被终止', async function(this: TestContext) {
+  // 验证进程收到中断信号并被终止
   this.testData.processInterrupted = true;
   this.testData.processTerminated = true;
   
@@ -67,8 +67,8 @@ Then('Claude Code 進程應收到中斷信號並被終止', async function(this:
   expect(this.testData.processTerminated).to.be.true;
 });
 
-Then('系統應儲存中斷訊息 {string}', async function(this: TestContext, message: string) {
-  // 驗證系統儲存了中斷訊息
+Then('系统应保存中断消息 {string}', async function(this: TestContext, message: string) {
+  // 验证系统保存了中断消息
   this.testData.interruptMessage = {
     content: message,
     timestamp: new Date(),

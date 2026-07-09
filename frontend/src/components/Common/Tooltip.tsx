@@ -49,7 +49,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   );
 };
 
-// 簡化的 Tooltip 版本，用於快速添加
+// 简化的 Tooltip 版本，用于快速添加
 export const SimpleTooltip: React.FC<TooltipProps> = (props) => {
   return <Tooltip {...props} />;
 };

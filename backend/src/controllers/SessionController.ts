@@ -8,7 +8,7 @@ export class SessionController {
   private sessionService: SessionService;
   
   constructor() {
-    // 使用共享的 ProcessManager 實例
+    // 使用共享的 ProcessManager 实例
     this.sessionService = new SessionService(processManager);
   }
   
@@ -99,7 +99,7 @@ export class SessionController {
       
       logger.info(`SessionService returned message:`, message);
       
-      // 不要重複發送 WebSocket 事件，ProcessManager 已經發送了
+      // 不要重复发送 WebSocket 事件，ProcessManager 已经发送了
       // io.to(`session:${sessionId}`).emit('message', {
       //   sessionId,
       //   ...message
