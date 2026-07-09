@@ -76,14 +76,19 @@ export class MessageRepository {
     
     const sql = `
       INSERT INTO messages (
-        message_id, session_id, type, content, compressed,
+        message_id, session_id, role, type, content, compressed,
         original_size, compressed_size, timestamp, metadata
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
+    // legacy role 列仍为 NOT NULL + CHECK('user','assistant')（role→type 迁移因启动顺序
+    // 未真正重建表），这里按 type 派生一个合法 role 值以满足约束；应用读取一律走 type。
+    const legacyRole = message.type === 'user' ? 'user' : 'assistant';
+
     const params = [
       messageId,
       message.sessionId,
+      legacyRole,
       message.type,
       content,
       compressed ? 1 : 0,
