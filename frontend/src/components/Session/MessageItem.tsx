@@ -1,6 +1,6 @@
 import React, { JSX, useState } from 'react';
 import { format } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+import { zhCN } from 'date-fns/locale';
 import { 
   User, Bot, Terminal, FileText, Search, Code, 
   ChevronDown, ChevronRight, Eye, Edit, Trash,
@@ -228,7 +228,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({ message, isStreaming
                 
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
-                    {format(new Date(message.timestamp), 'HH:mm', { locale: zhTW })}
+                    {format(new Date(message.timestamp), 'HH:mm', { locale: zhCN })}
                   </span>
                   {/* 消息状态指示器 */}
                   <div className="flex items-center">
@@ -264,7 +264,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({ message, isStreaming
                     <CheckCircle className="w-2.5 h-2.5 text-emerald-300" />
                   </div>
                   <span className="text-xs text-blue-300 opacity-80">
-                    {format(new Date(message.timestamp), 'HH:mm', { locale: zhTW })}
+                    {format(new Date(message.timestamp), 'HH:mm', { locale: zhCN })}
                   </span>
                 </div>
                 

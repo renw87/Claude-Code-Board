@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+import { zhCN } from 'date-fns/locale';
 import {
   Briefcase,
   Clock,
@@ -138,8 +138,8 @@ export const WorkItemRow: React.FC<WorkItemRowProps> = ({
             <Calendar className="w-3 h-3 flex-shrink-0" />
             <span className="truncate">
               {workItem.completed_at
-                ? `完成 ${formatDistanceToNow(new Date(workItem.completed_at), { locale: zhTW, addSuffix: true })}`
-                : `创建 ${formatDistanceToNow(new Date(workItem.created_at), { locale: zhTW, addSuffix: true })}`
+                ? `完成 ${formatDistanceToNow(new Date(workItem.completed_at), { locale: zhCN, addSuffix: true })}`
+                : `创建 ${formatDistanceToNow(new Date(workItem.created_at), { locale: zhCN, addSuffix: true })}`
               }
             </span>
           </div>

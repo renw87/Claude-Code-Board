@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+import { zhCN } from 'date-fns/locale';
 import {
   Briefcase,
   Clock,
@@ -221,13 +221,13 @@ export const WorkItemCard: React.FC<WorkItemCardProps> = ({
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             <span>
-              创建于 {formatDistanceToNow(new Date(workItem.created_at), { locale: zhTW, addSuffix: true })}
+              创建于 {formatDistanceToNow(new Date(workItem.created_at), { locale: zhCN, addSuffix: true })}
             </span>
           </div>
           
           {workItem.completed_at && (
             <span className="text-green-600">
-              完成于 {formatDistanceToNow(new Date(workItem.completed_at), { locale: zhTW, addSuffix: true })}
+              完成于 {formatDistanceToNow(new Date(workItem.completed_at), { locale: zhCN, addSuffix: true })}
             </span>
           )}
         </div>

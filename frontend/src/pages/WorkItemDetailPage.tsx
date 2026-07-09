@@ -21,7 +21,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+import { zhCN } from 'date-fns/locale';
 import { useWorkItemStore } from '../stores/workItemStore';
 import { useSessions } from '../hooks/useSessions';
 import { SessionCard } from '../components/Session/SessionCard';
@@ -417,11 +417,11 @@ export const WorkItemDetailPage: React.FC = () => {
                   {/* Meta Info inline */}
                   <span className="text-gray-500 flex items-center gap-1 text-xs">
                     <Calendar className="w-3 h-3" />
-                    创建于 {formatDistanceToNow(new Date(currentWorkItem.created_at), { locale: zhTW, addSuffix: true })}
+                    创建于 {formatDistanceToNow(new Date(currentWorkItem.created_at), { locale: zhCN, addSuffix: true })}
                   </span>
                   {currentWorkItem.completed_at && (
                     <span className="text-green-600 text-xs">
-                      完成于 {formatDistanceToNow(new Date(currentWorkItem.completed_at), { locale: zhTW, addSuffix: true })}
+                      完成于 {formatDistanceToNow(new Date(currentWorkItem.completed_at), { locale: zhCN, addSuffix: true })}
                     </span>
                   )}
                 </div>
