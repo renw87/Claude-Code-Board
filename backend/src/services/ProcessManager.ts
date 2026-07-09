@@ -19,12 +19,13 @@ import { getNotificationService } from './NotificationService';
 import { StreamProcessor } from './StreamProcessor';
 import { MessageAccumulator } from './MessageAccumulator';
 import { UnifiedStreamProcessor } from './UnifiedStreamProcessor';
+import { getEnvConfig } from '../config/env.config';
 
 /**
- * ProcessManager - 使用 npx 运行 Claude Code
- * 
+ * ProcessManager - 调用本机 Claude Code 可执行文件
+ *
  * 主要特点：
- * 1. 使用 npx 运行最新版 Claude Code
+ * 1. 通过 CLAUDE_EXECUTABLE（默认 claude）调用本机已安装的 Claude Code
  * 2. 使用 --output-format=stream-json 解析结构化输出
  * 3. 避免 Windows spawn 问题
  * 4. 支持多文件夹多 session
@@ -39,9 +40,12 @@ export class ProcessManager extends EventEmitter {
   private unifiedProcessors: Map<string, UnifiedStreamProcessor> = new Map();
   private useStreamMode: boolean = true; // 切换串流模式
   private useUnifiedProcessor: boolean = true; // 使用统一处理器
-  
+
+  // 本机 Claude Code 可执行文件：来自 CLAUDE_EXECUTABLE，默认 'claude'（PATH 查找）
+  private readonly claudeExecutable: string = getEnvConfig().claude.executable;
+
   private config: ClaudeCodeConfig = {
-    executablePath: 'npx',
+    executablePath: this.claudeExecutable,
     defaultTimeout: 3600000, // 60 分钟
     maxConcurrentProcesses: 10,
     healthCheckInterval: 30000, // 30 秒
@@ -185,17 +189,17 @@ export class ProcessManager extends EventEmitter {
     // 1. 优先检查当前 session 是否已有 Claude session ID（同个对话继续）
     if (session.claudeSessionId) {
       logger.info(`Continuing same conversation with Claude session ID: ${session.claudeSessionId}`);
-      claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')} --resume=${session.claudeSessionId}`;
+      claudeCommand = `${this.claudeExecutable} ${baseFlags.join(' ')} --resume=${session.claudeSessionId}`;
     }
     // 2. 检查是否要延续最近的对话（使用 --continue）
     else if (session.continueChat) {
       logger.info(`Continuing most recent conversation using --continue`);
-      claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')} --continue`;
+      claudeCommand = `${this.claudeExecutable} ${baseFlags.join(' ')} --continue`;
     }
     // 3. 全新对话
     else {
       logger.info(`Starting new conversation`);
-      claudeCommand = `npx -y @anthropic-ai/claude-code@latest ${baseFlags.join(' ')}`;
+      claudeCommand = `${this.claudeExecutable} ${baseFlags.join(' ')}`;
     }
     
     if (session.dangerouslySkipPermissions) {

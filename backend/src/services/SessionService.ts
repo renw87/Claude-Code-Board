@@ -4,6 +4,7 @@ import { SessionRepository } from "../repositories/SessionRepository";
 import { io } from "../server";
 import { CreateSessionRequest, Session, SessionStatus } from "../types/session.types";
 import { logger } from "../utils/logger";
+import { getEnvConfig } from "../config/env.config";
 import { agentPromptService } from "./AgentPromptService";
 import { ProcessManager } from "./ProcessManager";
 
@@ -19,7 +20,7 @@ export class SessionService {
       logger.info("Using shared ProcessManager instance");
     } else {
       this.processManager = new ProcessManager(true);
-      logger.info("ProcessManager initialized (npx mode)");
+      logger.info(`ProcessManager initialized (claude executable: ${getEnvConfig().claude.executable})`);
       // 监听进程事件
       this.setupProcessEventListeners();
     }
