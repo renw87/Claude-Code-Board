@@ -177,20 +177,20 @@ export class ServiceInspectorService {
     }
   }
 
-  /** 获取 Nginx 聚合配置（nginx -T）。 */
+  /** 获取 Nginx 聚合配置（sudo nginx -T）。 */
   async getNginxConfig(): Promise<ProbeResult<NginxConfig>> {
     try {
       // 先获取配置路径
       let configPath = '/etc/nginx/nginx.conf';
       try {
-        const { stdout: v } = await execFileAsync('nginx', ['-V'], { timeout: 10000, maxBuffer: 1024 * 1024 });
+        const { stdout: v } = await execFileAsync('sudo', ['nginx', '-V'], { timeout: 10000, maxBuffer: 1024 * 1024 });
         const m = v.match(/--conf-path=(\S+)/);
         if (m) configPath = m[1];
       } catch {
-        // nginx -V 失败，用默认路径
+        // sudo nginx -V 失败，用默认路径
       }
 
-      const { stdout } = await execFileAsync('nginx', ['-T'], { timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
+      const { stdout } = await execFileAsync('sudo', ['nginx', '-T'], { timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
       const files = this.extractNginxFiles(stdout);
       return { available: true, data: { configPath, rawText: stdout, files }, error: null };
     } catch (e) {
