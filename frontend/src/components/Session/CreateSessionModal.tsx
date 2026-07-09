@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, MessageSquare, Code, ShieldOff, Workflow, Briefcase } from 'lucide-react';
 import { useSessions } from '../../hooks/useSessions';
 import { useSettings } from '../../hooks/useSettings';
@@ -37,10 +37,29 @@ export const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
   const [workflowStages, setWorkflowStages] = useState<WorkflowStage[]>([]);
   const [selectedStage, setSelectedStage] = useState<WorkflowStage | null>(null);
   
-  const { createSession } = useSessions();
+  const { createSession, sessions } = useSessions();
   const { commonPaths } = useSettings();
   const { workItems, fetchWorkItems } = useWorkItemStore();
   const { activeTemplates } = useTaskTemplates();
+
+  // 已有项目路径：从已有会话的 workingDir 去重（过滤 Windows 路径），
+  // 合并 commonPaths，按出现频次降序。用于创建会话时快速选择。
+  const existingPaths = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of sessions) {
+      const p = s.workingDir?.trim();
+      if (!p || !p.startsWith('/')) continue; // 只保留 Linux 绝对路径
+      counts.set(p, (counts.get(p) || 0) + 1);
+    }
+    for (const cp of commonPaths) {
+      const p = cp.path?.trim();
+      if (!p || !p.startsWith('/')) continue;
+      if (!counts.has(p)) counts.set(p, 0);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([p]) => p);
+  }, [sessions, commonPaths]);
   
   // 移除不再使用的 continuableSessions（现在使用 --continue 参数）
 
@@ -237,11 +256,11 @@ export const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
                         <label htmlFor="workingDir" className="text-sm font-medium text-gray-700">
                           工作目录 *
                         </label>
-                        <span className="text-xs text-gray-500">从常用路径选择或直接输入</span>
+                        <span className="text-xs text-gray-500">从已有项目路径选择或直接输入</span>
                       </div>
 
-                      {/* 常用路径快速选择 */}
-                      {commonPaths.length > 0 && (
+                      {/* 已有项目路径快速选择 */}
+                      {existingPaths.length > 0 && (
                         <select
                           onChange={(e) => {
                             if (e.target.value) {
@@ -251,12 +270,12 @@ export const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
                           value=""
                           className="w-full px-3 py-2 glass-ultra border border-white/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 backdrop-blur-sm bg-white/10 text-sm mb-2"
                         >
-                          <option value="">-- 选择常用路径 --</option>
-                          {commonPaths.map((pathOption) => {
-                            const iconEmoji = pathOption.icon === 'Home' ? '🏠' : pathOption.icon === 'Code' ? '💻' : '📁';
+                          <option value="">-- 选择已有项目路径 --</option>
+                          {existingPaths.map((p) => {
+                            const label = p.split('/').filter(Boolean).pop() || p;
                             return (
-                              <option key={pathOption.id} value={pathOption.path}>
-                                {iconEmoji} {pathOption.label}
+                              <option key={p} value={p}>
+                                📁 {label} — {p}
                               </option>
                             );
                           })}
@@ -270,7 +289,7 @@ export const CreateSessionModal: React.FC<CreateSessionModalProps> = ({
                         name="workingDir"
                         value={formData.workingDir}
                         onChange={handleInputChange}
-                        placeholder="例如：C:\Projects\MyApp"
+                        placeholder="例如：/home/sandboxadm/Documents/MyProject"
                         className="w-full px-3 py-2 glass-ultra border border-white/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 backdrop-blur-sm bg-white/10"
                         required
                       />
