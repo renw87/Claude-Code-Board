@@ -252,7 +252,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
           )}
 
           {isCollapsed ? (
-            <Tooltip content="服务与 Nginx" side="right">
+            <Tooltip content="服务管理" side="right">
               <Link
                 to="/services"
                 className={cn(
@@ -277,7 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
             >
               <div className="flex items-center space-x-3">
                 <Server className="w-5 h-5 text-current transition-transform group-hover:scale-110" />
-                <span className="font-medium">服务与 Nginx</span>
+                <span className="font-medium">服务管理</span>
               </div>
             </Link>
           )}
