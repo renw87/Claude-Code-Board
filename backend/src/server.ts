@@ -181,6 +181,10 @@ async function startServer() {
     // Task Template routes (需要认证)
     const taskTemplateRouter = (await import('./routes/taskTemplate.routes')).default;
 
+    // Service & Nginx inspection routes (只读，auth 保护)
+    const { serviceRouter } = await import('./routes/service.routes');
+    const { nginxRouter } = await import('./routes/nginx.routes');
+
     // Session routes (需要认证)
     const { authMiddleware } = await import('./middleware/auth.middleware');
     app.use('/api/sessions', authMiddleware, sessionRouter);
@@ -191,7 +195,9 @@ async function startServer() {
     app.use('/api/work-items', authMiddleware, workItemRouter);
     app.use('/api/agent-prompts', authMiddleware, agentPromptsRouter);
     app.use('/api/task-templates', authMiddleware, taskTemplateRouter);
-    
+    app.use('/api/services', authMiddleware, serviceRouter);
+    app.use('/api/nginx', authMiddleware, nginxRouter);
+
     logger.info('Routes initialized successfully');
 
     // Start HTTP server

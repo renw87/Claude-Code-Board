@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, 
+import {
+  Home,
   Plus,
   Settings,
   LogOut,
@@ -9,7 +9,8 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
-  FileText
+  FileText,
+  Server
 } from 'lucide-react';
 import { useSessions } from '../../hooks/useSessions';
 import { cn } from '../../utils';
@@ -246,6 +247,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCreateSession }) => {
               <div className="flex items-center space-x-3">
                 <FileText className="w-5 h-5 text-current transition-transform group-hover:scale-110" />
                 <span className="font-medium">Agent 提示词</span>
+              </div>
+            </Link>
+          )}
+
+          {isCollapsed ? (
+            <Tooltip content="服务与 Nginx" side="right">
+              <Link
+                to="/services"
+                className={cn(
+                  'flex items-center justify-center p-2.5 rounded-lg text-sm font-medium transition-all duration-200 group mx-1',
+                  location.pathname === '/services'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-soft-lg backdrop-blur-sm border border-blue-400/30'
+                    : 'text-gray-600 hover:bg-white/40 hover:shadow-soft-md hover:backdrop-blur-sm hover:border hover:border-white/40 hover:text-gray-800'
+                )}
+              >
+                <Server className="w-4 h-4 text-current transition-transform group-hover:scale-110" />
+              </Link>
+            </Tooltip>
+          ) : (
+            <Link
+              to="/services"
+              className={cn(
+                'flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group',
+                location.pathname === '/services'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-soft-lg backdrop-blur-sm border border-blue-400/30'
+                  : 'text-gray-600 hover:bg-white/40 hover:shadow-soft-md hover:backdrop-blur-sm hover:border hover:border-white/40 hover:text-gray-800'
+              )}
+            >
+              <div className="flex items-center space-x-3">
+                <Server className="w-5 h-5 text-current transition-transform group-hover:scale-110" />
+                <span className="font-medium">服务与 Nginx</span>
               </div>
             </Link>
           )}
